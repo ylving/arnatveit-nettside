@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import Innhold from '../components/portable/Innhold.astro';
+import InfoCards from '../components/InfoCards.astro';
+import { load } from '../lib/sanity';
+import { SIDE, SIDE_PATHS } from '../lib/queries';
+
+export async function getStaticPaths() {
+  const sider = await load<{ slug: string; seksjon: string }[]>(SIDE_PATHS);
+  return sider.map(({ slug, seksjon }) => ({
+    params: { slug: seksjon === 'praktisk-info' ? `praktisk-info/${slug}` : slug },
+    props: { slug },
+  }));
+}
+
+const { slug } = Astro.props;
+const [side, kontakt] = await Promise.all([load<any>(SIDE, { slug }), load<any>(`*[_id == "innstillinger"][0].kontakt`)]);
+---
+<Base title={side.seo?.tittel ?? side.tittel} description={side.seo?.beskrivelse ?? side.ingress}>
+  <div class="container">
+    <header class="page-head">
+      {side.seksjon === 'praktisk-info' && <nav class="breadcrumb" aria-label="Brødsmuler"><a href="/praktisk-info">Praktisk info</a></nav>}
+      <h1>{side.tittel}</h1>
+      {side.ingress && <p class="ingress">{side.ingress}</p>}
+    </header>
+    {side.barn?.length > 0 && <div class="children"><InfoCards sider={side.barn} /></div>}
+    {side.innhold?.length > 0 && <div class="prose"><Innhold value={side.innhold} kontakt={kontakt} /></div>}
+  </div>
+</Base>
+<style>
+  .children { padding-bottom: clamp(56px, 8vw, 112px); }
+</style>

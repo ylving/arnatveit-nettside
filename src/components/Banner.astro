@@ -1,0 +1,18 @@
+---
+import { linkHref, type Link } from '../lib/urls';
+interface Props { tekst?: string; lenke?: Link }
+const { tekst, lenke } = Astro.props;
+const href = linkHref(lenke);
+---
+<div class="banner">
+  <div class="container inner">
+    <span class="tag">Nytt</span>
+    <span>{tekst}{href && <> <a href={href} class="text-link">{lenke?.tekst}</a></>}</span>
+  </div>
+</div>
+<style>
+  .banner { background: var(--accent-soft); font-size: 15px; line-height: 1.45; }
+  .inner { display: flex; align-items: center; justify-content: center; gap: 12px; padding-block: 14px; }
+  .tag { background: var(--accent); color: #fff; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
+  @media (max-width: 640px) { .inner { justify-content: flex-start; font-size: 14px; } .tag { display: none; } }
+</style>

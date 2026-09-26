@@ -1,0 +1,5 @@
+---
+import { linkHref } from '../../lib/urls';
+const { node } = Astro.props;
+---
+<p><a class="btn btn--primary" href={linkHref(node.lenke)}>{node.lenke?.tekst}</a></p>

@@ -1,0 +1,14 @@
+---
+import { PortableText } from 'astro-portabletext';
+import Link from './Link.astro';
+const { node } = Astro.props;
+---
+<aside class="box">
+  {node.tittel && <h3>{node.tittel}</h3>}
+  <PortableText value={node.tekst ?? []} components={{ mark: { link: Link } }} />
+</aside>
+<style>
+  .box { background: var(--accent-soft); border-radius: var(--radius-lg); padding: clamp(22px, 3vw, 32px); margin: 1.6em 0; }
+  h3 { margin: 0 0 12px !important; }
+  .box :global(p + p) { margin-top: 0.8em; }
+</style>

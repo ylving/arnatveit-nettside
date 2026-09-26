@@ -1,0 +1,32 @@
+---
+import Icon from '../Icon.astro';
+const { node } = Astro.props;
+const medlemmer = node.utvalg?.medlemmer ?? [];
+const tel = (t: string) => `tel:+47${t.replace(/\s/g, '')}`;
+---
+{medlemmer.length > 0 && (
+  <ul class="members">
+    {medlemmer.map((m: any) => (
+      <li>
+        <span class="name">{m.navn}</span>
+        {(m.rolle || m.tun) && <span class="role">{[m.rolle, m.tun].filter(Boolean).join(' · ')}</span>}
+        {(m.telefon || m.epost) && (
+          <span class="contact">
+            {m.telefon && <a href={tel(m.telefon)}><Icon name="phone" size={16} />{m.telefon}</a>}
+            {m.epost && <a href={`mailto:${m.epost}`}><Icon name="mail" size={16} />{m.epost}</a>}
+          </span>
+        )}
+      </li>
+    ))}
+  </ul>
+)}
+<style>
+  .members { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; }
+  .name { font-family: var(--serif); font-size: 21px; }
+  .role { font-size: 14px; color: var(--muted); }
+  .contact { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; font-size: 15px; }
+  .contact a { display: inline-flex; align-items: center; gap: 8px; color: var(--ink) !important; text-decoration: none !important; word-break: break-all; }
+  .contact a:hover { color: var(--accent) !important; }
+  .contact :global(svg) { color: var(--accent); flex-shrink: 0; }
+</style>

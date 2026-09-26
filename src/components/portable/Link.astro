@@ -1,0 +1,8 @@
+---
+import { docHref } from '../../lib/urls';
+const { node } = Astro.props;
+const raw = node.markDef?.href;
+const href = typeof raw === 'string' ? raw : docHref(raw);
+const external = href?.startsWith('http');
+---
+<a href={href} {...(external && { rel: 'noopener' })}><slot /></a>

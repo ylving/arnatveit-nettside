@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import Innhold from '../../components/portable/Innhold.astro';
+import Dokumentliste from '../../components/portable/Dokumentliste.astro';
+import { load } from '../../lib/sanity';
+import { DOKUMENT, INNHOLD } from '../../lib/queries';
+import { formatDate } from '../../lib/urls';
+
+export async function getStaticPaths() {
+  const slugs = await load<string[]>(`*[_type == "nyhet" && defined(slug.current)].slug.current`);
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+const n = await load<any>(`*[_type == "nyhet" && slug.current == $slug][0]{ tittel, dato, merkelapp, ingress, seo, ${INNHOLD}, "dokumenter": dokumenter[]->${DOKUMENT} }`, { slug: Astro.params.slug });
+---
+<Base title={n.seo?.tittel ?? n.tittel} description={n.seo?.beskrivelse ?? n.ingress}>
+  <div class="container">
+    <header class="page-head">
+      <nav class="breadcrumb" aria-label="Brødsmuler"><a href="/aktuelt">Aktuelt</a> · {[formatDate(n.dato), n.merkelapp].filter(Boolean).join(' · ')}</nav>
+      <h1>{n.tittel}</h1>
+      {n.ingress && <p class="ingress">{n.ingress}</p>}
+    </header>
+    <div class="prose">
+      {n.innhold && <Innhold value={n.innhold} />}
+      {n.dokumenter?.length > 0 && <Dokumentliste node={{ tittel: 'Dokumenter', dokumenter: n.dokumenter, kategori: { sortering: 'tittel' } }} />}
+    </div>
+  </div>
+</Base>

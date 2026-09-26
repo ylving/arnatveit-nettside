@@ -1,0 +1,35 @@
+---
+import Icon from '../Icon.astro';
+const { node } = Astro.props;
+const k = node.kontakt ?? {};
+const rows = [
+  ['Kontaktperson', k.kontaktperson],
+  ['Postadresse', k.postadresse],
+  ['Besøksadresse', k.besoksadresse],
+  ['Fakturaadresse', k.fakturaadresse && `${k.fakturaadresse}${k.fakturaEpost ? `\n${k.fakturaEpost}` : ''}`],
+].filter(([, v]) => v);
+---
+<section class="contact">
+  {k.epost && (
+    <a class="mail" href={`mailto:${k.epost}`}>
+      <span class="ic"><Icon name="mail" size={22} /></span>
+      <span><span class="label">E-post styret</span><span class="val">{k.epost}</span></span>
+    </a>
+  )}
+  <div class="grid">
+    {rows.map(([label, val]) => <div class="card"><span class="label">{label}</span><span class="val">{val}</span></div>)}
+  </div>
+  {node.visKart && k.kartlenke && <a class="btn" href={k.kartlenke} rel="noopener"><Icon name="map" size={18} />Vis kart</a>}
+</section>
+<style>
+  .contact { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; margin-top: 2em; }
+  .mail { display: flex; gap: 16px; align-items: center; background: var(--accent); color: #fff !important; text-decoration: none !important; border-radius: var(--radius-lg); padding: 22px 26px; width: 100%; }
+  .mail .ic { width: 48px; height: 48px; border-radius: 14px; background: rgba(255, 255, 255, 0.14); display: grid; place-items: center; flex-shrink: 0; }
+  .mail .label { color: var(--accent-on); }
+  .mail .val { font-family: var(--serif); font-size: clamp(19px, 2.4vw, 24px); word-break: break-word; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; width: 100%; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+  .label { display: block; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .val { display: block; white-space: pre-line; }
+  .btn { text-decoration: none !important; color: var(--ink) !important; }
+</style>

@@ -1,0 +1,13 @@
+---
+import { createImageUrlBuilder } from '@sanity/image-url';
+import { sanityClient } from 'sanity:client';
+const { node } = Astro.props;
+const builder = createImageUrlBuilder(sanityClient);
+const src = (w: number) => builder.image(node).width(w).auto('format').url();
+---
+{node.asset && (
+  <figure>
+    <img src={src(1200)} srcset={`${src(600)} 600w, ${src(1200)} 1200w, ${src(1800)} 1800w`} sizes="(max-width: 800px) 100vw, 72ch" alt={node.alt ?? ''} loading="lazy" style="border-radius: var(--radius); width: 100%; height: auto" />
+    {node.bildetekst && <figcaption style="font-size: 14px; color: var(--muted); margin-top: 8px">{node.bildetekst}</figcaption>}
+  </figure>
+)}
