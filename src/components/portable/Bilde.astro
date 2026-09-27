@@ -1,9 +1,7 @@
 ---
-import { createImageUrlBuilder } from '@sanity/image-url';
-import { sanityClient } from 'sanity:client';
+import { urlFor } from '../../lib/sanity';
 const { node } = Astro.props;
-const builder = createImageUrlBuilder(sanityClient);
-const src = (w: number) => builder.image(node).width(w).auto('format').url();
+const src = (w: number) => urlFor(node).width(w).url();
 ---
 {node.asset && (
   <figure>

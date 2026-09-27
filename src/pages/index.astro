@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import InfoCards from '../components/InfoCards.astro';
 import Illustrasjon from '../components/Illustrasjon.astro';
-import { load } from '../lib/sanity';
+import { load, urlFor } from '../lib/sanity';
 import { DOC_REF, DOKUMENT, LINK } from '../lib/queries';
 import { docHref, linkHref } from '../lib/urls';
 
@@ -22,6 +22,8 @@ const data = await load<any>(`{
 const { forside: f, nyhet, abc, praktisk, gf, abcSide, piSide } = data;
 const pdf = nyhet?.dokumenter?.[0];
 const abcMonth = abc?.tittel?.replace(/^ABC-nytt\s*/i, '');
+// Hero image cropped to the illustration's 14:11 frame (hotspot decides the crop)
+const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 11) / 14)).fit('crop').url();
 ---
 <Base description={f.seo?.beskrivelse}>
   <section class="container hero">
@@ -36,7 +38,20 @@ const abcMonth = abc?.tittel?.replace(/^ABC-nytt\s*/i, '');
       </div>
     </div>
     <div class="hero-art">
-      <Illustrasjon />
+      {f.bilde?.asset ? (
+        <img
+          class="hero-img"
+          src={heroSrc(1120)}
+          srcset={[560, 840, 1120, 1680].map((w) => `${heroSrc(w)} ${w}w`).join(', ')}
+          sizes="(max-width: 960px) calc(100vw - 2 * var(--gutter)), 560px"
+          width="560"
+          height="440"
+          alt={f.bilde.alt ?? ''}
+          fetchpriority="high"
+        />
+      ) : (
+        <Illustrasjon />
+      )}
       {f.infokort?.tittel && (
         <div class="float">
           <span class="ic"><Icon name="train" size={22} /></span>
@@ -126,6 +141,7 @@ const abcMonth = abc?.tittel?.replace(/^ABC-nytt\s*/i, '');
   .lead { margin: 0; font-size: clamp(17px, 1.4vw, 19px); color: var(--ink-2); max-width: 520px; }
   .actions { display: flex; flex-wrap: wrap; gap: 12px; }
   .hero-art { position: relative; }
+  .hero-img { width: 100%; height: auto; aspect-ratio: 14 / 11; object-fit: cover; border-radius: var(--radius-lg); background: var(--accent-soft); }
   .float { position: absolute; left: -32px; bottom: -28px; background: var(--surface); border-radius: 18px; padding: 18px 22px; display: flex; align-items: center; gap: 14px; box-shadow: 0 12px 32px rgba(29, 36, 32, 0.12); }
   .float .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
   .float strong { display: block; font-size: 16px; }

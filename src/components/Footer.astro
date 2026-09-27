@@ -1,5 +1,6 @@
 ---
 import { docHref } from '../lib/urls';
+import LogoMark from '../assets/brand/arnatveit-logo-on-dark.svg';
 const { innstillinger } = Astro.props;
 const { navn, beskrivelse, kontakt, praktiskInfo = [] } = innstillinger;
 ---
@@ -7,7 +8,7 @@ const { navn, beskrivelse, kontakt, praktiskInfo = [] } = innstillinger;
   <div class="container">
     <div class="grid">
       <div class="about">
-        <span class="name">{navn}</span>
+        <span class="name"><LogoMark class="mark" aria-hidden="true" />{navn}</span>
         {beskrivelse && <p>{beskrivelse}</p>}
       </div>
       <div class="col">
@@ -27,7 +28,8 @@ const { navn, beskrivelse, kontakt, praktiskInfo = [] } = innstillinger;
 <style>
   .site-footer { background: var(--footer-bg); color: var(--footer-ink); padding-block: clamp(40px, 5vw, 64px) 40px; margin-top: auto; }
   .grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; }
-  .name { font-family: var(--serif); font-size: clamp(24px, 2.2vw, 28px); color: #fff; }
+  .name { display: flex; align-items: center; gap: 14px; font-family: var(--serif); font-size: clamp(24px, 2.2vw, 28px); font-weight: 600; color: #fff; }
+  .name :global(.mark) { height: 44px; width: auto; flex-shrink: 0; }
   .about p { margin: 14px 0 0; font-size: 15px; color: #b9b4aa; max-width: 380px; }
   .col { display: flex; flex-direction: column; gap: 12px; font-size: 15px; }
   .head { font-weight: 600; color: #fff; }

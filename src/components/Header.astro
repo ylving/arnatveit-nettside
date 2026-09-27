@@ -1,17 +1,21 @@
 ---
-import Logo from './Logo.astro';
+import LogoMark from '../assets/brand/arnatveit-logo.svg';
 import Icon from './Icon.astro';
 import { linkHref, type Link } from '../lib/urls';
+import { MENY_BRYTEPUNKT } from '../../sanity/standarder';
 
-interface Props { navn: string; meny: Link[] }
-const { navn, meny = [] } = Astro.props;
+interface Props { navn: string; meny: Link[]; brytepunkt?: number }
+const { navn, meny = [], brytepunkt } = Astro.props;
+// Hamburger below this width. From Innstillinger (validated 600–1600 in Studio), else the default.
+const bp = Number.isInteger(brytepunkt) && brytepunkt! >= 600 && brytepunkt! <= 1600 ? brytepunkt! : MENY_BRYTEPUNKT;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const items = [{ tekst: 'Forside', href: '/' }, ...meny.map((l) => ({ tekst: l?.tekst, href: linkHref(l) }))];
-const isCurrent = (href?: string) => (href === '/' ? path === '/' : !!href && (path === href || path.startsWith(`${href}/`)));
+// No "Forside" item — the logo links home
+const items = meny.map((l) => ({ tekst: l?.tekst, href: linkHref(l) }));
+const isCurrent = (href?: string) => !!href && (path === href || path.startsWith(`${href}/`));
 ---
 <header class="site-header">
   <div class="container bar">
-    <a href="/" class="brand"><Logo /><span>{navn}</span></a>
+    <a href="/" class="brand" aria-current={path === '/' ? 'page' : undefined}><LogoMark class="mark" aria-hidden="true" /><span>{navn}</span></a>
     <button type="button" class="menu-btn" aria-expanded="false" aria-controls="hovedmeny">
       <span class="open"><Icon name="menu" /></span><span class="shut"><Icon name="close" /></span>
       <span class="visually-hidden">Meny</span>
@@ -33,27 +37,36 @@ const isCurrent = (href?: string) => (href === '/' ? path === '/' : !!href && (p
   });
 </script>
 
-<style>
+<style is:inline set:html={`
   .site-header { border-bottom: 1px solid var(--line); background: var(--bg); position: relative; z-index: 10; }
-  .bar { display: flex; align-items: center; justify-content: space-between; min-height: 88px; gap: 24px; }
-  .brand { display: flex; align-items: center; gap: 12px; font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
-  nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 36px; font-weight: 500; font-size: 16px; }
-  nav a[aria-current='page'] { color: var(--accent); text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
-  .menu-btn { display: none; }
+  .site-header .bar { display: flex; align-items: center; justify-content: space-between; min-height: 88px; gap: 24px; }
+  .site-header .brand { display: flex; align-items: center; gap: 12px; font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+  .site-header .mark { height: 40px; width: auto; flex-shrink: 0; }
+  .site-header nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 36px; font-weight: 500; font-size: 16px; }
+  .site-header nav a { white-space: nowrap; }
+  .site-header nav a[aria-current='page'] { color: var(--accent); text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
+  .site-header .menu-btn { display: none; }
 
-  @media (max-width: 960px) {
-    .bar { min-height: 68px; }
-    .brand { font-size: 18px; }
-    .brand :global(svg) { width: 34px; height: 34px; }
-    .menu-btn {
-      display: flex; align-items: center; justify-content: center; width: 44px; height: 44px;
+  @media (width < ${bp}px) {
+    .site-header .bar { min-height: 68px; }
+    .site-header .brand { font-size: 18px; }
+    .site-header .mark { height: 32px; }
+    .site-header .menu-btn {
+      display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;
       border: 1px solid var(--line); background: var(--surface); border-radius: 12px; color: var(--ink); cursor: pointer;
     }
-    .menu-btn .shut, .menu-btn[aria-expanded='true'] .open { display: none; }
-    .menu-btn[aria-expanded='true'] .shut { display: block; }
-    nav { display: none; position: absolute; inset: 100% 0 auto; background: var(--bg); border-bottom: 1px solid var(--line); padding: 8px var(--gutter) 24px; }
-    :global(.menu-open) nav { display: block; }
-    nav ul { flex-direction: column; gap: 0; font-size: 18px; }
-    nav a { display: block; padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
+    .site-header .menu-btn .shut, .site-header .menu-btn[aria-expanded='true'] .open { display: none; }
+    .site-header .menu-btn[aria-expanded='true'] .shut { display: block; }
+    .site-header nav { display: none; position: absolute; inset: 100% 0 auto; background: var(--bg); border-bottom: 1px solid var(--line); padding: 8px var(--gutter) 24px; }
+    .menu-open .site-header nav { display: block; }
+    .site-header nav ul { flex-direction: column; gap: 0; font-size: 18px; }
+    .site-header nav a { display: block; padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
   }
-</style>
+
+  /* Narrowest phones: keep the wordmark on one line */
+  @media (width < 360px) {
+    .site-header .bar { gap: 16px; }
+    .site-header .brand { font-size: 16px; gap: 10px; }
+    .site-header .mark { height: 28px; }
+  }
+`} />

@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 2 60 60" role="img" aria-label="Arnatveit Borettslag">
-  <rect x="2" y="2" width="60" height="60" rx="16" fill="#2F5D4E"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Arnatveit Borettslag">
+  <rect width="64" height="64" fill="#2F5D4E"/>
   <circle cx="46" cy="14" r="4" fill="#E0A458"/>
   <g transform="translate(8.32 11.69) scale(0.74)" fill="#F6F3EC">
     <path d="M6 49V32L10 28V21H14V24L18 20L19.95 21.95L15.949 25.949A2.9 2.9 0 0 0 15.1 28V49Z"/>

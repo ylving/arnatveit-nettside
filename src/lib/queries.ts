@@ -20,7 +20,7 @@ export const INNHOLD = `innhold[]{
 }`;
 
 export const INNSTILLINGER = `*[_id == "innstillinger"][0]{
-  navn, beskrivelse, kontakt,
+  navn, beskrivelse, kontakt, menyBrytepunkt,
   "hovedmeny": hovedmeny[]${LINK},
   banner{ aktiv, tekst, "lenke": lenke${LINK} },
   "praktiskInfo": *[_type == "side" && seksjon == "praktisk-info"] | order(rekkefolge asc){ tittel, "slug": slug.current, seksjon, _type }

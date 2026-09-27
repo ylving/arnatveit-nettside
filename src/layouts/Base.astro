@@ -20,14 +20,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{fullTitle}</title>
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:locale" content="nb_NO" />
     <meta name="theme-color" content="#2F5D4E" />
   </head>
   <body>
     <a class="visually-hidden skip" href="#innhold">Hopp til innhold</a>
-    <Header navn={innstillinger.navn} meny={innstillinger.hovedmeny} />
+    <Header navn={innstillinger.navn} meny={innstillinger.hovedmeny} brytepunkt={innstillinger.menyBrytepunkt} />
     {innstillinger.banner?.aktiv && <Banner {...innstillinger.banner} />}
     <main id="innhold"><slot /></main>
     <Footer innstillinger={innstillinger} />

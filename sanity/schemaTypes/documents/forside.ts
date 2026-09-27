@@ -10,6 +10,12 @@ export const forside = defineType({
     defineField({ name: 'ingress', title: 'Ingress', type: 'text', rows: 3 }),
     defineField({ name: 'knapper', title: 'Knapper', type: 'array', of: [{ type: 'lenke' }], validation: (r) => r.max(2) }),
     defineField({
+      name: 'bilde',
+      title: 'Toppbilde',
+      description: 'Erstatter illustrasjonen øverst på forsiden. Vises i format ca. 14:11 – bruk hotspot for å velge hva som alltid skal synes. La stå tomt for å vise illustrasjonen.',
+      type: 'bilde',
+    }),
+    defineField({
       name: 'infokort',
       title: 'Infokort i toppen',
       type: 'object',
