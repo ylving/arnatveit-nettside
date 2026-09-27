@@ -1,5 +1,6 @@
 // Hand-curated content from the old site (verbatim text, obvious typos fixed — see docs/MIGRATION.md).
 // Everything uses deterministic _ids so the import can be re-run safely.
+import { tilSeksjoner } from './seksjoner-lib.mjs';
 
 let n = 0;
 const key = () => `k${(n++).toString(36)}`;
@@ -42,11 +43,17 @@ export const KATEGORIER = [
 ];
 
 // `forelder` = parent page id suffix; null for a top-level page. Most migrated pages live under Praktisk info.
-const side = (id, tittel, { forelder = 'praktisk-info', ikon, kort, rekkefolge = 100, ingress, innhold = [], gamleUrler = [] }) => ({
-  _id: `side-${id}`, _type: 'side', tittel, slug: slug(id), ...(forelder && { forelder: ref(`side-${forelder}`) }), ikon, kort, rekkefolge, ingress, innhold, gamleUrler,
+const side = (id, tittel, { forelder = 'praktisk-info', ikon, kort, rekkefolge = 100, ingress, kontaktboks, innhold = [], gamleUrler = [] }) => ({
+  _id: `side-${id}`, _type: 'side', tittel, slug: slug(id), ...(forelder && { forelder: ref(`side-${forelder}`) }), ikon, kort, rekkefolge, ingress, ...(kontaktboks && { kontaktboks }), innhold, gamleUrler,
 });
 
-const medlem = (navn, rolle, tun, telefon, epost) => ({ _type: 'medlem', _key: key(), navn, rolle, tun, telefon, epost });
+// Pages are stored as sections; the content above is authored as one rich text list per page
+const medSeksjoner = (sider) =>
+  sider.map(({ innhold, ...side }) => ({ ...side, seksjoner: tilSeksjoner(innhold, sider.some((s) => s.forelder?._ref === side._id)) }));
+
+const ansvar = (omraade, beskrivelse, ikon) => ({ _type: 'ansvarsomraade', _key: key(), omraade, beskrivelse, ikon });
+const medlem = (navn, rolle, tun, telefon, epost, kontaktperson = false, ansvarsomraader = [], vara = false) =>
+  ({ _type: 'medlem', _key: key(), navn, rolle, tun, telefon, epost, kontaktperson, vara, ...(ansvarsomraader.length && { ansvar: ansvarsomraader }) });
 
 // `protokoll2026` = _id of the newest GF protocol dokument (resolved by run.mjs)
 export function buildContent({ protokoll2026 }) {
@@ -56,13 +63,13 @@ export function buildContent({ protokoll2026 }) {
     {
       _id: 'utvalg-styret', _type: 'utvalg', navn: 'Styret',
       medlemmer: [
-        medlem('Anders Jordal', 'Styreleder', 'A-tunet', '993 46 090', 'styreleder@arnatveit-borettslag.no'),
-        medlem('Arild Angelskår', 'Nestleder og byggesaker', 'B-tunet', '901 58 413', 'nestleder@arnatveit-borettslag.no'),
-        medlem('Stian A. Persson', 'Økonomiansvarlig', 'Ekstern', '977 75 994', 'okonomi@arnatveit-borettslag.no'),
-        medlem('Irene Myking', 'ABC-nytt, vara', 'A-tunet', undefined, 'styret@arnatveit-borettslag.no'),
+        medlem('Anders Jordal', 'Styreleder', 'A-tunet', '993 46 090', 'styreleder@arnatveit-borettslag.no', true, [ansvar('Forsikringssaker', 'Skader på bygningene og spørsmål om borettslagets forsikring.', 'Shield')]),
+        medlem('Arild Angelskår', 'Nestleder og byggesaker', 'B-tunet', '901 58 413', 'nestleder@arnatveit-borettslag.no', false, [ansvar('Byggesaker', 'Utbygging, varmepumpe og andre endringer på boligen eller uteområdet.', 'House')]),
+        medlem('Stian A. Persson', 'Økonomiansvarlig', 'Ekstern', '977 75 994', 'okonomi@arnatveit-borettslag.no', false, [ansvar('Leverandører', 'Er du leverandør og ønsker kontakt med Arnatveit Borettslag?', 'Briefcase')]),
+        medlem('Irene Myking', 'ABC-nytt', 'A-tunet', undefined, 'styret@arnatveit-borettslag.no', false, [], true),
         medlem('Christer Aarø', 'Webansvarlig', 'B-tunet', '41 16 08 41', 'styret@arnatveit-borettslag.no'),
         medlem('Gro Helen Andersen', 'Dugnadsansvarlig', 'A-tunet', undefined, 'styret@arnatveit-borettslag.no'),
-        medlem('Ann Cicilie Tveiten', 'HMS-ansvarlig, vara', 'C-tunet', undefined, 'styret@arnatveit-borettslag.no'),
+        medlem('Ann Cicilie Tveiten', 'HMS-ansvarlig', 'C-tunet', undefined, 'styret@arnatveit-borettslag.no', false, [], true),
       ],
     },
     {
@@ -78,7 +85,7 @@ export function buildContent({ protokoll2026 }) {
     { _id: 'utvalg-valgkomiteen', _type: 'utvalg', navn: 'Valgkomiteen', beskrivelse: 'For perioden 2025-26', medlemmer: [] },
   ];
 
-  const sider = [
+  const sider = medSeksjoner([
     side('praktisk-info', 'Praktisk info', {
       forelder: null, rekkefolge: 10, gamleUrler: ['/praktiskinfo'],
       ingress: 'Alt du trenger å vite som andelseier, samlet på ett sted.',
@@ -111,17 +118,13 @@ export function buildContent({ protokoll2026 }) {
     }),
     side('styret', 'Styret', {
       ikon: 'Shield', kort: 'Andelseiere fra hvert av lagets tre tun. Se hvem som sitter og hvordan du når dem.', rekkefolge: 30, gamleUrler: ['/praktiskinfo/styret'],
-      ingress: 'Styret i borettslaget består av andelseiere fra hvert av lagets tre tun. I tillegg har Arnatveit Borettslag også et eksternt styremedlem.',
+      ingress: 'Styret består av andelseiere fra alle tre tun, og velges av generalforsamlingen. Finn riktig person nedenfor, eller skriv til hele styret.',
+      kontaktboks: { tittel: 'Skriv til hele styret' },
       innhold: [
+        { _type: 'ansvarsliste', _key: key(), tittel: 'Hvem kontakter jeg?' },
+        { ...medlemsliste('styret'), tittel: 'Styremedlemmer' },
         p('Saker du ønsker at styret skal behandle må sendes skriftlig, minst en uke før oppsatt møte. Du kan enten sende dette til ', ['styret@arnatveit-borettslag.no', 'mailto:styret@arnatveit-borettslag.no'], ', eller legge din henvendelse i vår postkasse i A-tunet.'),
         p('Styremøtene gjennomføres ca. en gang i måneden, og gjennomføres i styrebrakka.'),
-        h2('Styret består av følgende personer'),
-        medlemsliste('styret'),
-        faktaliste('Hvem kontakter jeg?', [
-          ['Byggesaker', 'For spørsmål om byggesaker, kontakt Arild Angelskår, tlf 901 58 413'],
-          ['Forsikringssaker', 'For spørsmål om forsikringssaker, kontakt Anders Jordal, tlf 993 46 090'],
-          ['Kundehenvendelser', 'Er du leverandør, og ønsker kontakt med Arnatveit Borettslag, kontakt Stian Persson, tlf 977 75 994'],
-        ]),
         h2('Kunne du tenkt deg å bli styremedlem?'),
         p('Det er både givende og lærerikt å være med i et borettslagsstyre. Funksjonen er å administrere borettslaget etter de vedtekter og lover som til en hver tid gjelder, samt å sørge for en stabil og forsvarlig økonomi. I tillegg er det også spennende å få være med i ulike prosjekter som gir oss alle et bedre bomiljø. Som styremedlem vil du bli registrert med næringsinteresse i Brønnøysundregisteret.'),
         p('Arnatveit Borettslag har en egen valgkomité med representanter fra hvert tun. Kontakt representanten i ditt tun, dersom du ønsker å melde deg som styremedlem.'),
@@ -181,7 +184,6 @@ export function buildContent({ protokoll2026 }) {
           ['Juridisk navn', 'Arnatveit Borettslag'],
           ['Organisasjonsnummer', '946 024 627'],
           ['Selskapsform', 'Borettslag'],
-          ['Kontaktperson', 'Anders Jordal'],
           ['Stiftelsesdato', '06.11.1984'],
           ['Antall andeler', '79'],
           ['Forretningsfører', 'Bergen og omegn Boligbyggerlag (BOB)'],
@@ -199,7 +201,7 @@ export function buildContent({ protokoll2026 }) {
         p(['Her finner du oversikt over hvem som sitter i styret', '#side-styret'], ' og hvordan de kan kontaktes.'),
       ],
     }),
-  ];
+  ]);
 
   const nyheter = [
     {
@@ -224,7 +226,6 @@ export function buildContent({ protokoll2026 }) {
     banner: { aktiv: true, tekst: 'Generalforsamlingen 2026 ble avholdt 28. mai.', lenke: lenke('Les protokollen', `#${protokoll2026}`) },
     kontakt: {
       epost: 'styret@arnatveit-borettslag.no',
-      kontaktperson: 'Anders Jordal',
       postadresse: 'Arnatveit Borettslag\nc/o BOB\nPostboks 7280\n5020 Bergen',
       besoksadresse: 'Stuajordet 11-185\n5262 Arnatveit',
       fakturaadresse: 'Arnatveit Borettslag\norg.nr.: 946024627\nPostboks 2715\n7439 Trondheim',

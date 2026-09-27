@@ -41,7 +41,6 @@ export const innstillinger = defineType({
       group: 'kontakt',
       fields: [
         defineField({ name: 'epost', title: 'E-post styret', type: 'email' }),
-        defineField({ name: 'kontaktperson', title: 'Kontaktperson', type: 'string' }),
         defineField({ name: 'postadresse', title: 'Postadresse', type: 'text', rows: 3 }),
         defineField({ name: 'besoksadresse', title: 'Besøksadresse', type: 'text', rows: 2 }),
         defineField({ name: 'fakturaadresse', title: 'Fakturaadresse', type: 'text', rows: 4 }),

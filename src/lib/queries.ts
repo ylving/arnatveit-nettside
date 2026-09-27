@@ -19,7 +19,44 @@ export const INNHOLD = `innhold[]{
     "kategori": kategori->{ tittel, sortering },
     "dokumenter": *[_type == "dokument" && kategori._ref == ^.kategori._ref] ${DOKUMENT}
   },
-  _type == "bilde" => { ..., asset-> }
+  _type == "bilde" => { ..., asset-> },
+  // Members with areas of responsibility (all committees, or the one chosen on the section)
+  _type == "ansvarsliste" => {
+    ...,
+    "utvalgMedAnsvar": *[_type == "utvalg" && (!defined(^.utvalg) || _id == ^.utvalg._ref)]{
+      _id,
+      "personer": medlemmer[count(ansvar) > 0]{ _key, navn, rolle, telefon, epost, "ansvar": ansvar[]{ omraade, beskrivelse, ikon } }
+    }[count(personer) > 0]
+  }
+}`;
+
+// Page builder sections (side.seksjoner); same dereferences as INNHOLD, at section level
+export const SEKSJONER = `seksjoner[]{
+  ...,
+  _type == "tekst" => { ..., innhold[]{ ..., ${MARKDEFS} } },
+  _type == "infoboks" => { ..., tekst[]{ ..., ${MARKDEFS} } },
+  _type == "knapper" => { ..., "lenker": lenker[]${LINK} },
+  _type == "medlemsliste" => { ..., "utvalg": utvalg->{ _id, navn, beskrivelse, medlemmer } },
+  _type == "dokumentliste" => {
+    ...,
+    "kategori": kategori->{ tittel, sortering },
+    "dokumenter": *[_type == "dokument" && kategori._ref == ^.kategori._ref] ${DOKUMENT}
+  },
+  _type == "bilde" => { ..., asset-> },
+  // Members with areas of responsibility (all committees, or the one chosen on the section)
+  _type == "ansvarsliste" => {
+    ...,
+    "utvalgMedAnsvar": *[_type == "utvalg" && (!defined(^.utvalg) || _id == ^.utvalg._ref)]{
+      _id,
+      "personer": medlemmer[count(ansvar) > 0]{ _key, navn, rolle, telefon, epost, "ansvar": ansvar[]{ omraade, beskrivelse, ikon } }
+    }[count(personer) > 0]
+  }
+}`;
+
+// Contact details from Innstillinger + the member toggled as "Kontaktperson" under Styre og utvalg
+export const KONTAKT = `*[_id == "innstillinger"][0]{
+  ...kontakt,
+  "kontaktperson": array::compact(*[_type == "utvalg"].medlemmer[kontaktperson == true][0])[0]{ navn, rolle, telefon, epost }
 }`;
 
 export const INNSTILLINGER = `*[_id == "innstillinger"][0]{
@@ -33,7 +70,7 @@ export const INNSTILLINGER = `*[_id == "innstillinger"][0]{
 
 export const SIDE_PATHS = `*[_type == "side" && defined(slug.current)]{ "slug": slug.current, "forelder": forelder->slug.current }`;
 export const SIDE = `*[_type == "side" && slug.current == $slug][0]{
-  _id, tittel, ingress, "slug": slug.current, seo, ${INNHOLD},
+  _id, tittel, ingress, kontaktboks, "slug": slug.current, seo, ${SEKSJONER},
   "forelder": forelder->{ tittel, "slug": slug.current },
   "barn": *[_type == "side" && forelder._ref == ^._id] | order(rekkefolge asc)${SIDE_KORT}
 }`;

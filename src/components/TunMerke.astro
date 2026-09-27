@@ -1,0 +1,18 @@
+---
+// Small house in the tun's colour (the logo's greens); "Ekstern" gets an outline
+const { tun, visTekst = true } = Astro.props;
+const FARGE: Record<string, string> = { 'A-tunet': '#7FA08F', 'B-tunet': '#2F5D4E', 'C-tunet': '#C3D6C9' };
+const farge = FARGE[tun];
+---
+{tun && (
+  <span class="tun">
+    <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2 7.5 8 2l6 5.5V14H2z" fill={farge ?? 'none'} stroke={farge ? 'none' : 'currentColor'} stroke-width="1.4" stroke-linejoin="round"></path>
+    </svg>
+    {visTekst && <span>{tun}</span>}
+  </span>
+)}
+<style>
+  .tun { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+  svg { color: var(--muted); flex-shrink: 0; }
+</style>

@@ -18,4 +18,5 @@ export const linkHref = (l: Link) => (l?.intern ? docHref(l.intern) : l?.url);
 const dateFmt = new Intl.DateTimeFormat('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' });
 export const formatDate = (iso?: string) => (iso ? dateFmt.format(new Date(`${iso}T12:00:00`)) : '');
 
-export const formatSize = (bytes?: number) => (bytes ? `${(bytes / 1e6).toLocaleString('nb-NO', { maximumFractionDigits: 1 })} MB` : '');
+export const formatSize = (bytes?: number) =>
+  !bytes ? '' : bytes < 950_000 ? `${Math.max(1, Math.round(bytes / 1e3))} kB` : `${(bytes / 1e6).toLocaleString('nb-NO', { maximumFractionDigits: 1 })} MB`;

@@ -1,8 +1,9 @@
 // Visual icon picker for `side.ikon`: shows the icons themselves, with search (English names + common Norwegian words)
-import { createElement, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { set, unset, type StringInputProps } from 'sanity';
 import { Box, Button, Card, Dialog, Flex, Grid, Stack, Text, TextInput } from '@sanity/ui';
-import { erIkon, ikonNavn, ikonNode, lesbartNavn } from '../ikoner';
+import { erIkon, ikonNavn, lesbartNavn } from '../ikoner';
+import { IkonSvg } from './LucideIkon';
 import { STANDARD_IKON } from '../standarder';
 
 const MAKS_TREFF = 120;
@@ -37,14 +38,6 @@ export function søk(q: string): string[] {
     const tett = l.replace(/ /g, '');
     return termer.some((t) => l.includes(t) || tett.includes(t.replace(/ /g, '')));
   });
-}
-
-function IkonSvg({ navn, size = 24 }: { navn?: string; size?: number }) {
-  return createElement(
-    'svg',
-    { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
-    ikonNode(navn).map(([tag, attrs], i) => createElement(tag, { key: i, ...attrs })),
-  );
 }
 
 export function IkonVelger(props: StringInputProps) {

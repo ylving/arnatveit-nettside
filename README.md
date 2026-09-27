@@ -15,7 +15,8 @@ Astro (static) + Sanity, deployed as a Cloudflare Worker with static assets. San
 | `npm run preview` | `wrangler dev` against `dist/` (tests `_redirects` and the 404 page) |
 | `npm run deploy` | Build + `wrangler deploy` |
 | `node --env-file=.env scripts/migrate/run.mjs --dry` | Build import from old site, validate, no writes |
-| `node --env-file=.env scripts/migrate/run.mjs` | Upload PDFs + write all documents to Sanity (idempotent) |
+| `node --env-file=.env scripts/migrate/run.mjs` | Upload PDFs + write all documents to Sanity. ⚠️ Overwrites edits made in the Studio: initial import only |
+| `npm run typecheck` | Type-check Studio code (schemas, custom inputs) |
 
 ## Publishing
 Content is fetched at build time. Publishing in the Studio → a Sanity webhook triggers a Cloudflare Workers Builds deploy hook → rebuild (about 1 min).

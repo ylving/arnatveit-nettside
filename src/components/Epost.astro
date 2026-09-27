@@ -1,0 +1,12 @@
+---
+// An email address that wraps readably: only after "@", with the domain kept together
+// ("styreleder@" / "arnatveit-borettslag.no"). <wbr> adds no characters, so copying gives the exact address.
+const { adresse = '' } = Astro.props;
+const at = adresse.indexOf('@');
+---
+{at < 0 ? adresse : <span class="epost">{adresse.slice(0, at + 1)}<wbr /><span class="domene">{adresse.slice(at + 1)}</span></span>}
+<style>
+  /* Last resort for an address longer than the line: break anywhere rather than overflow */
+  .epost { overflow-wrap: anywhere; }
+  .domene { display: inline-block; max-width: 100%; }
+</style>

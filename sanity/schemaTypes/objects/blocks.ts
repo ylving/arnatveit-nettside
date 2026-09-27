@@ -1,20 +1,56 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
+import { STANDARD_BREDDE } from '../../standarder';
+import { lucideIkon } from '../../components/LucideIkon';
+
+/** Width of a page section. Hidden when the same block sits inside news text (`nyhet.innhold`). */
+export const breddeFelt = (type: keyof typeof STANDARD_BREDDE) =>
+  defineField({
+    name: 'bredde',
+    title: 'Bredde',
+    type: 'string',
+    options: {
+      list: [
+        { title: 'Tekstbredde', value: 'tekst' },
+        { title: 'Bred', value: 'bred' },
+        ...(type === 'bilde' ? [{ title: 'Full bredde', value: 'full' }] : []),
+      ],
+      layout: 'radio',
+      direction: 'horizontal',
+    },
+    initialValue: STANDARD_BREDDE[type],
+    hidden: ({ path }) => path[0] !== 'seksjoner',
+  });
+
+/** Link annotation for rich text (internal document or external/mailto/tel) */
+export const lenkeAnnotasjon = {
+  name: 'link',
+  type: 'object',
+  title: 'Lenke',
+  fields: [
+    { name: 'intern', title: 'Intern', type: 'reference', to: [{ type: 'side' }, { type: 'nyhet' }, { type: 'dokument' }] },
+    { name: 'href', title: 'Adresse', type: 'url', validation: (r: any) => r.uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }) },
+  ],
+};
 
 export const bilde = defineType({
   name: 'bilde',
   title: 'Bilde',
   type: 'image',
+  icon: lucideIkon('Image'),
   options: { hotspot: true },
   fields: [
     defineField({ name: 'alt', title: 'Alternativ tekst', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'bildetekst', title: 'Bildetekst', type: 'string' }),
+    breddeFelt('bilde'),
   ],
+  preview: { select: { media: 'asset', title: 'bildetekst', subtitle: 'alt' }, prepare: ({ media, title, subtitle }) => ({ media, title: title || subtitle || 'Bilde', subtitle: 'Bilde' }) },
 });
 
 export const infoboks = defineType({
   name: 'infoboks',
   title: 'Infoboks',
   type: 'object',
+  icon: lucideIkon('Info'),
   fields: [
     defineField({ name: 'tittel', title: 'Tittel', type: 'string' }),
     defineField({ name: 'tekst', title: 'Tekst', type: 'array', of: [{ type: 'block' }] }),
@@ -26,6 +62,7 @@ export const dokumentliste = defineType({
   name: 'dokumentliste',
   title: 'Dokumentliste',
   type: 'object',
+  icon: lucideIkon('Files'),
   fields: [
     defineField({ name: 'tittel', title: 'Overskrift', type: 'string' }),
     defineField({
@@ -36,6 +73,7 @@ export const dokumentliste = defineType({
       validation: (r) => r.required(),
     }),
     defineField({ name: 'grupperEtterAar', title: 'Grupper etter år', type: 'boolean', initialValue: false }),
+    breddeFelt('dokumentliste'),
   ],
   preview: {
     select: { title: 'tittel', kategori: 'kategori.tittel' },
@@ -47,16 +85,23 @@ export const medlemsliste = defineType({
   name: 'medlemsliste',
   title: 'Medlemsliste',
   type: 'object',
+  icon: lucideIkon('Users'),
   fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', description: 'F.eks. «Styremedlemmer». Varamedlemmer får automatisk en egen liste.', type: 'string' }),
     defineField({ name: 'utvalg', title: 'Utvalg', type: 'reference', to: [{ type: 'utvalg' }], validation: (r) => r.required() }),
+    breddeFelt('medlemsliste'),
   ],
-  preview: { select: { title: 'utvalg.navn' }, prepare: ({ title }) => ({ title, subtitle: 'Medlemsliste' }) },
+  preview: {
+    select: { tittel: 'tittel', utvalg: 'utvalg.navn', medlemmer: 'utvalg.medlemmer' },
+    prepare: ({ tittel, utvalg, medlemmer }) => ({ title: tittel || utvalg, subtitle: `Medlemsliste · ${utvalg ?? ''}${Array.isArray(medlemmer) ? ` · ${medlemmer.length} medlemmer` : ''}` }),
+  },
 });
 
 export const faktaliste = defineType({
   name: 'faktaliste',
   title: 'Faktaliste',
   type: 'object',
+  icon: lucideIkon('ListTree'),
   fields: [
     defineField({ name: 'tittel', title: 'Overskrift', type: 'string' }),
     defineField({
@@ -75,6 +120,7 @@ export const faktaliste = defineType({
         }),
       ],
     }),
+    breddeFelt('faktaliste'),
   ],
   preview: { select: { title: 'tittel' }, prepare: ({ title }) => ({ title: title || 'Faktaliste', subtitle: 'Faktaliste' }) },
 });
@@ -83,8 +129,9 @@ export const kontaktinfo = defineType({
   name: 'kontaktinfo',
   title: 'Kontaktinfo',
   type: 'object',
+  icon: lucideIkon('Contact'),
   description: 'Viser adresser og e-post fra Innstillinger',
-  fields: [defineField({ name: 'visKart', title: 'Vis kartlenke', type: 'boolean', initialValue: true })],
+  fields: [defineField({ name: 'visKart', title: 'Vis kartlenke', type: 'boolean', initialValue: true }), breddeFelt('kontaktinfo')],
   preview: { prepare: () => ({ title: 'Kontaktinfo (fra Innstillinger)' }) },
 });
 
@@ -109,19 +156,7 @@ export const innhold = defineType({
         { title: 'Overskrift 3', value: 'h3' },
         { title: 'Sitat', value: 'blockquote' },
       ],
-      marks: {
-        annotations: [
-          {
-            name: 'link',
-            type: 'object',
-            title: 'Lenke',
-            fields: [
-              { name: 'intern', title: 'Intern', type: 'reference', to: [{ type: 'side' }, { type: 'nyhet' }, { type: 'dokument' }] },
-              { name: 'href', title: 'Adresse', type: 'url', validation: (r) => r.uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }) },
-            ],
-          },
-        ],
-      },
+      marks: { annotations: [lenkeAnnotasjon] },
     }),
     defineArrayMember({ type: 'bilde' }),
     defineArrayMember({ type: 'infoboks' }),

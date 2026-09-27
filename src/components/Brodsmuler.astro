@@ -1,0 +1,19 @@
+---
+// "Praktisk info / Styret": parent as a link, current page as plain text
+interface Props { forelder: { tittel: string; href: string }; gjeldende: string }
+const { forelder, gjeldende } = Astro.props;
+---
+<nav class="brodsmuler" aria-label="Brødsmuler">
+  <ol>
+    <li><a href={forelder.href}>{forelder.tittel}</a></li>
+    <li aria-current="page">{gjeldende}</li>
+  </ol>
+</nav>
+<style>
+  .brodsmuler { font-size: 14px; margin-bottom: 18px; }
+  ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; }
+  li { color: var(--ink); }
+  li + li::before { content: '/'; margin: 0 6px; color: var(--muted); }
+  a { color: var(--muted); }
+  a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+</style>

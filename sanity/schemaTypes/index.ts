@@ -1,6 +1,7 @@
 import { lenke } from './objects/lenke';
 import { seo } from './objects/seo';
 import { bilde, dokumentliste, faktaliste, infoboks, innhold, kontaktinfo, lenkeknapp, medlemsliste } from './objects/blocks';
+import { ansvarsliste, knapper, seksjoner, tekst, undersider } from './objects/seksjoner';
 import { innstillinger } from './documents/innstillinger';
 import { forside } from './documents/forside';
 import { side } from './documents/side';
@@ -11,5 +12,6 @@ import { utvalg } from './documents/utvalg';
 
 export const schemaTypes = [
   lenke, seo, bilde, infoboks, dokumentliste, medlemsliste, faktaliste, kontaktinfo, lenkeknapp, innhold,
+  tekst, knapper, undersider, ansvarsliste, seksjoner,
   innstillinger, forside, side, nyhet, dokument, dokumentkategori, utvalg,
 ];

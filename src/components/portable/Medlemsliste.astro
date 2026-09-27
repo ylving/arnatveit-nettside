@@ -1,32 +1,94 @@
 ---
+// Member list as rows: initials · name/role · tun · phone · email. Varamedlemmer get their own list below.
+// A member whose email is the shared board address shows "Nås via styret@" instead of the address.
 import Icon from '../Icon.astro';
-const { node } = Astro.props;
-const medlemmer = node.utvalg?.medlemmer ?? [];
-const tel = (t: string) => `tel:+47${t.replace(/\s/g, '')}`;
+import Epost from '../Epost.astro';
+import Initialer from '../Initialer.astro';
+import TunMerke from '../TunMerke.astro';
+import { beskyttTelefon } from '../../lib/tekst';
+import { telLenke } from '../../lib/medlem';
+
+const { node, styretEpost } = Astro.props;
+type Medlem = { _key: string; navn: string; rolle?: string; tun?: string; telefon?: string; epost?: string; vara?: boolean };
+const alle: Medlem[] = node.utvalg?.medlemmer ?? [];
+const grupper = [
+  { tittel: node.tittel, medlemmer: alle.filter((m) => !m.vara), niva: 'h2' },
+  { tittel: 'Varamedlemmer', medlemmer: alle.filter((m) => m.vara), niva: 'h3' },
+].filter((g) => g.medlemmer.length);
+const viaStyret = (m: Medlem) => !!styretEpost && m.epost === styretEpost;
+const egenEpost = (m: Medlem) => !!m.epost && !viaStyret(m);
+const tunIListen = ['A-tunet', 'B-tunet', 'C-tunet'].filter((t) => alle.some((m) => m.tun === t));
+// No phone/email for anyone (e.g. Miljøutvalget): drop those columns so rows stay compact
+const harKontakt = alle.some((m) => m.telefon || m.epost);
 ---
-{medlemmer.length > 0 && (
-  <ul class="members">
-    {medlemmer.map((m: any) => (
-      <li>
-        <span class="name">{m.navn}</span>
-        {(m.rolle || m.tun) && <span class="role">{[m.rolle, m.tun].filter(Boolean).join(' · ')}</span>}
-        {(m.telefon || m.epost) && (
-          <span class="contact">
-            {m.telefon && <a href={tel(m.telefon)}><Icon name="Phone" size={16} />{m.telefon}</a>}
-            {m.epost && <a href={`mailto:${m.epost}`}><Icon name="Mail" size={16} />{m.epost}</a>}
-          </span>
+{grupper.map((g, i) => (
+  <div class="gruppe">
+    {(g.tittel || (i === 0 && tunIListen.length > 0)) && (
+      <div class="hode">
+        {g.tittel && (g.niva === 'h2' ? <h2>{g.tittel}</h2> : <h3>{g.tittel}</h3>)}
+        {i === 0 && g.tittel && tunIListen.length > 0 && (
+          <span class="forklaring" aria-hidden="true">{tunIListen.map((t) => <TunMerke tun={t} />)}</span>
         )}
-      </li>
-    ))}
-  </ul>
-)}
+      </div>
+    )}
+    <ul class:list={['members', { 'uten-kontakt': !harKontakt }]}>
+      {g.medlemmer.map((m) => (
+        <li>
+          <Initialer navn={m.navn} />
+          <span class="hvem">
+            <span class="name">{m.navn}</span>
+            {m.rolle && <span class="rolle">{m.rolle}</span>}
+            <span class="tun-mobil"><TunMerke tun={m.tun} /></span>
+          </span>
+          <span class="tun"><TunMerke tun={m.tun} /></span>
+          <span class="tlf">{m.telefon && <a href={telLenke(m.telefon)}><Icon name="Phone" size={15} />{beskyttTelefon(m.telefon)}</a>}</span>
+          <span class="epost">
+            {egenEpost(m) && <a href={`mailto:${m.epost}`}><Icon name="Mail" size={15} /><Epost adresse={m.epost} /></a>}
+            {viaStyret(m) && <span class="via">Nås via styret@</span>}
+          </span>
+          <span class="knapper">
+            {m.telefon && <a class="rund rund--tlf" href={telLenke(m.telefon)} aria-label={`Ring ${m.navn}, ${m.telefon}`}><Icon name="Phone" size={17} /></a>}
+            {egenEpost(m) && <a class="rund" href={`mailto:${m.epost}`} aria-label={`E-post til ${m.navn}: ${m.epost}`}><Icon name="Mail" size={17} /></a>}
+          </span>
+        </li>
+      ))}
+    </ul>
+    {i === grupper.length - 1 && alle.some(viaStyret) && (
+      <p class="fotnote">Medlemmer uten egen e-post nås via <a href={`mailto:${styretEpost}`}>{styretEpost}</a>.</p>
+    )}
+  </div>
+))}
 <style>
-  .members { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-  li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; }
-  .name { font-family: var(--serif); font-size: 21px; }
-  .role { font-size: 14px; color: var(--muted); }
-  .contact { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; font-size: 15px; }
-  .contact a { display: inline-flex; align-items: center; gap: 8px; color: var(--ink) !important; text-decoration: none !important; word-break: break-all; }
-  .contact a:hover { color: var(--accent) !important; }
-  .contact :global(svg) { color: var(--accent); flex-shrink: 0; }
+  .gruppe + .gruppe { margin-top: clamp(32px, 4vw, 44px); }
+  .hode { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  .hode h2, .hode h3 { margin: 0; }
+  h3 { font-size: clamp(22px, 2.2vw, 26px); }
+  .forklaring { display: flex; gap: 14px; }
+  ul { list-style: none; margin: 0; padding: 0 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; }
+  li { display: grid; grid-template-columns: auto minmax(0, 2fr) minmax(88px, 0.7fr) minmax(120px, 0.8fr) minmax(0, 1.7fr); align-items: center; gap: 0 20px; padding: 16px 0; }
+  li + li { border-top: 1px solid var(--line-soft); }
+  .hvem { display: flex; flex-direction: column; min-width: 0; }
+  .name { font-family: var(--serif); font-size: 20px; line-height: 1.2; }
+  .rolle { font-size: 13px; color: var(--muted); }
+  .tlf a, .epost a { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-size: 14px; min-width: 0; }
+  .tlf a { white-space: nowrap; }
+  .tlf a:hover, .epost a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .tlf :global(svg), .epost :global(svg) { flex-shrink: 0; }
+  .via { font-size: 14px; color: var(--muted); }
+  .tun-mobil, .knapper, .fotnote { display: none; }
+  .uten-kontakt li { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .uten-kontakt .tlf, .uten-kontakt .epost { display: none; }
+  /* Phones: initials · name/role/tun · round call/email buttons */
+  @media (max-width: 760px) {
+    ul { padding: 0 16px; }
+    li { grid-template-columns: auto minmax(0, 1fr) auto; gap: 0 14px; }
+    .tun, .tlf, .epost, .forklaring { display: none; }
+    .tun-mobil { display: block; margin-top: 2px; }
+    .name { font-family: var(--sans); font-weight: 600; font-size: 16px; }
+    .knapper { display: flex; gap: 8px; }
+    .rund { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+    .rund--tlf { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .fotnote { display: block; margin: 12px 0 0; font-size: 14px; color: var(--ink-2); }
+    .fotnote a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+  }
 </style>

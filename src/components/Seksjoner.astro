@@ -1,0 +1,48 @@
+---
+// Renders side.seksjoner. Each section decides its own width: tekst (72ch) · bred (content container) · full (edge to edge).
+import Innhold from './portable/Innhold.astro';
+import Bilde from './portable/Bilde.astro';
+import Infoboks from './portable/Infoboks.astro';
+import Dokumentliste from './portable/Dokumentliste.astro';
+import Medlemsliste from './portable/Medlemsliste.astro';
+import Faktaliste from './portable/Faktaliste.astro';
+import Kontaktinfo from './portable/Kontaktinfo.astro';
+import Knapper from './portable/Knapper.astro';
+import Ansvarsliste from './portable/Ansvarsliste.astro';
+import InfoCards from './InfoCards.astro';
+import { STANDARD_BREDDE, type Bredde } from '../../sanity/standarder';
+
+const { seksjoner = [], kontakt, barn = [] } = Astro.props;
+
+// Child page cards: where the editor placed an `undersider` section, otherwise at the end (never lost)
+const liste: any[] = seksjoner.some((s: any) => s._type === 'undersider') || !barn.length
+  ? seksjoner
+  : [...seksjoner, { _type: 'undersider', _key: 'auto-undersider' }];
+
+const bredde = (s: any): Bredde =>
+  s._type === 'tekst' || s._type === 'infoboks' ? 'tekst' : (s.bredde ?? STANDARD_BREDDE[s._type as keyof typeof STANDARD_BREDDE] ?? 'tekst');
+---
+<div class="seksjoner">
+  {liste.map((s) => {
+    if (s._type === 'undersider' && !barn.length) return null;
+    const b = bredde(s);
+    return (
+      <div class={`seksjon seksjon--${s._type}`} data-bredde={b}>
+        <div class={b === 'full' ? undefined : 'container'}>
+          <div class={b === 'tekst' ? 'smal' : undefined}>
+            {s._type === 'tekst' && <div class="prose"><Innhold value={s.innhold} /></div>}
+            {s._type === 'bilde' && <Bilde node={s} bredde={b} />}
+            {s._type === 'infoboks' && <Infoboks node={s} />}
+            {s._type === 'dokumentliste' && <Dokumentliste node={s} />}
+            {s._type === 'medlemsliste' && <Medlemsliste node={s} styretEpost={kontakt?.epost} />}
+            {s._type === 'faktaliste' && <Faktaliste node={s} />}
+            {s._type === 'kontaktinfo' && <Kontaktinfo node={{ ...s, kontakt }} />}
+            {s._type === 'knapper' && <Knapper node={s} />}
+            {s._type === 'ansvarsliste' && <Ansvarsliste node={s} styretEpost={kontakt?.epost} />}
+            {s._type === 'undersider' && (<>{s.tittel && <h2 class="seksjon-tittel">{s.tittel}</h2>}<InfoCards sider={barn} /></>)}
+          </div>
+        </div>
+      </div>
+    );
+  })}
+</div>

@@ -8,10 +8,11 @@ import Infoboks from './Infoboks.astro';
 import Kontaktinfo from './Kontaktinfo.astro';
 import Lenkeknapp from './Lenkeknapp.astro';
 import Bilde from './Bilde.astro';
+import { beskyttTelefonIBlokker } from '../../lib/tekst';
 
 const { value = [], kontakt } = Astro.props;
 // Kontaktinfo pulls from Innstillinger — inject it into the block
-const blocks = value.map((b: any) => (b._type === 'kontaktinfo' ? { ...b, kontakt } : b));
+const blocks = beskyttTelefonIBlokker(value).map((b: any) => (b._type === 'kontaktinfo' ? { ...b, kontakt } : b));
 const components = {
   type: { dokumentliste: Dokumentliste, medlemsliste: Medlemsliste, faktaliste: Faktaliste, infoboks: Infoboks, kontaktinfo: Kontaktinfo, lenkeknapp: Lenkeknapp, bilde: Bilde },
   mark: { link: Link },

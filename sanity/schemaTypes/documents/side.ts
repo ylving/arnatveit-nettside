@@ -88,7 +88,19 @@ export const side = defineType({
         r.custom((v, { document }) => (document?.forelder && !v?.trim() ? 'Denne siden vises som kort uten beskrivelse.' : true)).warning(),
     }),
     defineField({ name: 'ingress', title: 'Ingress', type: 'text', rows: 3 }),
-    defineField({ name: 'innhold', title: 'Innhold', type: 'innhold' }),
+    defineField({
+      name: 'kontaktboks',
+      title: 'Kontaktboks i toppen',
+      description: 'Grønn boks ved siden av tittelen, f.eks. «Skriv til hele styret». På mobil blir den én knapp.',
+      type: 'object',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        defineField({ name: 'tittel', title: 'Tittel', type: 'string', placeholder: 'Skriv til hele styret' }),
+        defineField({ name: 'epost', title: 'E-post', description: 'La stå tomt for å bruke styrets e-post fra Innstillinger.', type: 'email' }),
+        defineField({ name: 'knappetekst', title: 'Knappetekst', type: 'string', placeholder: 'Send e-post' }),
+      ],
+    }),
+    defineField({ name: 'seksjoner', title: 'Innhold', type: 'seksjoner' }),
     defineField({ name: 'seo', title: 'SEO', type: 'seo' }),
     defineField({
       name: 'gamleUrler',

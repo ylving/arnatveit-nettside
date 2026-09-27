@@ -1,9 +1,11 @@
 ---
 import Icon from '../Icon.astro';
+import Epost from '../Epost.astro';
 const { node } = Astro.props;
 const k = node.kontakt ?? {};
+const kp = k.kontaktperson; // member toggled under Styre og utvalg
+const tel = (t: string) => `tel:+47${t.replace(/\s/g, '')}`;
 const rows = [
-  ['Kontaktperson', k.kontaktperson],
   ['Postadresse', k.postadresse],
   ['Besøksadresse', k.besoksadresse],
   ['Fakturaadresse', k.fakturaadresse && `${k.fakturaadresse}${k.fakturaEpost ? `\n${k.fakturaEpost}` : ''}`],
@@ -17,19 +19,32 @@ const rows = [
     </a>
   )}
   <div class="grid">
+    {kp && (
+      <div class="card">
+        <span class="label">Kontaktperson</span>
+        <span class="val"><strong>{kp.navn}</strong>{kp.rolle && <span class="rolle">{kp.rolle}</span>}</span>
+        {kp.telefon && <a class="lenke" href={tel(kp.telefon)}><Icon name="Phone" size={16} />{kp.telefon}</a>}
+        {kp.epost && <a class="lenke" href={`mailto:${kp.epost}`}><Icon name="Mail" size={16} /><Epost adresse={kp.epost} /></a>}
+      </div>
+    )}
     {rows.map(([label, val]) => <div class="card"><span class="label">{label}</span><span class="val">{val}</span></div>)}
   </div>
   {node.visKart && k.kartlenke && <a class="btn" href={k.kartlenke} rel="noopener"><Icon name="MapPin" size={18} />Vis kart</a>}
 </section>
 <style>
-  .contact { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; margin-top: 2em; }
+  .contact { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
   .mail { display: flex; gap: 16px; align-items: center; background: var(--accent); color: #fff !important; text-decoration: none !important; border-radius: var(--radius-lg); padding: 22px 26px; width: 100%; }
   .mail .ic { width: 48px; height: 48px; border-radius: 14px; background: rgba(255, 255, 255, 0.14); display: grid; place-items: center; flex-shrink: 0; }
   .mail .label { color: var(--accent-on); }
   .mail .val { font-family: var(--serif); font-size: clamp(19px, 2.4vw, 24px); word-break: break-word; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; width: 100%; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; width: 100%; }
   .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
   .label { display: block; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
   .val { display: block; white-space: pre-line; }
+  .val strong { font-weight: 600; }
+  .rolle { display: block; font-size: 14px; color: var(--muted); }
+  .lenke { display: flex; align-items: center; gap: 8px; min-width: 0; margin-top: 8px; font-size: 14px; color: var(--ink) !important; text-decoration: none !important; }
+  .lenke:hover { color: var(--accent) !important; }
+  .lenke :global(svg) { color: var(--accent); flex-shrink: 0; }
   .btn { text-decoration: none !important; color: var(--ink) !important; }
 </style>

@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import Innhold from '../../components/portable/Innhold.astro';
 import Dokumentliste from '../../components/portable/Dokumentliste.astro';
+import Brodsmuler from '../../components/Brodsmuler.astro';
 import { load } from '../../lib/sanity';
 import { DOKUMENT, INNHOLD } from '../../lib/queries';
 import { formatDate } from '../../lib/urls';
@@ -15,8 +16,9 @@ const n = await load<any>(`*[_type == "nyhet" && slug.current == $slug][0]{ titt
 <Base title={n.seo?.tittel ?? n.tittel} description={n.seo?.beskrivelse ?? n.ingress}>
   <div class="container">
     <header class="page-head">
-      <nav class="breadcrumb" aria-label="Brødsmuler"><a href="/aktuelt">Aktuelt</a> · {[formatDate(n.dato), n.merkelapp].filter(Boolean).join(' · ')}</nav>
+      <Brodsmuler forelder={{ tittel: 'Aktuelt', href: '/aktuelt' }} gjeldende={n.tittel} />
       <h1>{n.tittel}</h1>
+      <p class="page-meta">{[formatDate(n.dato), n.merkelapp].filter(Boolean).join(' · ')}</p>
       {n.ingress && <p class="ingress">{n.ingress}</p>}
     </header>
     <div class="prose">

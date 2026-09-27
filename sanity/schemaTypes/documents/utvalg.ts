@@ -1,4 +1,5 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
+import { IkonVelger } from '../../components/IkonVelger';
 
 export const utvalg = defineType({
   name: 'utvalg',
@@ -21,8 +22,61 @@ export const utvalg = defineType({
             defineField({ name: 'tun', title: 'Tun', type: 'string', options: { list: ['A-tunet', 'B-tunet', 'C-tunet', 'Ekstern'] } }),
             defineField({ name: 'telefon', title: 'Telefon', type: 'string' }),
             defineField({ name: 'epost', title: 'E-post', type: 'email' }),
+            defineField({
+              name: 'ansvar',
+              title: 'Ansvarsområder',
+              description: 'Vises i seksjonen «Hvem kontakter jeg?» med navn, telefon og e-post. Flytt området til den nye personen når ansvaret skifter.',
+              type: 'array',
+              of: [
+                defineArrayMember({
+                  type: 'object',
+                  name: 'ansvarsomraade',
+                  fields: [
+                    defineField({ name: 'omraade', title: 'Område', description: 'F.eks. «Byggesaker»', type: 'string', validation: (r) => r.required() }),
+                    defineField({ name: 'beskrivelse', title: 'Tekst (valgfri)', description: 'F.eks. «Er du leverandør og ønsker kontakt med borettslaget?»', type: 'string' }),
+                    defineField({ name: 'ikon', title: 'Ikon', description: 'Vises på kortet i «Hvem kontakter jeg?»', type: 'string', components: { input: IkonVelger } }),
+                  ],
+                  preview: { select: { title: 'omraade', subtitle: 'beskrivelse' } },
+                }),
+              ],
+            }),
+            defineField({
+              name: 'vara',
+              title: 'Varamedlem',
+              description: 'Varamedlemmer vises i en egen liste under de faste medlemmene.',
+              type: 'boolean',
+              initialValue: false,
+            }),
+            defineField({
+              name: 'kontaktperson',
+              title: 'Kontaktperson for borettslaget',
+              description: 'Vises som kontaktperson med navn, telefon og e-post der nettsiden viser kontaktinfo. Bare én person kan være kontaktperson.',
+              type: 'boolean',
+              initialValue: false,
+              validation: (r) =>
+                r.custom(async (på, { document, path, getClient }) => {
+                  if (!på || !document) return true;
+                  const egenKey = (path?.[1] as { _key?: string } | undefined)?._key;
+                  const id = document._id.replace(/^drafts\./, '');
+                  // Other members toggled in this committee (current edit state) …
+                  const her = ((document.medlemmer as { _key: string; navn?: string; kontaktperson?: boolean }[]) ?? []).filter((m) => m.kontaktperson && m._key !== egenKey);
+                  // … or in other committees (published)
+                  const andre = await getClient({ apiVersion: '2026-09-01' }).fetch<string[]>(
+                    'array::compact(*[_type == "utvalg" && !(_id in [$id, $draftId]) && !(_id in path("drafts.**"))].medlemmer[kontaktperson == true].navn)',
+                    { id, draftId: `drafts.${id}` },
+                  );
+                  const navn = [...her.map((m) => m.navn), ...(andre ?? []).flat()].filter(Boolean);
+                  return navn.length ? `Bare én kan være kontaktperson. ${navn.join(', ')} er allerede kontaktperson – slå det av der først.` : true;
+                }),
+            }),
           ],
-          preview: { select: { title: 'navn', subtitle: 'rolle' } },
+          preview: {
+            select: { title: 'navn', rolle: 'rolle', vara: 'vara', kontaktperson: 'kontaktperson', a0: 'ansvar.0.omraade', a1: 'ansvar.1.omraade' },
+            prepare: ({ title, rolle, vara, kontaktperson, a0, a1 }) => ({
+              title,
+              subtitle: [rolle, vara && 'Vara', kontaktperson && 'Kontaktperson', a0 && `Ansvar: ${[a0, a1].filter(Boolean).join(', ')}`].filter(Boolean).join(' · '),
+            }),
+          },
         }),
       ],
     }),

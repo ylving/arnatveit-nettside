@@ -1,11 +1,22 @@
 ---
 import { urlFor } from '../../lib/sanity';
-const { node } = Astro.props;
+const { node, bredde = 'tekst' } = Astro.props;
 const src = (w: number) => urlFor(node).width(w).url();
+// px, not ch: in `sizes`, ch uses the browser's default font and underestimates the text column (~800px)
+const sizes = bredde === 'full' ? '100vw' : bredde === 'bred' ? '(max-width: 1240px) 100vw, 1200px' : '(max-width: 860px) 100vw, 800px';
+// Intrinsic size avoids layout shift while the lazy image loads
+const dim = node.asset?.metadata?.dimensions;
 ---
 {node.asset && (
-  <figure>
-    <img src={src(1200)} srcset={`${src(600)} 600w, ${src(1200)} 1200w, ${src(1800)} 1800w`} sizes="(max-width: 800px) 100vw, 72ch" alt={node.alt ?? ''} loading="lazy" style="border-radius: var(--radius); width: 100%; height: auto" />
-    {node.bildetekst && <figcaption style="font-size: 14px; color: var(--muted); margin-top: 8px">{node.bildetekst}</figcaption>}
+  <figure class:list={['bilde', { full: bredde === 'full' }]}>
+    <img src={src(1200)} srcset={`${src(600)} 600w, ${src(1200)} 1200w, ${src(1800)} 1800w, ${src(2400)} 2400w`} sizes={sizes} width={dim?.width} height={dim?.height} alt={node.alt ?? ''} loading="lazy" decoding="async" />
+    {node.bildetekst && <figcaption>{node.bildetekst}</figcaption>}
   </figure>
 )}
+<style>
+  figure { margin: 0; }
+  img { width: 100%; height: auto; border-radius: var(--radius); }
+  .full img { border-radius: 0; }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
+  .full figcaption { padding-inline: var(--gutter); }
+</style>

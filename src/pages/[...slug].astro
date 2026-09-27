@@ -1,9 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import Innhold from '../components/portable/Innhold.astro';
-import InfoCards from '../components/InfoCards.astro';
+import Seksjoner from '../components/Seksjoner.astro';
+import Brodsmuler from '../components/Brodsmuler.astro';
+import Kontaktboks from '../components/Kontaktboks.astro';
 import { load } from '../lib/sanity';
-import { SIDE, SIDE_PATHS } from '../lib/queries';
+import { KONTAKT, SIDE, SIDE_PATHS } from '../lib/queries';
 
 export async function getStaticPaths() {
   const sider = await load<{ slug: string; forelder: string | null }[]>(SIDE_PATHS);
@@ -14,19 +15,23 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.props;
-const [side, kontakt] = await Promise.all([load<any>(SIDE, { slug }), load<any>(`*[_id == "innstillinger"][0].kontakt`)]);
+const [side, kontakt] = await Promise.all([load<any>(SIDE, { slug }), load<any>(KONTAKT)]);
+// Contact box beside the title: its own email, or the board's from Innstillinger
+const k = side.kontaktboks;
+const boks = k && (k.tittel || k.epost || k.knappetekst)
+  ? { tittel: k.tittel || undefined, epost: k.epost || kontakt?.epost, knappetekst: k.knappetekst || undefined }
+  : null;
 ---
 <Base title={side.seo?.tittel ?? side.tittel} description={side.seo?.beskrivelse ?? side.ingress}>
   <div class="container">
-    <header class="page-head">
-      {side.forelder && <nav class="breadcrumb" aria-label="Brødsmuler"><a href={`/${side.forelder.slug}`}>{side.forelder.tittel}</a></nav>}
-      <h1>{side.tittel}</h1>
-      {side.ingress && <p class="ingress">{side.ingress}</p>}
+    <header class:list={['page-head', { 'med-boks': boks }]}>
+      <div>
+        {side.forelder && <Brodsmuler forelder={{ tittel: side.forelder.tittel, href: `/${side.forelder.slug}` }} gjeldende={side.tittel} />}
+        <h1>{side.tittel}</h1>
+        {side.ingress && <p class="ingress">{side.ingress}</p>}
+      </div>
+      {boks && <Kontaktboks {...boks} />}
     </header>
-    {side.barn?.length > 0 && <div class="children"><InfoCards sider={side.barn} /></div>}
-    {side.innhold?.length > 0 && <div class="prose"><Innhold value={side.innhold} kontakt={kontakt} /></div>}
   </div>
+  <Seksjoner seksjoner={side.seksjoner} kontakt={kontakt} barn={side.barn} />
 </Base>
-<style>
-  .children { padding-bottom: clamp(56px, 8vw, 112px); }
-</style>
