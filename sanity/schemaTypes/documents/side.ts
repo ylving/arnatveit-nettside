@@ -2,6 +2,7 @@ import { defineField, defineType } from 'sanity';
 import { erIkon } from '../../ikoner';
 import { STANDARD_IKON } from '../../standarder';
 import { IkonVelger } from '../../components/IkonVelger';
+import { sti } from '../../actions/videresending';
 
 // Top-level addresses used by the site's own routes
 const RESERVERT = ['aktuelt', 'admin', '404'];
@@ -17,10 +18,27 @@ export const side = defineType({
       title: 'Adresse',
       type: 'slug',
       options: { source: 'tittel' },
-      validation: (r) =>
+      validation: (r) => [
         r.required().custom((slug, { document }) =>
           !document?.forelder && RESERVERT.includes(slug?.current ?? '') ? `«${slug?.current}» er reservert av nettsiden. Velg en annen adresse.` : true,
         ),
+        // Another page's old address? Then publishing this page takes it over (the redirect is dropped at build).
+        r.custom(async (slug, { document, getClient }) => {
+          if (!slug?.current || !document) return true;
+          const client = getClient({ apiVersion: '2026-09-01' });
+          const id = document._id.replace(/^drafts\./, '');
+          const forelderRef = (document.forelder as { _ref?: string } | undefined)?._ref;
+          const forelderSlug = forelderRef ? await client.fetch<string | null>('*[_id == $ref][0].slug.current', { ref: forelderRef }) : null;
+          const adresse = sti({ slug }, forelderSlug);
+          const annen = await client.fetch<string | null>(
+            '*[_type == "side" && !(_id in [$id, $draftId]) && !(_id in path("drafts.**")) && $adresse in gamleUrler][0].tittel',
+            { id, draftId: `drafts.${id}`, adresse },
+          );
+          return annen
+            ? `Adressen ${adresse} var tidligere brukt av «${annen}», og videresendes dit i dag. Når denne siden publiseres, viser adressen denne siden i stedet.`
+            : true;
+        }).warning(),
+      ],
     }),
     defineField({
       name: 'forelder',

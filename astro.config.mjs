@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import { loadEnv } from 'vite';
 import sanity from '@sanity/astro';
 import react from '@astrojs/react';
+import sanityDevRefresh from './integrations/sanity-dev-refresh.mjs';
 
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(process.env.NODE_ENV ?? '', process.cwd(), '');
 
@@ -22,5 +23,6 @@ export default defineConfig({
       studioRouterHistory: 'hash',
     }),
     react(),
+    sanityDevRefresh({ projectId: PUBLIC_SANITY_PROJECT_ID, dataset: PUBLIC_SANITY_DATASET ?? 'production', apiVersion: '2026-09-01' }),
   ],
 });

@@ -3,6 +3,7 @@ import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './sanity/schemaTypes';
 import { structure, singletonTypes } from './sanity/structure';
+import { medVideresending } from './sanity/actions/publiserMedVideresending';
 
 const env = import.meta.env ?? {};
 
@@ -19,9 +20,11 @@ export default defineConfig({
     templates: (templates) => templates.filter(({ schemaType }) => !singletonTypes.has(schemaType)),
   },
   document: {
-    actions: (actions, { schemaType }) =>
-      singletonTypes.has(schemaType)
-        ? actions.filter(({ action }) => action && ['publish', 'discardChanges', 'restore'].includes(action))
-        : actions,
+    actions: (actions, { schemaType }) => {
+      if (singletonTypes.has(schemaType)) return actions.filter(({ action }) => action && ['publish', 'discardChanges', 'restore'].includes(action));
+      // Pages: record the old address when a page moves, so it gets a redirect
+      if (schemaType === 'side') return actions.map((a) => (a.action === 'publish' ? medVideresending(a) : a));
+      return actions;
+    },
   },
 });
