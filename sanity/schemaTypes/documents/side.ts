@@ -1,5 +1,10 @@
 import { defineField, defineType } from 'sanity';
-import { ikonValg } from '../../ikoner';
+import { erIkon } from '../../ikoner';
+import { STANDARD_IKON } from '../../standarder';
+import { IkonVelger } from '../../components/IkonVelger';
+
+// Top-level addresses used by the site's own routes
+const RESERVERT = ['aktuelt', 'admin', '404'];
 
 export const side = defineType({
   name: 'side',
@@ -12,20 +17,58 @@ export const side = defineType({
       title: 'Adresse',
       type: 'slug',
       options: { source: 'tittel' },
-      validation: (r) => r.required(),
+      validation: (r) =>
+        r.required().custom((slug, { document }) =>
+          !document?.forelder && RESERVERT.includes(slug?.current ?? '') ? `«${slug?.current}» er reservert av nettsiden. Velg en annen adresse.` : true,
+        ),
     }),
     defineField({
-      name: 'seksjon',
-      title: 'Seksjon',
-      description: 'Sider under Praktisk info får adressen /praktisk-info/…',
-      type: 'string',
-      options: { list: [{ title: 'Toppnivå', value: 'topp' }, { title: 'Praktisk info', value: 'praktisk-info' }], layout: 'radio' },
-      initialValue: 'topp',
-      validation: (r) => r.required(),
+      name: 'forelder',
+      title: 'Overordnet side',
+      description: 'La stå tomt for en side på toppnivå. Velger du en side her, får denne siden adressen /overordnet-side/denne-siden og vises som et kort på den overordnede siden.',
+      type: 'reference',
+      to: [{ type: 'side' }],
+      options: {
+        // Only top-level pages can be parents (one level deep), and never the page itself
+        filter: ({ document }) => {
+          const id = document._id.replace(/^drafts\./, '');
+          return { filter: '!defined(forelder) && !(_id in [$id, $draftId])', params: { id, draftId: `drafts.${id}` } };
+        },
+      },
+      validation: (r) =>
+        r.custom(async (forelder, { document, getClient }) => {
+          if (!forelder?._ref || !document) return true;
+          const id = document._id.replace(/^drafts\./, '');
+          const client = getClient({ apiVersion: '2026-09-01' });
+          const { barn, forelderHarForelder } = await client.fetch(
+            `{ "barn": count(*[_type == "side" && forelder._ref == $id]), "forelderHarForelder": defined(*[_id == $ref][0].forelder) }`,
+            { id, ref: forelder._ref },
+          );
+          if (barn > 0) return 'Denne siden har selv undersider, og kan derfor ikke legges under en annen side.';
+          if (forelderHarForelder) return 'Den valgte siden ligger selv under en annen side. Velg en side på toppnivå.';
+          return true;
+        }),
     }),
-    defineField({ name: 'ikon', title: 'Ikon', type: 'string', options: { list: ikonValg }, hidden: ({ document }) => document?.seksjon !== 'praktisk-info' }),
+    defineField({
+      name: 'ikon',
+      title: 'Ikon',
+      description: 'Vises på kortet på den overordnede siden. Står feltet tomt, brukes standardikonet (dokument).',
+      type: 'string',
+      initialValue: STANDARD_IKON,
+      components: { input: IkonVelger },
+      hidden: ({ document }) => !document?.forelder,
+      validation: (r) => r.custom((v) => (v && !erIkon(v) ? `Ukjent ikon «${v}». Velg et nytt ikon.` : true)).warning(),
+    }),
     defineField({ name: 'rekkefolge', title: 'Rekkefølge', type: 'number', initialValue: 100 }),
-    defineField({ name: 'kort', title: 'Korttekst', description: 'Kort beskrivelse på kortet under Praktisk info', type: 'string', hidden: ({ document }) => document?.seksjon !== 'praktisk-info' }),
+    defineField({
+      name: 'kort',
+      title: 'Korttekst',
+      description: 'Kort beskrivelse på kortet på den overordnede siden (én til to linjer).',
+      type: 'string',
+      hidden: ({ document }) => !document?.forelder,
+      validation: (r) =>
+        r.custom((v, { document }) => (document?.forelder && !v?.trim() ? 'Denne siden vises som kort uten beskrivelse.' : true)).warning(),
+    }),
     defineField({ name: 'ingress', title: 'Ingress', type: 'text', rows: 3 }),
     defineField({ name: 'innhold', title: 'Innhold', type: 'innhold' }),
     defineField({ name: 'seo', title: 'SEO', type: 'seo' }),
@@ -38,5 +81,8 @@ export const side = defineType({
     }),
   ],
   orderings: [{ title: 'Rekkefølge', name: 'rekkefolge', by: [{ field: 'rekkefolge', direction: 'asc' }] }],
-  preview: { select: { title: 'tittel', seksjon: 'seksjon', slug: 'slug.current' }, prepare: ({ title, seksjon, slug }) => ({ title, subtitle: seksjon === 'praktisk-info' ? `/praktisk-info/${slug}` : `/${slug}` }) },
+  preview: {
+    select: { title: 'tittel', slug: 'slug.current', forelder: 'forelder.slug.current' },
+    prepare: ({ title, slug, forelder }) => ({ title, subtitle: forelder ? `/${forelder}/${slug}` : `/${slug}` }),
+  },
 });

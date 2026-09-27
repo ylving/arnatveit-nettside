@@ -12,8 +12,8 @@ const tel = (t: string) => `tel:+47${t.replace(/\s/g, '')}`;
         {(m.rolle || m.tun) && <span class="role">{[m.rolle, m.tun].filter(Boolean).join(' · ')}</span>}
         {(m.telefon || m.epost) && (
           <span class="contact">
-            {m.telefon && <a href={tel(m.telefon)}><Icon name="phone" size={16} />{m.telefon}</a>}
-            {m.epost && <a href={`mailto:${m.epost}`}><Icon name="mail" size={16} />{m.epost}</a>}
+            {m.telefon && <a href={tel(m.telefon)}><Icon name="Phone" size={16} />{m.telefon}</a>}
+            {m.epost && <a href={`mailto:${m.epost}`}><Icon name="Mail" size={16} />{m.epost}</a>}
           </span>
         )}
       </li>

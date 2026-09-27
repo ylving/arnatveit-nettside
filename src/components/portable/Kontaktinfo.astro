@@ -12,14 +12,14 @@ const rows = [
 <section class="contact">
   {k.epost && (
     <a class="mail" href={`mailto:${k.epost}`}>
-      <span class="ic"><Icon name="mail" size={22} /></span>
+      <span class="ic"><Icon name="Mail" size={22} /></span>
       <span><span class="label">E-post styret</span><span class="val">{k.epost}</span></span>
     </a>
   )}
   <div class="grid">
     {rows.map(([label, val]) => <div class="card"><span class="label">{label}</span><span class="val">{val}</span></div>)}
   </div>
-  {node.visKart && k.kartlenke && <a class="btn" href={k.kartlenke} rel="noopener"><Icon name="map" size={18} />Vis kart</a>}
+  {node.visKart && k.kartlenke && <a class="btn" href={k.kartlenke} rel="noopener"><Icon name="MapPin" size={18} />Vis kart</a>}
 </section>
 <style>
   .contact { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; margin-top: 2em; }

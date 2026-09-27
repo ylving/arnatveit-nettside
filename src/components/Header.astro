@@ -1,28 +1,32 @@
 ---
 import LogoMark from '../assets/brand/arnatveit-logo.svg';
 import Icon from './Icon.astro';
-import { linkHref, type Link } from '../lib/urls';
+import { linkHref, pagePath, type Link } from '../lib/urls';
 import { MENY_BRYTEPUNKT } from '../../sanity/standarder';
 
 interface Props { navn: string; meny: Link[]; brytepunkt?: number }
 const { navn, meny = [], brytepunkt } = Astro.props;
 // Hamburger below this width. From Innstillinger (validated 600–1600 in Studio), else the default.
 const bp = Number.isInteger(brytepunkt) && brytepunkt! >= 600 && brytepunkt! <= 1600 ? brytepunkt! : MENY_BRYTEPUNKT;
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const path = pagePath(Astro.url);
 // No "Forside" item — the logo links home
 const items = meny.map((l) => ({ tekst: l?.tekst, href: linkHref(l) }));
-const isCurrent = (href?: string) => !!href && (path === href || path.startsWith(`${href}/`));
+// Highlight one item only: the longest href that is this page or a parent of it.
+// Exact match = the current page; a parent (e.g. /kontakt for /kontakt/dokumentsenter) = the current section.
+const matches = (href?: string) => !!href && href.startsWith('/') && (path === href || path.startsWith(`${href}/`));
+const best = items.filter((i) => matches(i.href)).sort((a, b) => b.href!.length - a.href!.length)[0]?.href;
+const current = (href?: string) => (href !== best ? undefined : href === path ? 'page' : 'true');
 ---
 <header class="site-header">
   <div class="container bar">
     <a href="/" class="brand" aria-current={path === '/' ? 'page' : undefined}><LogoMark class="mark" aria-hidden="true" /><span>{navn}</span></a>
     <button type="button" class="menu-btn" aria-expanded="false" aria-controls="hovedmeny">
-      <span class="open"><Icon name="menu" /></span><span class="shut"><Icon name="close" /></span>
+      <span class="open"><Icon name="Menu" /></span><span class="shut"><Icon name="X" /></span>
       <span class="visually-hidden">Meny</span>
     </button>
     <nav id="hovedmeny" aria-label="Hovedmeny">
       <ul>
-        {items.map((i) => <li><a href={i.href} aria-current={isCurrent(i.href) ? 'page' : undefined}>{i.tekst}</a></li>)}
+        {items.map((i) => <li><a href={i.href} aria-current={current(i.href)}>{i.tekst}</a></li>)}
       </ul>
     </nav>
   </div>
@@ -44,7 +48,7 @@ const isCurrent = (href?: string) => !!href && (path === href || path.startsWith
   .site-header .mark { height: 40px; width: auto; flex-shrink: 0; }
   .site-header nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 36px; font-weight: 500; font-size: 16px; }
   .site-header nav a { white-space: nowrap; }
-  .site-header nav a[aria-current='page'] { color: var(--accent); text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
+  .site-header nav a[aria-current] { color: var(--accent); text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
   .site-header .menu-btn { display: none; }
 
   @media (width < ${bp}px) {

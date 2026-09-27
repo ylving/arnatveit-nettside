@@ -2,7 +2,7 @@
 import { docHref } from '../lib/urls';
 import LogoMark from '../assets/brand/arnatveit-logo-on-dark.svg';
 const { innstillinger } = Astro.props;
-const { navn, beskrivelse, kontakt, praktiskInfo = [] } = innstillinger;
+const { navn, beskrivelse, kontakt, praktiskInfo = [], dokumentsenter, kontaktside } = innstillinger;
 ---
 <footer class="site-footer">
   <div class="container">
@@ -14,12 +14,12 @@ const { navn, beskrivelse, kontakt, praktiskInfo = [] } = innstillinger;
       <div class="col">
         <span class="head">Praktisk info</span>
         {praktiskInfo.map((s: any) => <a href={docHref(s)}>{s.tittel}</a>)}
-        <a href="/dokumentsenter">Dokumentsenter</a>
+        {dokumentsenter && <a href={docHref(dokumentsenter)}>Dokumentsenter</a>}
       </div>
       <div class="col">
         <span class="head">Kontakt styret</span>
         {kontakt?.epost && <a href={`mailto:${kontakt.epost}`}>{kontakt.epost}</a>}
-        <a href="/kontakt">Adresser og kontaktinfo</a>
+        {kontaktside && <a href={docHref(kontaktside)}>Adresser og kontaktinfo</a>}
       </div>
     </div>
     <div class="bottom">© {new Date().getFullYear()} {navn}</div>

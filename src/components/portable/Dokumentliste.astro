@@ -19,10 +19,10 @@ const heading = tittel ?? kategori?.tittel;
     grupperEtterAar ? (
       <details open={i < 2}>
         <summary><span>{year}</span><span class="count">{items.length} {items.length === 1 ? 'utgave' : 'utgaver'}</span></summary>
-        <ul>{items.map((d: any) => <li><a href={d.url} target="_blank"><span class="ic"><Icon name="file" size={18} /></span><span class="t">{d.tittel}</span><span class="meta">PDF {formatSize(d.size)}</span></a></li>)}</ul>
+        <ul>{items.map((d: any) => <li><a href={d.url} target="_blank"><span class="ic"><Icon name="File" size={18} /></span><span class="t">{d.tittel}</span><span class="meta">PDF {formatSize(d.size)}</span></a></li>)}</ul>
       </details>
     ) : (
-      <ul>{items.map((d: any) => <li><a href={d.url} target="_blank"><span class="ic"><Icon name="file" size={18} /></span><span class="t">{d.tittel}</span><span class="meta">PDF {formatSize(d.size)}</span></a></li>)}</ul>
+      <ul>{items.map((d: any) => <li><a href={d.url} target="_blank"><span class="ic"><Icon name="File" size={18} /></span><span class="t">{d.tittel}</span><span class="meta">PDF {formatSize(d.size)}</span></a></li>)}</ul>
     )
   ))}
   {docs.length === 0 && <p class="empty">Ingen dokumenter ennå.</p>}

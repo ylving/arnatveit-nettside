@@ -41,8 +41,9 @@ export const KATEGORIER = [
   ['dugnad', 'Dugnad', 'tittel'],
 ];
 
-const side = (id, tittel, { seksjon = 'praktisk-info', ikon, kort, rekkefolge = 100, ingress, innhold = [], gamleUrler = [] }) => ({
-  _id: `side-${id}`, _type: 'side', tittel, slug: slug(id), seksjon, ikon, kort, rekkefolge, ingress, innhold, gamleUrler,
+// `forelder` = parent page id suffix; null for a top-level page. Most migrated pages live under Praktisk info.
+const side = (id, tittel, { forelder = 'praktisk-info', ikon, kort, rekkefolge = 100, ingress, innhold = [], gamleUrler = [] }) => ({
+  _id: `side-${id}`, _type: 'side', tittel, slug: slug(id), ...(forelder && { forelder: ref(`side-${forelder}`) }), ikon, kort, rekkefolge, ingress, innhold, gamleUrler,
 });
 
 const medlem = (navn, rolle, tun, telefon, epost) => ({ _type: 'medlem', _key: key(), navn, rolle, tun, telefon, epost });
@@ -79,11 +80,11 @@ export function buildContent({ protokoll2026 }) {
 
   const sider = [
     side('praktisk-info', 'Praktisk info', {
-      seksjon: 'topp', rekkefolge: 10, gamleUrler: ['/praktiskinfo'],
+      forelder: null, rekkefolge: 10, gamleUrler: ['/praktiskinfo'],
       ingress: 'Alt du trenger å vite som andelseier, samlet på ett sted.',
     }),
     side('generalforsamling', 'Generalforsamling', {
-      ikon: 'generalforsamling', kort: 'Borettslagets øverste organ, bestående av andelseierne. Innkallinger og protokoller.', rekkefolge: 10, gamleUrler: ['/praktiskinfo/generalforsamling'],
+      ikon: 'Users', kort: 'Borettslagets øverste organ, bestående av andelseierne. Innkallinger og protokoller.', rekkefolge: 10, gamleUrler: ['/praktiskinfo/generalforsamling'],
       ingress: 'Generalforsamlingen er borettslagets øverste organ, og består av andelseierne.',
       innhold: [
         h2('Om generalforsamlingen'),
@@ -98,7 +99,7 @@ export function buildContent({ protokoll2026 }) {
       ],
     }),
     side('vedtekter', 'Vedtekter', {
-      ikon: 'vedtekter', kort: 'Reglene borettslaget drives etter, vedtatt av generalforsamlingen.', rekkefolge: 20, gamleUrler: ['/praktiskinfo/vedtekter'],
+      ikon: 'Book', kort: 'Reglene borettslaget drives etter, vedtatt av generalforsamlingen.', rekkefolge: 20, gamleUrler: ['/praktiskinfo/vedtekter'],
       ingress: 'Arnatveit Borettslag drives etter vedtekter som er vedtatt av generalforsamlingen, og i henhold til lov om borettslag.',
       innhold: [
         p('Arnatveit Borettslag drives etter vedtekter som er vedtatt av generalforsamlingen, og i henhold til lov om borettslag. I tillegg til vedtektene har borettslaget også utarbeidet egne husordensregler.'),
@@ -109,7 +110,7 @@ export function buildContent({ protokoll2026 }) {
       ],
     }),
     side('styret', 'Styret', {
-      ikon: 'styret', kort: 'Andelseiere fra hvert av lagets tre tun. Se hvem som sitter og hvordan du når dem.', rekkefolge: 30, gamleUrler: ['/praktiskinfo/styret'],
+      ikon: 'Shield', kort: 'Andelseiere fra hvert av lagets tre tun. Se hvem som sitter og hvordan du når dem.', rekkefolge: 30, gamleUrler: ['/praktiskinfo/styret'],
       ingress: 'Styret i borettslaget består av andelseiere fra hvert av lagets tre tun. I tillegg har Arnatveit Borettslag også et eksternt styremedlem.',
       innhold: [
         p('Saker du ønsker at styret skal behandle må sendes skriftlig, minst en uke før oppsatt møte. Du kan enten sende dette til ', ['styret@arnatveit-borettslag.no', 'mailto:styret@arnatveit-borettslag.no'], ', eller legge din henvendelse i vår postkasse i A-tunet.'),
@@ -127,7 +128,7 @@ export function buildContent({ protokoll2026 }) {
       ],
     }),
     side('abc-nytt', 'ABC-nytt', {
-      ikon: 'avis', kort: 'Informasjonsbladet som kommer ut omtrent seks ganger i året.', rekkefolge: 40, gamleUrler: ['/praktiskinfo/abc-nytt'],
+      ikon: 'Newspaper', kort: 'Informasjonsbladet som kommer ut omtrent seks ganger i året.', rekkefolge: 40, gamleUrler: ['/praktiskinfo/abc-nytt'],
       ingress: 'Dette er borettslagets informasjonsorgan, og kommer ut ca 6 ganger i året.',
       innhold: [
         p('Under finner du tidligere utgaver.'),
@@ -137,7 +138,7 @@ export function buildContent({ protokoll2026 }) {
       ],
     }),
     side('dugnad', 'Dugnad', {
-      ikon: 'dugnad', kort: 'Felles innsats som holder kostnadene nede, og som er sosialt og utviklende.', rekkefolge: 50, gamleUrler: ['/praktiskinfo/dugnad'],
+      ikon: 'Sprout', kort: 'Felles innsats som holder kostnadene nede, og som er sosialt og utviklende.', rekkefolge: 50, gamleUrler: ['/praktiskinfo/dugnad'],
       ingress: 'Dugnadsinnsatsen til andelseiere i borettslaget er med på å holde fellesutgiftene nede.',
       innhold: [
         p('Arbeid vi kan gjøre som dugnad ville ellers ha kostet en del penger å leie inn folk til å gjøre. Vedlikehold av borettslagets uteområder blir oftest kalt dugnad. Siden borettslaget ikke har noen ansatt vaktmester, er dugnaden et tiltak som er viktig for oss alle.'),
@@ -153,7 +154,7 @@ export function buildContent({ protokoll2026 }) {
       ],
     }),
     side('miljoutvalget', 'Miljøutvalget', {
-      ikon: 'miljo', kort: 'Aktiviteter for beboerne som bidrar til et godt bomiljø.', rekkefolge: 60, gamleUrler: ['/praktiskinfo/miljoutvalget'],
+      ikon: 'Heart', kort: 'Aktiviteter for beboerne som bidrar til et godt bomiljø.', rekkefolge: 60, gamleUrler: ['/praktiskinfo/miljoutvalget'],
       ingress: 'Miljøutvalet har blandt anna ansvar for sosiale arrangement i borettslaget og for gjennomføring av årlig dugnad.',
       innhold: [
         p('På denne siden vil informasjon om slikt bli lagt ut.'),
@@ -162,7 +163,7 @@ export function buildContent({ protokoll2026 }) {
       ],
     }),
     side('dokumentsenter', 'Dokumentsenter', {
-      seksjon: 'topp', rekkefolge: 20, gamleUrler: ['/praktiskinfo/dokumentsenter'],
+      forelder: null, rekkefolge: 20, gamleUrler: ['/praktiskinfo/dokumentsenter'],
       ingress: 'Skal du bygge ut, montere varmepumpe, eller ønsker dere husdyr? Dette skal styret ha søknad om.',
       innhold: [
         p('Under finner du standardsøknader og prosedyrer for søknader.'),
@@ -171,7 +172,7 @@ export function buildContent({ protokoll2026 }) {
       ],
     }),
     side('om-borettslaget', 'Om borettslaget', {
-      seksjon: 'topp', rekkefolge: 30, gamleUrler: [],
+      forelder: null, rekkefolge: 30, gamleUrler: [],
       ingress: 'Arnatveit Borettslag består av hus i rekke, fordelt på tre tun, hvorav ett er bilfritt med felles parkeringsanlegg. De to andre tunene har parkeringsmuligheter ved husene.',
       innhold: [
         p('Borettslaget har gode og romslige fellesarealer med lekeplasser i hver tun, i tillegg til egen ballplass.'),
@@ -190,7 +191,7 @@ export function buildContent({ protokoll2026 }) {
       ],
     }),
     side('kontakt', 'Kontakt', {
-      seksjon: 'topp', rekkefolge: 40, gamleUrler: ['/kontakt-oss'],
+      forelder: null, rekkefolge: 40, gamleUrler: ['/kontakt-oss'],
       ingress: 'Saker du ønsker at styret skal behandle må sendes skriftlig, minst en uke før oppsatt møte.',
       innhold: [
         { _type: 'kontaktinfo', _key: key(), visKart: true },

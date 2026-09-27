@@ -4,7 +4,7 @@ import Icon from '../components/Icon.astro';
 import InfoCards from '../components/InfoCards.astro';
 import Illustrasjon from '../components/Illustrasjon.astro';
 import { load, urlFor } from '../lib/sanity';
-import { DOC_REF, DOKUMENT, LINK } from '../lib/queries';
+import { DOC_REF, DOC_REF_FIELDS, DOKUMENT, LINK, SIDE_KORT } from '../lib/queries';
 import { docHref, linkHref } from '../lib/urls';
 
 const data = await load<any>(`{
@@ -14,10 +14,10 @@ const data = await load<any>(`{
   },
   "nyhet": *[_type == "nyhet"] | order(fremhevet desc, dato desc)[0]{ tittel, merkelapp, ingress, "slug": slug.current, _type, "dokumenter": dokumenter[]->${DOKUMENT} },
   "abc": *[_type == "dokument" && kategori->slug.current == "abc-nytt"] | order(dato desc)[0]${DOKUMENT},
-  "praktisk": *[_type == "side" && seksjon == "praktisk-info"] | order(rekkefolge asc){ _type, tittel, kort, ikon, "slug": slug.current, seksjon },
+  "praktisk": *[_type == "side" && forelder._ref == "side-praktisk-info"] | order(rekkefolge asc)${SIDE_KORT},
   "gf": *[_id == "side-generalforsamling"][0]${DOC_REF},
   "abcSide": *[_id == "side-abc-nytt"][0]${DOC_REF},
-  "piSide": *[_id == "side-praktisk-info"][0]{ ingress }
+  "piSide": *[_id == "side-praktisk-info"][0]{ ingress, ${DOC_REF_FIELDS} }
 }`);
 const { forside: f, nyhet, abc, praktisk, gf, abcSide, piSide } = data;
 const pdf = nyhet?.dokumenter?.[0];
@@ -33,7 +33,7 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
       {f.ingress && <p class="lead">{f.ingress}</p>}
       <div class="actions">
         {f.knapper?.map((k: any, i: number) => (
-          <a class={i === 0 ? 'btn btn--primary' : 'btn'} href={linkHref(k)}>{k.tekst}{i === 0 && <Icon name="arrow" size={18} />}</a>
+          <a class={i === 0 ? 'btn btn--primary' : 'btn'} href={linkHref(k)}>{k.tekst}{i === 0 && <Icon name="ArrowRight" size={18} />}</a>
         ))}
       </div>
     </div>
@@ -54,7 +54,7 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
       )}
       {f.infokort?.tittel && (
         <div class="float">
-          <span class="ic"><Icon name="train" size={22} /></span>
+          <span class="ic"><Icon name="TrainFront" size={22} /></span>
           <span><strong>{f.infokort.tittel}</strong><span>{f.infokort.tekst}</span></span>
         </div>
       )}
@@ -80,7 +80,7 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
             <p>{nyhet.ingress}</p>
           </div>
           <div class="actions">
-            {pdf && <a class="btn" href={pdf.url} target="_blank"><Icon name="file" size={18} />Les protokollen (PDF)</a>}
+            {pdf && <a class="btn" href={pdf.url} target="_blank"><Icon name="File" size={18} />Les protokollen (PDF)</a>}
             {gf && <a class="btn btn--outline-light" href={docHref(gf)}>Alle generalforsamlinger</a>}
           </div>
         </article>
@@ -108,7 +108,7 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
 
   <section class="container block">
     <div class="section-head">
-      <h2 class="section-title"><a href="/praktisk-info">Praktisk info</a></h2>
+      <h2 class="section-title"><a href={docHref(piSide)}>Praktisk info</a></h2>
       {piSide?.ingress && <p>{piSide.ingress}</p>}
     </div>
     <InfoCards sider={praktisk} />
@@ -125,7 +125,7 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
         </div>
         {f.dokumentsenter.dokumenter?.length > 0 && (
           <ul class="doc-links">
-            {f.dokumentsenter.dokumenter.map((d: any) => <li><a href={d.url} target="_blank">{d.tittel}<Icon name="arrow" size={20} /></a></li>)}
+            {f.dokumentsenter.dokumenter.map((d: any) => <li><a href={d.url} target="_blank">{d.tittel}<Icon name="ArrowRight" size={20} /></a></li>)}
           </ul>
         )}
       </div>

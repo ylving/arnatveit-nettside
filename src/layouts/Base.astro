@@ -5,12 +5,13 @@ import Banner from '../components/Banner.astro';
 import Footer from '../components/Footer.astro';
 import { load } from '../lib/sanity';
 import { INNSTILLINGER } from '../lib/queries';
+import { pagePath } from '../lib/urls';
 
 interface Props { title?: string; description?: string }
 const innstillinger = await load<any>(INNSTILLINGER);
 const { title, description = innstillinger?.beskrivelse } = Astro.props;
 const fullTitle = title ? `${title} – ${innstillinger.navn}` : innstillinger.navn;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const canonical = new URL(pagePath(Astro.url), Astro.site);
 ---
 <!doctype html>
 <html lang="nb">

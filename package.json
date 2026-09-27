@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "wrangler dev",
     "deploy": "astro build && wrangler deploy",
-    "migrate": "node scripts/migrate/run.mjs"
+    "migrate": "node scripts/migrate/run.mjs",
+    "typecheck": "tsc -p sanity"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.0",
@@ -16,9 +17,11 @@
     "@sanity/astro": "^3.5.1",
     "@sanity/client": "^8.7.0",
     "@sanity/image-url": "^2.1.1",
+    "@sanity/ui": "^4.2.7",
     "@sanity/vision": "^6.16.0",
     "astro": "^7.3.5",
     "astro-portabletext": "^1.0.1",
+    "lucide": "^1.48.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "sanity": "^6.16.0",

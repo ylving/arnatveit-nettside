@@ -6,9 +6,9 @@ import { load } from '../lib/sanity';
 import { SIDE, SIDE_PATHS } from '../lib/queries';
 
 export async function getStaticPaths() {
-  const sider = await load<{ slug: string; seksjon: string }[]>(SIDE_PATHS);
-  return sider.map(({ slug, seksjon }) => ({
-    params: { slug: seksjon === 'praktisk-info' ? `praktisk-info/${slug}` : slug },
+  const sider = await load<{ slug: string; forelder: string | null }[]>(SIDE_PATHS);
+  return sider.map(({ slug, forelder }) => ({
+    params: { slug: forelder ? `${forelder}/${slug}` : slug },
     props: { slug },
   }));
 }
@@ -19,7 +19,7 @@ const [side, kontakt] = await Promise.all([load<any>(SIDE, { slug }), load<any>(
 <Base title={side.seo?.tittel ?? side.tittel} description={side.seo?.beskrivelse ?? side.ingress}>
   <div class="container">
     <header class="page-head">
-      {side.seksjon === 'praktisk-info' && <nav class="breadcrumb" aria-label="Brødsmuler"><a href="/praktisk-info">Praktisk info</a></nav>}
+      {side.forelder && <nav class="breadcrumb" aria-label="Brødsmuler"><a href={`/${side.forelder.slug}`}>{side.forelder.tittel}</a></nav>}
       <h1>{side.tittel}</h1>
       {side.ingress && <p class="ingress">{side.ingress}</p>}
     </header>
