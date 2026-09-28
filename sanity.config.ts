@@ -4,6 +4,7 @@ import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './sanity/schemaTypes';
 import { structure, singletonTypes } from './sanity/structure';
 import { medVideresending } from './sanity/actions/publiserMedVideresending';
+import { OppdaterNettsiden } from './sanity/components/OppdaterNettsiden';
 
 const env = import.meta.env ?? {};
 
@@ -14,6 +15,8 @@ export default defineConfig({
   projectId: env.PUBLIC_SANITY_PROJECT_ID ?? env.SANITY_STUDIO_PROJECT_ID,
   dataset: env.PUBLIC_SANITY_DATASET ?? env.SANITY_STUDIO_DATASET ?? 'production',
   plugins: [structureTool({ structure }), visionTool()],
+  // Publishing doesn't rebuild the site; the "Oppdater nettsiden" button in the top bar does
+  studio: { components: { toolMenu: OppdaterNettsiden } },
   schema: {
     types: schemaTypes,
     // Singletons can't be created from "New document"

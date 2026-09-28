@@ -1,6 +1,6 @@
 import type { StructureResolver } from 'sanity/structure';
 
-export const singletonTypes = new Set(['innstillinger', 'forside']);
+export const singletonTypes = new Set(['innstillinger', 'forside', 'nettsidebygg']);
 
 const singleton = (S: Parameters<StructureResolver>[0], type: string, title: string) =>
   S.listItem().title(title).id(type).child(S.document().schemaType(type).documentId(type).title(title));

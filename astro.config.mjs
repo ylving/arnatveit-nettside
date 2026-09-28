@@ -13,6 +13,8 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'never',
   build: { format: 'file' },
+  // Build start time, for /bygg.json (the Studio compares it with when content was published)
+  vite: { define: { __BYGG_TID__: JSON.stringify(new Date().toISOString()) } },
   integrations: [
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID,

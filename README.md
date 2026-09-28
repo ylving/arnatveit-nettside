@@ -19,7 +19,10 @@ Astro (static) + Sanity, deployed as a Cloudflare Worker with static assets. San
 | `npm run typecheck` | Type-check Studio code (schemas, custom inputs) |
 
 ## Publishing
-Content is fetched at build time. Publishing in the Studio → a Sanity webhook triggers a Cloudflare Workers Builds deploy hook → rebuild (about 1 min). The webhook must fire for every document type (events included), so leave its filter empty or use `!(_id in path("drafts.**"))`.
+Content is fetched at build time, so the site is rebuilt (about 1–2 min) in three ways:
+- **"Oppdater nettsiden"** in the Studio's top bar (`sanity/components/OppdaterNettsiden.tsx`): editors publish as much as they like, then press it once. It writes the hidden `nettsidebygg` document; a Sanity webhook with the filter `_type == "nettsidebygg"` calls the Cloudflare Workers Builds deploy hook. The button lists published changes that aren't live yet by comparing `_updatedAt` with the site's build time in `/bygg.json`.
+- **A push to `main`** (Workers Builds).
+- **Nightly** (below).
 
 **Nightly rebuild:** past events have to disappear from "Hva skjer" and the calendar feed even when nobody publishes. `workers/nattlig-bygg/` is a separate Worker with only a cron trigger (01:00 UTC) that calls the same deploy hook. Set it up once:
 ```sh
