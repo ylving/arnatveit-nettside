@@ -1,19 +1,22 @@
 # Handoff – Arnatveit Borettslag
 
-_Last updated 2026-09-28. Branch `main` (github.com:ylving/arnatveit-nettside). All work below is committed._
+_Last updated 2026-09-28. Branch `main` (github.com:ylving/arnatveit-nettside). Check `git status` and `git log origin/main..` for anything not yet committed or pushed._
 
 ## State
 The site is built and works locally. **Not deployed yet**: the user wants more local work first.
 
 - **Stack:** Astro 7 (static output, no adapter) + Sanity 6, with the Studio embedded at `/admin` (hash routing). Deploys as a Cloudflare Worker serving static assets (`wrangler.jsonc`).
 - **Sanity:** project `vx8672d7`, dataset `production`. `.env` holds `PUBLIC_*`, `SANITY_STUDIO_*` and `SANITY_WRITE_TOKEN`.
-- **Content:** migrated from the old Joomla site: 10 pages, 157 PDFs, board and committees. See `docs/MIGRATION.md`.
-- **Docs:** `README.md` (setup and scripts), `docs/MIGRATION.md`, `docs/ROADMAP.md` (login, D1 booking, R2 documents: planned, not built).
+- **Content:** migrated from the old Joomla site: 10 pages, 157 PDFs, board and committees. Later content changes made by script are in the change log in `docs/MIGRATION.md`.
+- **Docs:** `README.md` (setup and scripts), `docs/MIGRATION.md` (import + content change log), `docs/ROADMAP.md` (login, D1 booking, R2 documents: planned, not built).
+- **Editor guide** (Norwegian, for the board): https://claude.ai/artifact/XSEPx6xMZ4G1Yae8qFQSyJ, source `docs/redaktorguide.html`. Keep it in step with Studio field names.
 
 ## How things work (non-obvious)
 - **Page content:** `side.seksjoner` is a page builder (a list of sections: tekst, bilde, infoboks, dokumentliste, medlemsliste, faktaliste, kontaktinfo, knapper, undersider), rendered by `src/components/Seksjoner.astro`. Each section has a width (`bredde`; defaults in `sanity/standarder.ts`). News (`nyhet.innhold`) keeps the continuous rich text editor. Child page cards show where an `undersider` section is placed, otherwise at the end.
 - **People (`utvalg.medlemmer`):** single source for contact details. Toggles: `kontaktperson` (one person site-wide; shown in the Kontaktinfo card) and `vara` (listed under "Varamedlemmer"). `ansvar[]` (area, text, icon) feeds the "Hvem kontakter jeg?" section (`ansvarsliste`). A member whose email equals the board address in Innstillinger shows "Nås via styret@".
 - **Styret layout:** page head with optional `kontaktboks` (green box, full-width button on phones), `ansvarsliste` cards, `medlemsliste` rows with initials and tun markers. Breadcrumbs ("Parent / Page") come from `src/components/Brodsmuler.astro`.
+- **Front page facts band** (`src/components/Faktabaand.astro`): heading texts in `forside.faktaseksjon`, facts in `forside.fakta` (icon from the picker, or `logo: true` for the logo mark).
+- **Own icons:** `sanity/ikoner.ts` merges Lucide with our own (`Huske`, a swing set) in the same 24×24 stroke style; they appear in the picker too.
 - **Phone numbers in free text** are kept on one line by `src/lib/tekst.ts`; emails wrap only after "@" via `src/components/Epost.astro`.
 - **Pages (`side`):** a page can sit under any top-level page (`forelder`), one level deep, enforced in the Studio. The URL is `/<parent>/<slug>`. Parents list their children as cards. Card icon and text come from `ikon` and `kort` on the child page.
 - **Icons:** Lucide via `sanity/ikoner.ts`, rendered to inline SVG at build time. The Studio picker is `sanity/components/IkonVelger.tsx` (collapsed row plus a dialog). The default icon is in `sanity/standarder.ts`.
@@ -42,7 +45,18 @@ The site is built and works locally. **Not deployed yet**: the user wants more l
 - The icon picker shows some older Lucide alias names (e.g. "home" instead of "house"). Cosmetic.
 - Valgkomiteen (`utvalg-valgkomiteen`) is empty. The names were blank on the old site.
 - The commit author email is the user's personal address, not the Aksell one. The user never answered whether to change it.
+- **Not seen in a logged-in Studio yet** (schema validates and type-checks, site renders): Kontaktboks on pages, Varamedlem toggle, icons on areas of responsibility, "Gjelder det noe annet?" option, heading on member lists, front page Faktaseksjon/Faktakort (logo switch + icon), the own icon "Huske" in the picker.
+- **Editor guide** is private: share it from the page's Share menu before board members can open it. Not yet checked against a logged-in Studio.
+- **Styret vs. design, decided conservatively:** the page's existing text ("Saker du ønsker…", "Kunne du tenkt deg å bli styremedlem?") is kept below the member lists (not in the design); cards show the member's full role (design shows a shorter one); the shorter phone intro from the design isn't used.
+- **Miljøutvalget** member rows are wide for their little content (no contact details). Options: set the list's width to "Tekstbredde" in the Studio, or let lists without contact details flow in two columns.
+- `align-items: end` on `.page-head.med-boks` (global.css) was the user's own edit; it went into commit `5e27f50`.
 - **Security:** the old Joomla site is compromised (injected scripts from `dockmemoir.co`, `ginkgoloft.co`, `gorsegazette.co`). The site owner or maintainer must clean it before the domain moves.
+
+## Next up (after /clear)
+**Redesign of the pages Dugnad and Miljøutvalget**, the same way as Styret was done (design from the user, likely on the design canvas https://claude.ai/artifact/W8XADesGHKexHum3fQ7X6X; read it with the Artifact tool, not by fetching).
+- Current sections: **Dugnad** `tekst → infoboks → tekst → dokumentliste` (Dugnadskort); **Miljøutvalget** `tekst → medlemsliste` (12 members, tun only, no contact details).
+- The Miljøutvalget wide-row issue under "Open" belongs to this redesign.
+- Approach that worked for Styret: build reusable components/fields rather than page-specific markup; follow the design's copy; keep existing text that isn't in the design and flag it; migrate content with backup + `ifRevisionId` and add it to the change log in `docs/MIGRATION.md`; update `scripts/migrate/content.mjs`; check desktop 1440 and phone 390 against the design; update the editor guide if Studio fields change.
 
 ## Next steps (deploy)
 1. **Cloudflare Workers Builds:** connect the GitHub repo.

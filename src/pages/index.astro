@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import InfoCards from '../components/InfoCards.astro';
 import Illustrasjon from '../components/Illustrasjon.astro';
+import Faktabaand from '../components/Faktabaand.astro';
 import { load, urlFor } from '../lib/sanity';
 import { DOC_REF, DOC_REF_FIELDS, DOKUMENT, LINK, SIDE_KORT } from '../lib/queries';
 import { docHref, linkHref } from '../lib/urls';
@@ -61,13 +62,7 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
     </div>
   </section>
 
-  {f.fakta?.length > 0 && (
-    <section class="container">
-      <dl class="facts">
-        {f.fakta.map((k: any) => <div><dt>{k.tittel}</dt><dd>{k.tekst}</dd></div>)}
-      </dl>
-    </section>
-  )}
+  <Faktabaand seksjon={f.faktaseksjon} fakta={f.fakta} />
 
   <section class="container block">
     <h2 class="section-title">Aktuelt</h2>
@@ -147,12 +142,6 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
   .float strong { display: block; font-size: 16px; }
   .float strong + span { font-size: 14px; color: var(--muted); }
 
-  .facts { margin: clamp(8px, 2vw, 32px) 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-block: 1px solid var(--line); }
-  .facts div { padding: 28px 24px; display: flex; flex-direction: column; gap: 6px; }
-  .facts div:first-child { padding-left: 0; }
-  .facts div + div { border-left: 1px solid var(--line); }
-  .facts dt { font-family: var(--serif); font-size: clamp(26px, 3vw, 40px); line-height: 1.1; }
-  .facts dd { margin: 0; font-size: 15px; color: var(--muted); }
 
   .block { padding-top: clamp(56px, 7vw, 96px); }
   .block.last { padding-bottom: clamp(56px, 8vw, 112px); }
@@ -188,8 +177,6 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
     .hero { grid-template-columns: 1fr; }
     .hero-art { max-width: 560px; }
     .float { left: 16px; bottom: -24px; }
-    .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); border: 0; gap: 12px; }
-    .facts div, .facts div:first-child { padding: 18px; background: var(--surface); border: 1px solid var(--line) !important; border-radius: 18px; }
     .news { grid-template-columns: 1fr; }
     .featured { grid-column: auto; min-height: 0; }
     .docs { grid-template-columns: 1fr; }
@@ -199,7 +186,5 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
   @media (max-width: 640px) {
     .actions .btn { flex: 1 1 100%; }
     .float { position: static; margin-top: 12px; box-shadow: none; border: 1px solid var(--line); }
-    .facts dt { font-size: 24px; }
-    .facts dd { font-size: 14px; }
   }
 </style>

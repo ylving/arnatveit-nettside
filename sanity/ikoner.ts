@@ -5,7 +5,12 @@ import { STANDARD_IKON } from './standarder';
 
 export type IkonNode = [tag: string, attrs: Record<string, string | number>][];
 
-const alle = icons as unknown as Record<string, IkonNode>;
+// Our own icons, in the same 24×24 stroke style, for things Lucide doesn't have
+const egne: Record<string, IkonNode> = {
+  Huske: [['path', { d: 'M3 21L7 3h10l4 18M10 3v10M14 3v10M9 13h6' }]], // swing set (lekeplass)
+};
+
+const alle = { ...(icons as unknown as Record<string, IkonNode>), ...egne };
 
 export const erIkon = (navn?: string): navn is string => !!navn && navn in alle;
 

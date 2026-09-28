@@ -1,0 +1,284 @@
+<title>Arnatveit redaktørguide</title>
+<meta name="description" content="Slik oppdaterer styret innholdet på nettsiden til Arnatveit Borettslag i Sanity Studio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Figtree:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f6f3ec;
+    --flate: #ffffff;
+    --linje: #e2dccf;
+    --linje-svak: #eee9de;
+    --tekst: #1d2420;
+    --tekst-2: #3e4641;
+    --dempet: #5b635e;
+    --aksent: #2f5d4e;
+    --aksent-svak: #e4ece6;
+    --varsel: #8a4e1f;
+    --varsel-svak: #f6ebdd;
+    --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --sans: 'Figtree', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #151a17; --flate: #1d2420; --linje: #323a35; --linje-svak: #2a312d;
+      --tekst: #ece8df; --tekst-2: #cfd3cd; --dempet: #9aa39d;
+      --aksent: #8fc2ab; --aksent-svak: #22322b; --varsel: #e0a458; --varsel-svak: #2e261b;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #151a17; --flate: #1d2420; --linje: #323a35; --linje-svak: #2a312d;
+    --tekst: #ece8df; --tekst-2: #cfd3cd; --dempet: #9aa39d;
+    --aksent: #8fc2ab; --aksent-svak: #22322b; --varsel: #e0a458; --varsel-svak: #2e261b;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--tekst); font-family: var(--sans); font-size: 17px; line-height: 1.65; padding-inline: 20px; padding-block: 0 80px; }
+  .side { max-width: 1120px; margin-inline: auto; }
+  a { color: var(--aksent); text-underline-offset: 3px; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--aksent); outline-offset: 3px; border-radius: 4px; }
+
+  header.topp { padding-block: 56px 36px; border-bottom: 1px solid var(--linje); margin-bottom: 40px; }
+  .overtittel { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--aksent); }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(36px, 6vw, 58px); line-height: 1.05; letter-spacing: -0.02em; margin: 12px 0 18px; text-wrap: balance; }
+  .ingress { font-size: 19px; color: var(--tekst-2); max-width: 60ch; margin: 0; }
+  .fakta { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 24px; font-size: 15px; color: var(--dempet); }
+  .fakta strong { color: var(--tekst); font-weight: 600; }
+
+  .oppsett { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 56px; align-items: start; }
+  nav.innhold { position: sticky; top: calc(24px + env(safe-area-inset-top, 0px)); font-size: 15px; }
+  nav.innhold h2 { font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dempet); margin: 0 0 12px; }
+  nav.innhold ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--linje); }
+  nav.innhold a { display: block; padding: 5px 0 5px 14px; color: var(--tekst-2); text-decoration: none; margin-left: -1px; border-left: 2px solid transparent; }
+  nav.innhold a:hover { color: var(--aksent); border-left-color: var(--aksent); }
+
+  main { max-width: 70ch; }
+  section { scroll-margin-top: 24px; }
+  section + section { margin-top: 56px; padding-top: 44px; border-top: 1px solid var(--linje-svak); }
+  h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(27px, 3.4vw, 34px); line-height: 1.15; letter-spacing: -0.01em; margin: 0 0 14px; text-wrap: balance; }
+  h3 { font-family: var(--sans); font-weight: 600; font-size: 18px; margin: 28px 0 8px; }
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+  li + li { margin-top: 6px; }
+  li::marker { color: var(--dempet); }
+
+  /* Studio labels, written exactly as they appear in the Studio */
+  .felt { font-family: var(--sans); font-size: 0.88em; font-weight: 600; white-space: nowrap; background: var(--aksent-svak); color: var(--tekst); border-radius: 6px; padding: 1px 7px; }
+  .knapp { font-size: 0.88em; font-weight: 600; white-space: nowrap; border: 1px solid var(--linje); background: var(--flate); border-radius: 999px; padding: 1px 10px; }
+
+  .boks { border-radius: 14px; padding: 16px 20px; margin: 18px 0; background: var(--aksent-svak); }
+  .boks p:last-child, .boks ul:last-child { margin-bottom: 0; }
+  .boks strong:first-child { display: block; margin-bottom: 4px; }
+  .boks.varsel { background: var(--varsel-svak); }
+  .boks.varsel strong:first-child { color: var(--varsel); }
+
+  .tabell { overflow-x: auto; margin: 18px 0; border: 1px solid var(--linje); border-radius: 14px; background: var(--flate); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 11px 16px; }
+  th { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dempet); font-weight: 600; border-bottom: 1px solid var(--linje); }
+  tr + tr td { border-top: 1px solid var(--linje-svak); }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+
+  .tun { display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; white-space: nowrap; }
+  .tun svg { flex-shrink: 0; }
+
+  footer.bunn { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--linje); font-size: 15px; color: var(--dempet); }
+
+  @media (max-width: 860px) {
+    .oppsett { grid-template-columns: 1fr; gap: 32px; }
+    nav.innhold { position: static; background: var(--flate); border: 1px solid var(--linje); border-radius: 14px; padding: 16px 18px; }
+    nav.innhold ol { border: 0; columns: 2; column-gap: 20px; display: block; }
+    nav.innhold a { padding-left: 0; border: 0; margin: 0; }
+  }
+  @media (max-width: 480px) {
+    body { font-size: 16px; }
+    nav.innhold ol { columns: 1; }
+    td:first-child { white-space: normal; }
+  }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="side">
+  <header class="topp">
+    <span class="overtittel">Arnatveit Borettslag · for styret</span>
+    <h1>Slik oppdaterer du nettsiden</h1>
+    <p class="ingress">Alt innhold på nettsiden redigeres i Sanity Studio: sider, nyheter, dokumenter, styret og utvalgene. Denne guiden viser hvor du finner hva, og hva som skjer når du publiserer.</p>
+    <div class="fakta">
+      <span><strong>Studio:</strong> arnatveit-borettslag.no/admin (når nettsiden er lansert)</span>
+      <span><strong>Spørsmål:</strong> webansvarlig i styret</span>
+    </div>
+  </header>
+
+  <div class="oppsett">
+    <nav class="innhold" aria-label="Innhold">
+      <h2>Innhold</h2>
+      <ol>
+        <li><a href="#logg-inn">Logg inn og publiser</a></li>
+        <li><a href="#sider">Sider og seksjoner</a></li>
+        <li><a href="#undersider">Undersider og adresser</a></li>
+        <li><a href="#styret">Styre og utvalg</a></li>
+        <li><a href="#dokumenter">Dokumenter</a></li>
+        <li><a href="#nyheter">Nyheter</a></li>
+        <li><a href="#forsiden">Forsiden</a></li>
+        <li><a href="#innstillinger">Innstillinger</a></li>
+        <li><a href="#ikoner">Ikoner</a></li>
+        <li><a href="#hjelp">Hvis noe går galt</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="logg-inn">
+        <h2>Logg inn og publiser</h2>
+        <p>Når nettsiden er lansert, ligger Studio på <strong>arnatveit-borettslag.no/admin</strong>. Første gang må webansvarlig invitere deg. Da får du en e-post, og kan logge inn med Google, GitHub eller e-post og passord.</p>
+        <h3>Utkast og publisering</h3>
+        <ol>
+          <li>Alt du endrer, lagres automatisk som et <strong>utkast</strong>. Utkast vises ikke på nettsiden.</li>
+          <li>Når du er ferdig, trykker du <span class="knapp">Publish</span> nederst til høyre.</li>
+          <li>Nettsiden bygges på nytt og viser endringen etter omtrent ett minutt. (Dette settes opp når nettsiden lanseres.)</li>
+        </ol>
+        <div class="boks">
+          <strong>Gule og røde merker</strong>
+          <p>Studio varsler i margen hvis noe mangler. <strong>Røde feil</strong> hindrer publisering, for eksempel en side uten adresse. <strong>Gule advarsler</strong> kan du publisere med, men de sier fra om noe som ser rart ut på nettsiden, for eksempel et kort uten beskrivelse.</p>
+        </div>
+        <p>Angrer du? Menyen <span class="knapp">···</span> ved siden av Publish har <strong>Discard changes</strong> (forkast utkastet), og under klokkeikonet finner du tidligere versjoner du kan gå tilbake til.</p>
+      </section>
+
+      <section id="sider">
+        <h2>Sider og seksjoner</h2>
+        <p>Under <span class="felt">Sider</span> ligger alle sidene. Innholdet på en side bygges av <strong>seksjoner</strong> som ligger under hverandre: tekst, bilder, dokumentlister og så videre. Hver seksjon vises som et kort i feltet <span class="felt">Innhold</span>.</p>
+        <h3>Legge til og flytte seksjoner</h3>
+        <ul>
+          <li>Trykk <span class="knapp">+ Add item</span> nederst i <span class="felt">Innhold</span> og velg type. Typene er gruppert i «Tekst og bilder», «Lister» og «Kontakt og navigasjon».</li>
+          <li>Dra i håndtaket til venstre på et kort for å flytte seksjonen opp eller ned.</li>
+          <li>Menyen <span class="knapp">···</span> på kortet har <strong>Duplicate</strong> og <strong>Remove</strong>.</li>
+        </ul>
+        <div class="tabell">
+          <table>
+            <thead><tr><th>Seksjon</th><th>Hva den viser</th></tr></thead>
+            <tbody>
+              <tr><td>Tekst</td><td>Vanlig tekst med overskrifter, lister og lenker. Bilder og bokser legges som egne seksjoner.</td></tr>
+              <tr><td>Bilde</td><td>Et bilde med alternativ tekst (påkrevd, for skjermlesere) og valgfri bildetekst.</td></tr>
+              <tr><td>Infoboks</td><td>En grønn boks for noe som skal skille seg ut, som satser eller frister.</td></tr>
+              <tr><td>Dokumentliste</td><td>Alle dokumentene i én kategori, for eksempel Protokoller. Oppdateres av seg selv når du laster opp nye dokumenter.</td></tr>
+              <tr><td>Medlemsliste</td><td>Medlemmene i et utvalg fra <span class="felt">Styre og utvalg</span>. Varamedlemmer får egen liste under.</td></tr>
+              <tr><td>Faktaliste</td><td>Rader med etikett og verdi, som på Om borettslaget.</td></tr>
+              <tr><td>Kontaktinfo</td><td>Adresser, e-post og kontaktperson fra <span class="felt">Innstillinger</span>.</td></tr>
+              <tr><td>Hvem kontakter jeg?</td><td>Ett kort per ansvarsområde, med navn og telefon til den ansvarlige (se <a href="#styret">Styre og utvalg</a>).</td></tr>
+              <tr><td>Knapper</td><td>En eller to lenkeknapper.</td></tr>
+              <tr><td>Undersider</td><td>Kort for sidene som ligger under denne siden, akkurat der du plasserer seksjonen.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Bredde</h3>
+        <p>De fleste seksjoner har valget <span class="felt">Bredde</span>: <strong>Tekstbredde</strong> (samme bredde som vanlig tekst) eller <strong>Bred</strong> (hele innholdsbredden). Bilder kan også være <strong>Full bredde</strong>, helt ut til kantene. Lister med kort ser best ut brede, rader med tekst best i tekstbredde.</p>
+      </section>
+
+      <section id="undersider">
+        <h2>Undersider og adresser</h2>
+        <p>En side kan legges under en annen med feltet <span class="felt">Overordnet side</span>. Står feltet tomt, ligger siden på toppnivå.</p>
+        <ul>
+          <li>Adressen følger den overordnede siden: Styret under Praktisk info blir <strong>/praktisk-info/styret</strong>.</li>
+          <li>Undersiden vises som et kort på den overordnede siden, med <span class="felt">Ikon</span> og <span class="felt">Korttekst</span>. Begge felt dukker opp når siden har en overordnet side.</li>
+          <li>Sider kan bare ligge ett nivå ned. Studio lar deg bare velge sider på toppnivå som overordnet.</li>
+        </ul>
+        <h3>Når du flytter eller gir nytt navn til en side</h3>
+        <p>Endrer du adressen eller den overordnede siden, legger Studio den gamle adressen inn i <span class="felt">Gamle adresser</span> når du publiserer. Den gamle adressen sender da besøkende videre til den nye, så lenker og bokmerker fortsetter å virke. Du trenger ikke gjøre noe selv.</p>
+        <div class="boks varsel">
+          <strong>Advarsel om gammel adresse</strong>
+          <p>Hvis en ny side får en adresse som en annen side hadde før, får du en gul advarsel. Publiserer du, viser adressen den nye siden, og den gamle videresendingen forsvinner.</p>
+        </div>
+        <p>Adressene <strong>aktuelt</strong>, <strong>admin</strong> og <strong>404</strong> brukes av nettsiden selv og kan ikke velges for sider på toppnivå.</p>
+      </section>
+
+      <section id="styret">
+        <h2>Styre og utvalg</h2>
+        <p>Under <span class="felt">Styre og utvalg</span> ligger Styret, Miljøutvalget og Valgkomiteen. Kontaktinfo for personer legges <strong>bare her</strong>. Sidene på nettsiden henter navn, telefon og e-post herfra, så du oppdaterer én gang når noe endrer seg.</p>
+        <h3>Feltene på et medlem</h3>
+        <div class="tabell">
+          <table>
+            <thead><tr><th>Felt</th><th>Brukes til</th></tr></thead>
+            <tbody>
+              <tr><td>Navn, Rolle</td><td>Vises i medlemslisten. Initialene lages av de to første navnene («Gro Helen Andersen» blir GH).</td></tr>
+              <tr><td>Tun</td><td>Vises med et lite hus i tunets farge:
+                <span class="tun"><svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 7.5 8 2l6 5.5V14H2z" fill="#7FA08F"/></svg>A-tunet</span>
+                <span class="tun"><svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 7.5 8 2l6 5.5V14H2z" fill="#2F5D4E"/></svg>B-tunet</span>
+                <span class="tun"><svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 7.5 8 2l6 5.5V14H2z" fill="#C3D6C9"/></svg>C-tunet</span></td></tr>
+              <tr><td>Telefon, E-post</td><td>Vises som lenker. Er e-posten styrets felles adresse, står det «Nås via styret@» i stedet.</td></tr>
+              <tr><td>Ansvarsområder</td><td>Område, valgfri tekst og ikon. Vises i seksjonen «Hvem kontakter jeg?». Når ansvaret skifter, flytter du området til den nye personen.</td></tr>
+              <tr><td>Varamedlem</td><td>Personen vises i en egen liste, «Varamedlemmer», under de faste medlemmene.</td></tr>
+              <tr><td>Kontaktperson for borettslaget</td><td>Vises som kontaktperson i kontaktinfoen på Kontakt og Om borettslaget. Bare én person kan ha dette slått på.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Etter valget på generalforsamlingen</h3>
+        <ol>
+          <li>Åpne Styret under <span class="felt">Styre og utvalg</span>.</li>
+          <li>Legg til nye medlemmer og fjern dem som går ut. Husk rolle, tun og kontaktinfo.</li>
+          <li>Flytt <span class="felt">Ansvarsområder</span> til de nye personene, og sjekk <span class="felt">Varamedlem</span> og <span class="felt">Kontaktperson for borettslaget</span>.</li>
+          <li>Trykk <span class="knapp">Publish</span>. Styret-siden, kontaktinfoen og «Hvem kontakter jeg?» oppdateres samtidig.</li>
+        </ol>
+      </section>
+
+      <section id="dokumenter">
+        <h2>Dokumenter</h2>
+        <p>Protokoller, ABC-nytt, søknadsskjemaer og andre PDF-er ligger under <span class="felt">Dokumenter</span>. Der kan du bla i alle dokumenter, eller per kategori.</p>
+        <ol>
+          <li>Lag et nytt dokument og gi det en <span class="felt">Tittel</span>, for eksempel «Generalforsamling 2027».</li>
+          <li>Last opp PDF-en i <span class="felt">Fil</span> og velg <span class="felt">Kategori</span>.</li>
+          <li>Sett <span class="felt">Dato</span>. Den styrer rekkefølgen, med de nyeste først. Vet du bare året, velger du 1. januar.</li>
+          <li>Publiser. Dokumentet dukker opp i alle dokumentlister for den kategorien.</li>
+        </ol>
+        <p>ABC-nytt vises gruppert etter år, og siste utgave vises automatisk på forsiden.</p>
+      </section>
+
+      <section id="nyheter">
+        <h2>Nyheter</h2>
+        <p>Nyheter skrives under <span class="felt">Nyheter</span>, og vises på siden Aktuelt og på forsiden.</p>
+        <ul>
+          <li><span class="felt">Merkelapp</span> er den lille teksten over tittelen, for eksempel «Generalforsamling 2027».</li>
+          <li><span class="felt">Ingress</span> er den korte teksten som vises i listen og på forsiden.</li>
+          <li><span class="felt">Vedlagte dokumenter</span> kobler nyheten til PDF-er, for eksempel årets protokoll.</li>
+          <li><span class="felt">Fremhev på forsiden</span> gjør nyheten til den store grønne boksen under «Aktuelt».</li>
+        </ul>
+      </section>
+
+      <section id="forsiden">
+        <h2>Forsiden</h2>
+        <p>Forsiden har faste felt i stedet for seksjoner.</p>
+        <ul>
+          <li><span class="felt">Toppbilde</span> erstatter tegningen øverst. Bildet beskjæres til samme form som tegningen. Trykk på beskjæringsknappen på bildet og dra sirkelen (<strong>hotspot</strong>) til det som alltid skal synes. La feltet stå tomt for å beholde tegningen.</li>
+          <li><span class="felt">Faktaseksjon – tekst</span> og <span class="felt">Faktakort</span> er det grønne båndet «Å bo her». Hvert kort har tittel, tekst og ikon, eller logoen hvis <span class="felt">Bruk logoen som ikon</span> er på.</li>
+          <li><span class="felt">Snarvei under Aktuelt</span> og <span class="felt">Dokumentsenter-boks</span> er de to boksene lenger ned.</li>
+        </ul>
+      </section>
+
+      <section id="innstillinger">
+        <h2>Innstillinger</h2>
+        <ul>
+          <li><span class="felt">Banner øverst</span>: den grønne stripen med en kort beskjed. Slå av <span class="felt">Vis banner</span> når beskjeden er gammel.</li>
+          <li><span class="felt">Hovedmeny</span>: menypunktene øverst, i den rekkefølgen de står. Logoen lenker alltid til forsiden, så Forside trenger ikke eget menypunkt.</li>
+          <li><span class="felt">Kontakt</span>: styrets e-post, adresser og organisasjonsnummer. Styrets e-post brukes også i «Skriv til hele styret» og «Nås via styret@».</li>
+          <li><span class="felt">Brytepunkt for mobilmeny (px)</span>: skjermbredden der menyen blir til en menyknapp. Trengs bare hvis menypunktene ikke får plass på én linje.</li>
+        </ul>
+      </section>
+
+      <section id="ikoner">
+        <h2>Ikoner</h2>
+        <p>Der det står <span class="felt">Ikon</span>, trykker du <span class="knapp">Velg ikon</span> og søker blant nesten 1 900 ikoner. Søk på norsk eller engelsk: «hus», «møte», «søppel», «lek» eller «calendar». Står feltet tomt, brukes et dokumentikon.</p>
+      </section>
+
+      <section id="hjelp">
+        <h2>Hvis noe går galt</h2>
+        <ul>
+          <li><strong>Endringen vises ikke:</strong> sjekk at du har trykket Publish, og vent et minutt. Last siden på nytt.</li>
+          <li><strong>Du har slettet noe ved en feil:</strong> se tidligere versjoner under klokkeikonet øverst i dokumentet.</li>
+          <li><strong>Noe ser feil ut på nettsiden, eller du er usikker:</strong> ta kontakt med webansvarlig før du gjør store endringer.</li>
+        </ul>
+      </section>
+
+      <footer class="bunn">Arnatveit Borettslag · Redaktørguide for Sanity Studio</footer>
+    </main>
+  </div>
+</div>

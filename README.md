@@ -24,4 +24,9 @@ Content is fetched at build time. Publishing in the Studio → a Sanity webhook 
 ## Redirects
 `src/pages/[redirects].ts` generates `dist/_redirects` from the `gamleUrler` field on `side` and `dokument` documents. Old PDF URLs (`/images/pdf/…`) redirect to the file on Sanity's CDN.
 
-See `docs/MIGRATION.md` (what was moved and how) and `docs/ROADMAP.md` (login, booking, R2).
+## Docs
+- `HANDOFF.md`: current state, how things work, gotchas, next steps (start here)
+- `docs/MIGRATION.md`: the import from the old site, plus a change log of later content changes made by script
+- `docs/ROADMAP.md`: planned features (login, booking, R2)
+- `docs/PLAN-seksjoner.md`: the page builder plan (built)
+- **Editor guide for the board** (Norwegian): https://claude.ai/artifact/XSEPx6xMZ4G1Yae8qFQSyJ, source in `docs/redaktorguide.html`. Update it when Studio fields change.

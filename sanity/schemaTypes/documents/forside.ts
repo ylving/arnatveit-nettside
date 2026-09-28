@@ -1,4 +1,5 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
+import { IkonVelger } from '../../components/IkonVelger';
 
 export const forside = defineType({
   name: 'forside',
@@ -25,6 +26,17 @@ export const forside = defineType({
       ],
     }),
     defineField({
+      name: 'faktaseksjon',
+      title: 'Faktaseksjon – tekst',
+      description: 'Venstre side av det grønne båndet med faktakortene.',
+      type: 'object',
+      fields: [
+        defineField({ name: 'overtittel', title: 'Overtittel', type: 'string', placeholder: 'Å bo her' }),
+        defineField({ name: 'tittel', title: 'Overskrift', type: 'string', placeholder: 'Tre tun, ett nabolag' }),
+        defineField({ name: 'tekst', title: 'Tekst', type: 'text', rows: 3 }),
+      ],
+    }),
+    defineField({
       name: 'fakta',
       title: 'Faktakort',
       type: 'array',
@@ -36,6 +48,8 @@ export const forside = defineType({
           fields: [
             defineField({ name: 'tittel', title: 'Tittel', type: 'string', validation: (r) => r.required() }),
             defineField({ name: 'tekst', title: 'Tekst', type: 'string' }),
+            defineField({ name: 'logo', title: 'Bruk logoen som ikon', type: 'boolean', initialValue: false }),
+            defineField({ name: 'ikon', title: 'Ikon', type: 'string', components: { input: IkonVelger }, hidden: ({ parent }) => !!parent?.logo }),
           ],
           preview: { select: { title: 'tittel', subtitle: 'tekst' } },
         }),

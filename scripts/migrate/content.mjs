@@ -242,12 +242,17 @@ export function buildContent({ protokoll2026 }) {
     ingress: 'Et veldrevet borettslag med romslige fellesarealer, lekeplass i hvert tun og egen ballplass. Gangavstand til skole, buss og butikk, og kort vei til Øyrane Torg og toget.',
     knapper: [lenke('Praktisk info', '#side-praktisk-info'), lenke('Kontakt styret', 'mailto:styret@arnatveit-borettslag.no')].map((l) => ({ ...l, _key: key() })),
     infokort: { tittel: 'Tog til Bergen sentrum', tekst: 'Avgang hver halvtime fra Arna' },
+    faktaseksjon: {
+      overtittel: 'Å bo her',
+      tittel: 'Tre tun, ett nabolag',
+      tekst: 'Rekkehusene ligger samlet rundt tre tun, med kort vei til skole, buss og butikk, og til turterrenget.',
+    },
     fakta: [
-      ['3 tun', 'Ett av dem bilfritt, med felles parkeringsanlegg'],
-      ['Lekeplass', 'I hvert tun, pluss egen ballplass'],
-      ['Turterreng', 'Rikholdig friluftsområde like ved'],
-      ['Sunn økonomi', 'Et veldrevet borettslag'],
-    ].map(([tittel, tekst]) => ({ _type: 'faktakort', _key: key(), tittel, tekst })),
+      ['3 tun', 'Ett av dem bilfritt, med felles parkeringsanlegg.', null],
+      ['Lekeplasser', 'En i hvert tun, pluss egen ballplass.', 'Huske'],
+      ['Turterreng', 'Rikholdig friluftsområde rett ved husene.', 'Mountain'],
+      ['Sunn økonomi', 'Et veldrevet borettslag med ryddig drift.', 'TrendingUp'],
+    ].map(([tittel, tekst, ikon]) => ({ _type: 'faktakort', _key: key(), tittel, tekst, logo: !ikon, ...(ikon && { ikon }) })),
     snarvei: { merkelapp: 'Dugnad', tittel: 'Holder kostnadene nede – og er sosialt.', lenke: lenke('Se dugnadsplan', '#side-dugnad') },
     dokumentsenter: {
       tittel: 'Skal du bygge ut, montere varmepumpe eller skaffe husdyr?',

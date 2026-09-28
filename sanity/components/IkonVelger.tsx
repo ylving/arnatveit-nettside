@@ -22,7 +22,7 @@ const NORSKE_ORD: Record<string, string> = {
   info: 'info', hjelp: 'help life buoy', 'spørsmål': 'help question', advarsel: 'alert triangle',
   'strøm': 'zap plug', vann: 'droplet', varme: 'flame thermometer heater', brann: 'flame fire extinguisher',
   tre: 'tree', blomst: 'flower', plante: 'sprout leaf', hage: 'shovel flower sprout', dugnad: 'shovel hammer sprout',
-  barn: 'baby', lek: 'toy blocks', hund: 'dog', katt: 'cat', 'verktøy': 'wrench hammer', fest: 'party',
+  barn: 'baby huske', lek: 'toy blocks huske', lekeplass: 'huske toy', huske: 'huske', tur: 'mountain trees', fjell: 'mountain', hund: 'dog', katt: 'cat', 'verktøy': 'wrench hammer', fest: 'party',
   sol: 'sun', 'snø': 'snowflake', regn: 'cloud rain', hjerte: 'heart', stjerne: 'star', bilde: 'image', kamera: 'camera',
 };
 

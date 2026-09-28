@@ -1,0 +1,73 @@
+---
+// Front page "Å bo her": full-width band with a heading (5/12) and four facts in a 2×2 grid (7/12).
+// On phones the heading stacks above the facts, which become rows with dividers.
+import Icon from './Icon.astro';
+const { seksjon = {}, fakta = [] } = Astro.props;
+---
+{fakta.length > 0 && (
+  <section class="baand" aria-labelledby="fakta-tittel">
+    <div class="container innhold">
+      <div class="hode">
+        {seksjon.overtittel && <span class="overtittel">{seksjon.overtittel}</span>}
+        <h2 id="fakta-tittel">{seksjon.tittel ?? 'Å bo her'}</h2>
+        {seksjon.tekst && <p>{seksjon.tekst}</p>}
+      </div>
+      <ul>
+        {fakta.map((k: any) => (
+          <li>
+            <span class="ikon">
+              {k.logo ? (
+                // The logo mark; the right house is a shade darker than in the logo so it reads on the light circle
+                <svg width="28" height="19" viewBox="5 13 54 37" aria-hidden="true">
+                  <path fill="#7FA08F" d="M6 49V32L10 28V21H14V24L18 20L20.232 22.232L16.232 26.232A2.5 2.5 0 0 0 15.5 28V49Z"></path>
+                  <path fill="#9DB8A5" d="M48.5 49V28A2.5 2.5 0 0 0 47.768 26.232L44.5 22.964V21.5L46 20L52 26V21H56V30L58 32V49Z"></path>
+                  <path fill="#2F5D4E" d="M18 49V28L32 14L38 20V15H42V24L46 28V49Z"></path>
+                </svg>
+              ) : <Icon name={k.ikon} size={22} strokeWidth={1.8} />}
+            </span>
+            <span class="tekst">
+              <h3>{k.tittel}</h3>
+              {k.tekst && <span class="beskrivelse">{k.tekst}</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
+<style>
+  .baand { background: #e4ece6; padding-block: 88px; margin-top: 32px; }
+  .innhold { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 88px; align-items: start; }
+  .hode { display: flex; flex-direction: column; gap: 20px; }
+  .overtittel { font-size: 14px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+  h2 { font-size: 48px; line-height: 1.08; letter-spacing: -0.015em; margin: 0; }
+  .hode p { margin: 0; font-size: 18px; line-height: 1.6; color: var(--ink-2); max-width: 420px; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 48px; row-gap: 40px; }
+  li { border-top: 1px solid #bfd1c5; padding-top: 22px; display: flex; gap: 18px; align-items: flex-start; }
+  .ikon { width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; background: var(--bg); color: var(--accent); display: grid; place-items: center; }
+  .tekst { display: flex; flex-direction: column; gap: 6px; }
+  h3 { font-size: 26px; line-height: 1.15; margin: 0; }
+  .beskrivelse { font-size: 16px; line-height: 1.5; color: #46514b; }
+
+  /* Narrower screens: heading above, facts still 2×2 */
+  @media (max-width: 1080px) {
+    .innhold { grid-template-columns: 1fr; gap: 40px; }
+    h2 { font-size: clamp(30px, 5vw, 48px); }
+  }
+  /* Phones: facts as rows with dividers */
+  @media (max-width: 640px) {
+    .baand { padding-block: 40px 22px; }
+    .innhold { gap: 22px; }
+    .hode { gap: 14px; }
+    .overtittel { font-size: 13px; }
+    h2 { font-size: 30px; line-height: 1.1; }
+    .hode p { font-size: 16px; }
+    ul { grid-template-columns: 1fr; row-gap: 0; }
+    li { padding: 18px 0; gap: 14px; }
+    .ikon { width: 44px; height: 44px; }
+    .ikon :global(svg) { width: 20px; height: 20px; }
+    .ikon svg[viewBox^="5 13"] { width: 24px; height: 17px; }
+    h3 { font-size: 21px; }
+    .beskrivelse { font-size: 15px; }
+  }
+</style>
