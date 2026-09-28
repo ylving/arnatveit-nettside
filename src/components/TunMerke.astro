@@ -1,8 +1,8 @@
 ---
 // Small house in the tun's colour (the logo's greens); "Ekstern" gets an outline
+import { TUN_FARGE } from '../lib/medlem';
 const { tun, visTekst = true } = Astro.props;
-const FARGE: Record<string, string> = { 'A-tunet': '#7FA08F', 'B-tunet': '#2F5D4E', 'C-tunet': '#C3D6C9' };
-const farge = FARGE[tun];
+const farge = TUN_FARGE[tun];
 ---
 {tun && (
   <span class="tun">

@@ -1,0 +1,24 @@
+---
+// Key figures: a big number with a short text under it, side by side (e.g. "Slik fungerer dugnad")
+const { node } = Astro.props;
+const tall: { _key: string; verdi: string; tekst: string }[] = node.tall ?? [];
+---
+<section class="nokkeltall">
+  {node.tittel && <h2>{node.tittel}</h2>}
+  <dl style={`--kolonner:${Math.min(Math.max(tall.length, 1), 3)}`}>
+    {tall.map((t) => <div><dt>{t.verdi}</dt><dd>{t.tekst}</dd></div>)}
+  </dl>
+</section>
+<style>
+  .nokkeltall { max-width: 960px; }
+  h2 { margin-bottom: 28px; }
+  dl { margin: 0; display: grid; grid-template-columns: repeat(var(--kolonner), minmax(0, 1fr)); gap: 24px 32px; }
+  div { border-top: 2px solid var(--accent); padding-top: 18px; display: flex; flex-direction: column; gap: 6px; }
+  dt { font-family: var(--serif); font-size: clamp(36px, 4vw, 44px); line-height: 1; white-space: nowrap; }
+  dd { margin: 0; font-size: 16px; line-height: 1.5; color: var(--ink-2); text-wrap: pretty; }
+  @media (max-width: 760px) {
+    dl { grid-template-columns: 1fr; gap: 20px; }
+    div { padding-top: 14px; }
+    dt { font-size: 34px; }
+  }
+</style>

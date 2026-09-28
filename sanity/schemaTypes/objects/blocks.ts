@@ -64,7 +64,7 @@ export const dokumentliste = defineType({
   type: 'object',
   icon: lucideIkon('Files'),
   fields: [
-    defineField({ name: 'tittel', title: 'Overskrift', type: 'string' }),
+    defineField({ name: 'tittel', title: 'Overskrift', description: 'La stå tom når listen hører til teksten over, uten egen overskrift.', type: 'string' }),
     defineField({
       name: 'kategori',
       title: 'Kategori',
@@ -88,7 +88,22 @@ export const medlemsliste = defineType({
   icon: lucideIkon('Users'),
   fields: [
     defineField({ name: 'tittel', title: 'Overskrift', description: 'F.eks. «Styremedlemmer». Varamedlemmer får automatisk en egen liste.', type: 'string' }),
+    defineField({ name: 'ingress', title: 'Tekst under overskriften (valgfri)', type: 'string', hidden: ({ path }) => path[0] !== 'seksjoner' }),
     defineField({ name: 'utvalg', title: 'Utvalg', type: 'reference', to: [{ type: 'utvalg' }], validation: (r) => r.required() }),
+    defineField({
+      name: 'visning',
+      title: 'Visning',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Rader med kontaktinfo', value: 'rader' },
+          { title: 'Navn gruppert etter tun', value: 'tun' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'rader',
+      hidden: ({ path }) => path[0] !== 'seksjoner',
+    }),
     breddeFelt('medlemsliste'),
   ],
   preview: {
@@ -123,6 +138,39 @@ export const faktaliste = defineType({
     breddeFelt('faktaliste'),
   ],
   preview: { select: { title: 'tittel' }, prepare: ({ title }) => ({ title: title || 'Faktaliste', subtitle: 'Faktaliste' }) },
+});
+
+export const nokkeltall = defineType({
+  name: 'nokkeltall',
+  title: 'Nøkkeltall',
+  type: 'object',
+  icon: lucideIkon('Hash'),
+  description: 'Store tall med en kort tekst under, f.eks. «150 kr» – «per time for voksne».',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string' }),
+    defineField({
+      name: 'tall',
+      title: 'Tall',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'tallrad',
+          fields: [
+            defineField({ name: 'verdi', title: 'Tall', description: 'F.eks. «150 kr»', type: 'string', validation: (r) => r.required() }),
+            defineField({ name: 'tekst', title: 'Tekst', description: 'F.eks. «per time for voksne og barn over 13 år»', type: 'string', validation: (r) => r.required() }),
+          ],
+          preview: { select: { title: 'verdi', subtitle: 'tekst' } },
+        }),
+      ],
+      validation: (r) => r.required().min(1).max(4),
+    }),
+    breddeFelt('nokkeltall'),
+  ],
+  preview: {
+    select: { tittel: 'tittel', a: 'tall.0.verdi', b: 'tall.1.verdi', c: 'tall.2.verdi' },
+    prepare: ({ tittel, a, b, c }) => ({ title: tittel || 'Nøkkeltall', subtitle: `Nøkkeltall · ${[a, b, c].filter(Boolean).join(' · ')}` }),
+  },
 });
 
 export const kontaktinfo = defineType({

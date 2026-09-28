@@ -28,8 +28,9 @@ const h3 = (t) => block('h3', t);
 const dokumentliste = (kategori, tittel, grupperEtterAar = false) => ({ _type: 'dokumentliste', _key: key(), tittel, kategori: ref(`kategori-${kategori}`), grupperEtterAar });
 const medlemsliste = (id) => ({ _type: 'medlemsliste', _key: key(), utvalg: ref(`utvalg-${id}`) });
 const faktaliste = (tittel, rader) => ({ _type: 'faktaliste', _key: key(), tittel, rader: rader.map(([etikett, verdi]) => ({ _type: 'rad', _key: key(), etikett, verdi })) });
-const infoboks = (tittel, ...tekst) => ({ _type: 'infoboks', _key: key(), tittel, tekst });
 const lenke = (tekst, target) => ({ _type: 'lenke', tekst, ...(target.startsWith('#') ? { intern: ref(target.slice(1)) } : { url: target }) });
+const nokkeltall = (tittel, tall) => ({ _type: 'nokkeltall', _key: key(), tittel, bredde: 'bred', tall: tall.map(([verdi, tekst]) => ({ _type: 'tallrad', _key: key(), verdi, tekst })) });
+const hvaSkjer = (kategori) => ({ _type: 'arrangementer', _key: key(), tittel: 'Hva skjer', kategori, bredde: 'bred' });
 const lenkeknapp = (tekst, target) => ({ _type: 'lenkeknapp', _key: key(), lenke: lenke(tekst, target) });
 
 export const KATEGORIER = [
@@ -78,7 +79,7 @@ export function buildContent({ protokoll2026 }) {
         ...['Bente Birkeland', 'Marit G. Holmas', 'Steinar Endresen', 'Eva Kayser', 'Maria Sofie Nesse', 'Anne Liv Johannessen'].map((x) => medlem(x, undefined, 'A-tunet')),
         medlem('Hanne Espe', undefined, 'B-tunet'),
         ...['Siren Eikevik', 'Liss M. Larsen', 'Tine-Hjartnes Henjum'].map((x) => medlem(x, undefined, 'C-tunet')),
-        ...['Tove Samuelsen', 'Lisbeth L. Strand'].map((x) => medlem(x, 'Utvidet beplantingsutvalg', 'A-tunet')),
+        ...['Tove Samuelsen', 'Lisbeth L. Strand'].map((x) => ({ ...medlem(x, undefined, 'A-tunet'), beplanting: true })),
       ],
     },
     // Names were blank on the old site — fill in via Studio, then add a Medlemsliste block to Generalforsamling
@@ -142,27 +143,26 @@ export function buildContent({ protokoll2026 }) {
     }),
     side('dugnad', 'Dugnad', {
       ikon: 'Sprout', kort: 'Felles innsats som holder kostnadene nede, og som er sosialt og utviklende.', rekkefolge: 50, gamleUrler: ['/praktiskinfo/dugnad'],
-      ingress: 'Dugnadsinnsatsen til andelseiere i borettslaget er med på å holde fellesutgiftene nede.',
+      ingress: 'Dugnadsinnsatsen til andelseierne holder fellesutgiftene nede. Og du får betalt for timene du legger ned.',
       innhold: [
-        p('Arbeid vi kan gjøre som dugnad ville ellers ha kostet en del penger å leie inn folk til å gjøre. Vedlikehold av borettslagets uteområder blir oftest kalt dugnad. Siden borettslaget ikke har noen ansatt vaktmester, er dugnaden et tiltak som er viktig for oss alle.'),
-        p('Dugnadsarbeid er likevel ikke gratisarbeid. I vårt borettslag får du betalt penger for å arbeide dugnad. Ofte er det miljøutvalget eller styret som inviterer til dette.'),
-        p('Nedenfor finner du informasjon til deg som jobber dugnad sammen med dugnadslisten. Utfylte dugnadslister legger du i borettslagets postkasse i A-tunet.'),
-        infoboks('Først og fremst, takk for innsatsen!',
-          p('Hver andelseier betaler kr. 2.400,- hvert år i dugnadspenger. Dette er inkludert i husleien med kr. 200,- pr. mnd. Hver andelseier kan tjene kr. 2.400,- pr. år i dugnad.'),
-          p('Dugnadsarbeid utbetales med kr. 150,- pr. time for voksne (barn over 13 år). kr. 50,- pr. time for barn (mellom 7 og 13 år). Dugnad blir utbetalt én gang pr. år.'),
-        ),
-        p('Dugnad utenom fellesdugnader, må avtales på forhånd med styret. Utførte dugnadstimer skal kvitteres av en fra styret. Dugnadskortet fylles ut av andelseier og leveres til dugnadsansvarlig.'),
+        hvaSkjer('dugnad'),
+        nokkeltall('Slik fungerer dugnad', [
+          ['150 kr', 'per time for voksne og barn over 13 år'],
+          ['50 kr', 'per time for barn mellom 7 og 13 år'],
+          ['2 400 kr', 'i året kan du tjene inn, like mye som dugnadspengene i husleien'],
+        ]),
+        p('Dugnadspengene på 200 kr i måneden er inkludert i husleien, og dugnaden utbetales én gang i året. Siden borettslaget ikke har vaktmester, er dugnaden viktig for oss alle. Dugnad utenom fellesdugnadene avtales på forhånd med styret.'),
+        dokumentliste('dugnad'),
+        p('Utførte dugnadstimer skal kvitteres av en fra styret. Dugnadskortet fylles ut av andelseier og leveres til dugnadsansvarlig.'),
         p('Borettslaget omfattes av forskrifter om HMS. Ved utførelse av dugnad er den enkelte beboer pliktig til å utføre arbeidet på en slik måte at skade unngås. For eksempel vil det for enkelte arbeidsoppgaver være aldersgrense (bruk av gressklipper, motorsag og lignende).'),
-        dokumentliste('dugnad', 'Dugnadskort'),
       ],
     }),
     side('miljoutvalget', 'Miljøutvalget', {
       ikon: 'Heart', kort: 'Aktiviteter for beboerne som bidrar til et godt bomiljø.', rekkefolge: 60, gamleUrler: ['/praktiskinfo/miljoutvalget'],
       ingress: 'Miljøutvalet har blandt anna ansvar for sosiale arrangement i borettslaget og for gjennomføring av årlig dugnad.',
       innhold: [
-        p('På denne siden vil informasjon om slikt bli lagt ut.'),
-        h2('Utvalget består av'),
-        medlemsliste('miljoutvalget'),
+        hvaSkjer('sosialt'),
+        { ...medlemsliste('miljoutvalget'), tittel: 'Utvalget', ingress: 'Miljøutvalget har medlemmer fra alle tre tun.', visning: 'tun' },
       ],
     }),
     side('dokumentsenter', 'Dokumentsenter', {

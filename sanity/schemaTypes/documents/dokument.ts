@@ -9,7 +9,7 @@ export const dokument = defineType({
     defineField({ name: 'fil', title: 'Fil', type: 'file', validation: (r) => r.required() }),
     defineField({ name: 'kategori', title: 'Kategori', type: 'reference', to: [{ type: 'dokumentkategori' }], validation: (r) => r.required() }),
     defineField({ name: 'dato', title: 'Dato', description: 'Brukes til sortering. Kun år? Velg 1. januar.', type: 'date' }),
-    defineField({ name: 'beskrivelse', title: 'Beskrivelse', type: 'text', rows: 2 }),
+    defineField({ name: 'beskrivelse', title: 'Beskrivelse', description: 'Valgfri. Vises under tittelen i dokumentlistene, f.eks. «Fyll ut og legg i borettslagets postkasse i A-tunet».', type: 'text', rows: 2 }),
     defineField({
       name: 'gamleUrler',
       title: 'Gamle adresser',

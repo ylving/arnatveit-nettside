@@ -7,10 +7,18 @@ export const STANDARD_BREDDE = {
   bilde: 'tekst',
   dokumentliste: 'tekst',
   faktaliste: 'tekst',
+  nokkeltall: 'bred',
   knapper: 'tekst',
   medlemsliste: 'bred',
   kontaktinfo: 'bred',
   undersider: 'bred',
   ansvarsliste: 'bred',
+  arrangementer: 'bred',
 } as const;
 export type Bredde = 'tekst' | 'bred' | 'full';
+// Event categories (arrangement.kategori). Colours are tokens in global.css (--dugnad*, --sosialt*).
+export const KATEGORIER = [
+  { verdi: 'dugnad', navn: 'Dugnad', ikon: 'Sprout' },
+  { verdi: 'sosialt', navn: 'Sosialt', ikon: 'Heart' },
+] as const;
+export type Kategori = (typeof KATEGORIER)[number]['verdi'];

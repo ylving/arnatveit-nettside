@@ -19,7 +19,19 @@ Astro (static) + Sanity, deployed as a Cloudflare Worker with static assets. San
 | `npm run typecheck` | Type-check Studio code (schemas, custom inputs) |
 
 ## Publishing
-Content is fetched at build time. Publishing in the Studio → a Sanity webhook triggers a Cloudflare Workers Builds deploy hook → rebuild (about 1 min).
+Content is fetched at build time. Publishing in the Studio → a Sanity webhook triggers a Cloudflare Workers Builds deploy hook → rebuild (about 1 min). The webhook must fire for every document type (events included), so leave its filter empty or use `!(_id in path("drafts.**"))`.
+
+**Nightly rebuild:** past events have to disappear from "Hva skjer" and the calendar feed even when nobody publishes. `workers/nattlig-bygg/` is a separate Worker with only a cron trigger (01:00 UTC) that calls the same deploy hook. Set it up once:
+```sh
+cd workers/nattlig-bygg
+npx wrangler secret put DEPLOY_HOOK_URL   # the Workers Builds deploy hook URL
+npx wrangler deploy
+```
+
+## Events and calendar
+`arrangement` documents are listed by the "Hva skjer" page section (`src/components/portable/HvaSkjer.astro`). Only events from today on are shown (Norwegian date), so today's event stays up until the nightly rebuild.
+- `/kalender.ics`: feed of all upcoming events ("Abonner på kalenderen", linked as `webcal://`)
+- `/kalender/<date>-<title>.ics`: one file per event ("Legg i kalender")
 
 ## Redirects
 `src/pages/[redirects].ts` generates `dist/_redirects` from the `gamleUrler` field on `side` and `dokument` documents. Old PDF URLs (`/images/pdf/…`) redirect to the file on Sanity's CDN.

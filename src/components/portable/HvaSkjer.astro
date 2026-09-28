@@ -1,0 +1,171 @@
+---
+// "Hva skjer": upcoming events grouped by month, with a toggle (the section's own category, the other, all).
+// The default view is rendered here (works without JS); the inline script below only switches the filter.
+import Icon from '../Icon.astro';
+import TunMerke from '../TunMerke.astro';
+import { load } from '../../lib/sanity';
+import { ARRANGEMENTER, datoDeler, filnavnFor, kommende, type Arrangement } from '../../lib/arrangement';
+import { KATEGORIER, type Kategori } from '../../../sanity/standarder';
+
+const { node } = Astro.props;
+const egen: Kategori = node.kategori ?? 'dugnad';
+const liste = kommende(await load<Arrangement[]>(ARRANGEMENTER));
+const filer = filnavnFor(liste);
+
+type Filter = Kategori | 'alle';
+const rekkefolge: Filter[] = [egen, ...KATEGORIER.map((k) => k.verdi).filter((k) => k !== egen), 'alle'];
+const navn = (f: Filter) => (f === 'alle' ? 'Alle' : KATEGORIER.find((k) => k.verdi === f)!.navn);
+const antall = (f: Filter) => liste.filter((a) => f === 'alle' || a.kategori === f).length;
+const nesteId = liste.find((a) => a.kategori === egen)?._id;
+
+const grupper: { maaned: string; arr: (Arrangement & ReturnType<typeof datoDeler>)[] }[] = [];
+for (const a of liste) {
+  const d = datoDeler(a);
+  const siste = grupper.at(-1);
+  if (siste && siste.arr[0].maanedNokkel === d.maanedNokkel) siste.arr.push({ ...a, ...d });
+  else grupper.push({ maaned: d.maaned, arr: [{ ...a, ...d }] });
+}
+
+const abonner = `webcal://${Astro.site!.host}/kalender.ics`;
+---
+<section class="hva-skjer">
+  {node.tittel && <h2 class="tittel">{node.tittel}</h2>}
+  <a class="abonner" href={abonner}><Icon name="Rss" size={15} />Abonner på kalenderen</a>
+  {liste.length > 0 && (
+    <div class="filter" role="group" aria-label="Vis arrangementer" hidden>
+      {rekkefolge.map((f) => (
+        <button type="button" data-filter={f} aria-pressed={String(f === egen)}>{navn(f)} <span class="antall">{antall(f)}</span></button>
+      ))}
+    </div>
+  )}
+  <div class="liste">
+    {grupper.map((g) => (
+      <div class="maaned" hidden={!g.arr.some((a) => a.kategori === egen)}>
+        <p class="maaned-tittel">{g.maaned}</p>
+        {g.arr.map((a) => (
+          <article data-kategori={a.kategori} class={`kat-${a.kategori}`} hidden={a.kategori !== egen}>
+            <div class="dato" aria-hidden="true">
+              <span class="ukedag">{a.ukedag}</span>
+              <span class="dag">{a.dag}</span>
+              <span class="mnd">{a.mnd}</span>
+            </div>
+            <div class="innhold">
+              <div class="topp">
+                <h3>{a.tittel}</h3>
+                <span class="neste" hidden={a._id !== nesteId}>Neste</span>
+              </div>
+              <p class="visually-hidden">{a.ukedag} {a.dag}. {a.maaned}</p>
+              <div class="meta">
+                <span><Icon name="Clock" size={15} />{a.tid}</span>
+                {a.sted && <span><Icon name="MapPin" size={15} />{a.sted}</span>}
+                {a.tun && !a.sted?.includes(a.tun) && <TunMerke tun={a.tun} />}
+              </div>
+              {a.beskrivelse && <p class="beskrivelse">{a.beskrivelse}</p>}
+            </div>
+            <div class="side">
+              <span class="merke"><Icon name={KATEGORIER.find((k) => k.verdi === a.kategori)!.ikon} size={14} />{navn(a.kategori)}</span>
+              <a class="kalender" href={`/kalender/${filer.get(a._id)}.ics`} aria-label={`Legg ${a.tittel} i kalenderen`}>
+                <Icon name="CalendarPlus2" size={15} /><span class="lang">Legg i kalender</span><span class="kort">Kalender</span>
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    ))}
+    <p class="tom" hidden={antall(egen) > 0}>Ingen planlagte arrangementer ennå. Følg med her og i ABC-nytt.</p>
+  </div>
+</section>
+<script is:inline>
+  // Filter without reloading: show the chosen category, move "Neste" to its first event
+  (() => {
+    const el = document.currentScript.previousElementSibling;
+    const filter = el.querySelector('.filter');
+    if (!filter) return;
+    const knapper = filter.querySelectorAll('button');
+    const vis = (f) => {
+      let forste = true;
+      knapper.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === f)));
+      el.querySelectorAll('.maaned').forEach((m) => {
+        let noen = false;
+        m.querySelectorAll('article').forEach((a) => {
+          const med = f === 'alle' || a.dataset.kategori === f;
+          a.hidden = !med;
+          a.querySelector('.neste').hidden = !(med && forste);
+          if (med) { forste = false; noen = true; }
+        });
+        m.hidden = !noen;
+      });
+      el.querySelector('.tom').hidden = !forste;
+    };
+    knapper.forEach((b) => b.addEventListener('click', () => vis(b.dataset.filter)));
+    filter.hidden = false;
+  })();
+</script>
+<style>
+  .hva-skjer {
+    max-width: 960px;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: 'tittel abonner filter' 'liste liste liste';
+    align-items: end; column-gap: 20px;
+  }
+  .hva-skjer [hidden] { display: none !important; }
+  .tittel { grid-area: tittel; padding-bottom: 8px; }
+  .abonner, .kalender { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--accent); white-space: nowrap; }
+  .abonner:hover, .kalender:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .abonner { grid-area: abonner; align-self: center; margin-bottom: 8px; }
+  .filter { grid-area: filter; display: flex; padding: 4px; margin-bottom: 8px; background: #eae5da; border-radius: 999px; }
+  .filter button {
+    height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: var(--muted);
+    font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .filter button[aria-pressed='true'] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(29, 36, 32, 0.14); }
+  .antall { font-weight: 500; opacity: 0.6; }
+  .liste { grid-area: liste; }
+  .maaned-tittel { margin: 0; padding: 28px 0 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
+  article { display: grid; grid-template-columns: 80px minmax(0, 1fr) 180px; grid-template-areas: 'dato innhold side'; gap: 24px; align-items: start; padding: 22px 0; border-bottom: 1px solid var(--line-soft); }
+  .kat-dugnad { --kat-bg: var(--dugnad-bg); --kat: var(--dugnad); }
+  .kat-sosialt { --kat-bg: var(--sosialt-bg); --kat: var(--sosialt); }
+  .dato { grid-area: dato; height: 88px; border-radius: 16px; background: var(--kat-bg); color: var(--kat); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.3; }
+  .ukedag { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+  .dag { font-family: var(--serif); font-size: 34px; line-height: 1; color: var(--ink); }
+  .mnd { font-size: 13px; font-weight: 500; }
+  .innhold { grid-area: innhold; display: flex; flex-direction: column; gap: 8px; padding-top: 4px; min-width: 0; }
+  .topp { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; }
+  h3 { font-size: 25px; margin: 0; }
+  .neste { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; background: var(--accent); color: #fff; padding: 3px 9px; border-radius: 999px; line-height: 1.4; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; color: var(--muted); line-height: 1.4; }
+  .meta > span { display: inline-flex; align-items: center; gap: 6px; }
+  .meta :global(svg) { flex-shrink: 0; }
+  .meta :global(.tun) { font-size: 15px; color: var(--muted); }
+  .beskrivelse { margin: 0; font-size: 16px; line-height: 1.55; color: var(--ink-2); max-width: 560px; text-wrap: pretty; }
+  .side { grid-area: side; display: flex; flex-direction: column; align-items: flex-end; gap: 14px; padding-top: 6px; }
+  .merke { display: inline-flex; align-items: center; gap: 6px; background: var(--kat-bg); color: var(--kat); font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 999px; line-height: 1.4; }
+  .kort { display: none; }
+  .tom { margin: 24px 0 0; font-size: 16px; color: var(--muted); }
+
+  /* Phones: title, full-width toggle, list, subscribe link last; the tag and calendar link sit under the text */
+  @media (max-width: 760px) {
+    .hva-skjer { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'tittel' 'filter' 'liste' 'abonner'; }
+    .tittel { padding-bottom: 14px; }
+    .filter { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 0; }
+    .filter button { padding: 0 8px; }
+    .abonner { justify-self: start; margin: 0; padding-top: 20px; }
+    .maaned-tittel { padding-top: 20px; font-size: 12px; }
+    article { grid-template-columns: 58px minmax(0, 1fr); grid-template-areas: 'dato innhold' 'dato side'; gap: 8px 14px; padding: 16px 0; }
+    .dato { height: 68px; border-radius: 14px; gap: 0; }
+    .ukedag { font-size: 11px; }
+    .dag { font-size: 26px; }
+    .mnd { font-size: 12px; }
+    .innhold { gap: 5px; padding-top: 0; }
+    .topp { gap: 4px 8px; }
+    h3 { font-size: 20px; }
+    .neste { font-size: 11px; padding: 2px 8px; }
+    .meta { flex-direction: column; gap: 5px; font-size: 14px; }
+    .meta :global(svg) { width: 14px; height: 14px; }
+    .meta :global(.tun) { font-size: 14px; }
+    .beskrivelse { font-size: 15px; }
+    .side { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding-top: 0; }
+    .merke { font-size: 12px; padding: 4px 10px; gap: 5px; }
+    .lang { display: none; }
+    .kort { display: inline; }
+  }
+</style>

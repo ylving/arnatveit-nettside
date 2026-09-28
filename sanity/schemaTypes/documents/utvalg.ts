@@ -48,6 +48,15 @@ export const utvalg = defineType({
               initialValue: false,
             }),
             defineField({
+              name: 'beplanting',
+              title: 'Utvidet beplantingsutvalg',
+              description: 'Vises med et blad-ikon i medlemslisten.',
+              type: 'boolean',
+              initialValue: false,
+              // Only Miljøutvalget has an extended planting committee
+              hidden: ({ document, value }) => !value && document?._id.replace(/^drafts\./, '') !== 'utvalg-miljoutvalget',
+            }),
+            defineField({
               name: 'kontaktperson',
               title: 'Kontaktperson for borettslaget',
               description: 'Vises som kontaktperson med navn, telefon og e-post der nettsiden viser kontaktinfo. Bare én person kan være kontaktperson.',
@@ -71,10 +80,10 @@ export const utvalg = defineType({
             }),
           ],
           preview: {
-            select: { title: 'navn', rolle: 'rolle', vara: 'vara', kontaktperson: 'kontaktperson', a0: 'ansvar.0.omraade', a1: 'ansvar.1.omraade' },
-            prepare: ({ title, rolle, vara, kontaktperson, a0, a1 }) => ({
+            select: { title: 'navn', rolle: 'rolle', vara: 'vara', beplanting: 'beplanting', kontaktperson: 'kontaktperson', a0: 'ansvar.0.omraade', a1: 'ansvar.1.omraade' },
+            prepare: ({ title, rolle, vara, beplanting, kontaktperson, a0, a1 }) => ({
               title,
-              subtitle: [rolle, vara && 'Vara', kontaktperson && 'Kontaktperson', a0 && `Ansvar: ${[a0, a1].filter(Boolean).join(', ')}`].filter(Boolean).join(' · '),
+              subtitle: [rolle, vara && 'Vara', beplanting && 'Beplantingsutvalg', kontaktperson && 'Kontaktperson', a0 && `Ansvar: ${[a0, a1].filter(Boolean).join(', ')}`].filter(Boolean).join(' · '),
             }),
           },
         }),

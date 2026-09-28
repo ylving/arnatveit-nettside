@@ -1,4 +1,4 @@
-// Dev only: when a page or news item is published in Sanity, clear Astro's cached getStaticPaths()
+// Dev only: when a page, news item or event is published in Sanity, clear Astro's cached getStaticPaths()
 // results so new/moved addresses work without restarting `astro dev`. (Astro only clears that cache
 // for its own content layer, which we don't use — we send the same signal it sends.)
 import { createClient } from '@sanity/client';
@@ -13,7 +13,7 @@ export default function sanityDevRefresh({ projectId, dataset, apiVersion }) {
         let timer;
         const sub = client
           // visibility "query": the event arrives once the change is visible to queries
-          .listen('*[_type in ["side", "nyhet"]]', {}, { includeResult: false, visibility: 'query' })
+          .listen('*[_type in ["side", "nyhet", "arrangement"]]', {}, { includeResult: false, visibility: 'query' })
           .subscribe({
             next: (event) => {
               if (event.type !== 'mutation' || event.documentId.startsWith('drafts.')) return;

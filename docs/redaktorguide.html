@@ -121,6 +121,7 @@
         <li><a href="#styret">Styre og utvalg</a></li>
         <li><a href="#dokumenter">Dokumenter</a></li>
         <li><a href="#nyheter">Nyheter</a></li>
+        <li><a href="#arrangementer">Arrangementer</a></li>
         <li><a href="#forsiden">Forsiden</a></li>
         <li><a href="#innstillinger">Innstillinger</a></li>
         <li><a href="#ikoner">Ikoner</a></li>
@@ -161,8 +162,10 @@
               <tr><td>Tekst</td><td>Vanlig tekst med overskrifter, lister og lenker. Bilder og bokser legges som egne seksjoner.</td></tr>
               <tr><td>Bilde</td><td>Et bilde med alternativ tekst (påkrevd, for skjermlesere) og valgfri bildetekst.</td></tr>
               <tr><td>Infoboks</td><td>En grønn boks for noe som skal skille seg ut, som satser eller frister.</td></tr>
-              <tr><td>Dokumentliste</td><td>Alle dokumentene i én kategori, for eksempel Protokoller. Oppdateres av seg selv når du laster opp nye dokumenter.</td></tr>
-              <tr><td>Medlemsliste</td><td>Medlemmene i et utvalg fra <span class="felt">Styre og utvalg</span>. Varamedlemmer får egen liste under.</td></tr>
+              <tr><td>Dokumentliste</td><td>Alle dokumentene i én kategori, for eksempel Protokoller. Oppdateres av seg selv når du laster opp nye dokumenter. La <span class="felt">Overskrift</span> stå tom når listen hører til teksten over.</td></tr>
+              <tr><td>Medlemsliste</td><td>Medlemmene i et utvalg fra <span class="felt">Styre og utvalg</span>. Varamedlemmer får egen liste under. Velg <span class="felt">Visning</span>: «Rader med kontaktinfo» (som Styret) eller «Navn gruppert etter tun» (som Miljøutvalget).</td></tr>
+              <tr><td>Nøkkeltall</td><td>Opptil fire store tall med en kort tekst under, som «150 kr – per time for voksne» på Dugnad.</td></tr>
+              <tr><td>Hva skjer</td><td>Kommende arrangementer fra <a href="#arrangementer">Arrangementer</a>, med valg mellom dugnad, sosialt og alle. <span class="felt">Vis først</span> bestemmer hvilken type som er valgt når siden åpnes.</td></tr>
               <tr><td>Faktaliste</td><td>Rader med etikett og verdi, som på Om borettslaget.</td></tr>
               <tr><td>Kontaktinfo</td><td>Adresser, e-post og kontaktperson fra <span class="felt">Innstillinger</span>.</td></tr>
               <tr><td>Hvem kontakter jeg?</td><td>Ett kort per ansvarsområde, med navn og telefon til den ansvarlige (se <a href="#styret">Styre og utvalg</a>).</td></tr>
@@ -208,6 +211,7 @@
               <tr><td>Telefon, E-post</td><td>Vises som lenker. Er e-posten styrets felles adresse, står det «Nås via styret@» i stedet.</td></tr>
               <tr><td>Ansvarsområder</td><td>Område, valgfri tekst og ikon. Vises i seksjonen «Hvem kontakter jeg?». Når ansvaret skifter, flytter du området til den nye personen.</td></tr>
               <tr><td>Varamedlem</td><td>Personen vises i en egen liste, «Varamedlemmer», under de faste medlemmene.</td></tr>
+              <tr><td>Utvidet beplantingsutvalg</td><td>Bare i Miljøutvalget. Personen får et lite blad ved navnet i medlemslisten.</td></tr>
               <tr><td>Kontaktperson for borettslaget</td><td>Vises som kontaktperson i kontaktinfoen på Kontakt og Om borettslaget. Bare én person kan ha dette slått på.</td></tr>
             </tbody>
           </table>
@@ -228,6 +232,7 @@
           <li>Lag et nytt dokument og gi det en <span class="felt">Tittel</span>, for eksempel «Generalforsamling 2027».</li>
           <li>Last opp PDF-en i <span class="felt">Fil</span> og velg <span class="felt">Kategori</span>.</li>
           <li>Sett <span class="felt">Dato</span>. Den styrer rekkefølgen, med de nyeste først. Vet du bare året, velger du 1. januar.</li>
+          <li>Skriv gjerne en kort <span class="felt">Beskrivelse</span>, for eksempel hva man gjør med skjemaet. Den vises under tittelen i listen.</li>
           <li>Publiser. Dokumentet dukker opp i alle dokumentlister for den kategorien.</li>
         </ol>
         <p>ABC-nytt vises gruppert etter år, og siste utgave vises automatisk på forsiden.</p>
@@ -242,6 +247,19 @@
           <li><span class="felt">Vedlagte dokumenter</span> kobler nyheten til PDF-er, for eksempel årets protokoll.</li>
           <li><span class="felt">Fremhev på forsiden</span> gjør nyheten til den store grønne boksen under «Aktuelt».</li>
         </ul>
+      </section>
+
+      <section id="arrangementer">
+        <h2>Arrangementer</h2>
+        <p>Dugnader og sosiale arrangementer legges under <span class="felt">Arrangementer</span>. De vises i «Hva skjer» på sidene Dugnad og Miljøutvalget, og i kalenderen beboerne kan abonnere på.</p>
+        <ol>
+          <li>Åpne <span class="felt">Arrangementer</span> og lag et nytt arrangement.</li>
+          <li>Skriv <span class="felt">Tittel</span>, for eksempel «Høstdugnad», og velg <span class="felt">Type</span>: Dugnad eller Sosialt.</li>
+          <li>Velg <span class="felt">Dato og starttid</span>. Skriv eventuelt <span class="felt">Sluttid</span> som et klokkeslett, for eksempel «14:00».</li>
+          <li>Fyll inn <span class="felt">Sted</span> og en <span class="felt">Kort beskrivelse</span>, for eksempel hva folk bør ta med. <span class="felt">Tun</span> velger du bare hvis arrangementet gjelder ett tun.</li>
+          <li>Publiser. Arrangementet vises på nettsiden etter omtrent ett minutt.</li>
+        </ol>
+        <p>Du trenger ikke slette arrangementer som er ferdige. Nettsiden bygges på nytt hver natt, og da forsvinner arrangementer som har vært. I Studio flyttes de fra <span class="felt">Kommende</span> til <span class="felt">Tidligere</span>.</p>
       </section>
 
       <section id="forsiden">

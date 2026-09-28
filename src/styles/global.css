@@ -14,6 +14,11 @@
   --accent-soft: #e4ece6;
   --accent-on: #d6e4da;
   --rust: #8a4e1f;
+  /* Event categories (arrangement.kategori) */
+  --dugnad-bg: #f3e6d6;
+  --dugnad: #8a4e1f;
+  --sosialt-bg: #e4ece6;
+  --sosialt: #2f5d4e;
   --footer-bg: #1d2420;
   --footer-ink: #d4cfc4;
   --footer-muted: #9d988f;
@@ -74,6 +79,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015
 .seksjon + .seksjon { margin-top: clamp(36px, 4.5vw, 56px); }
 /* A text section ending in a heading introduces the next section: keep them together */
 .seksjon--tekst:has(.prose > :last-child:is(h2, h3)) + .seksjon { margin-top: 16px; }
+/* Key figures introduce the text below them, and a document list without a heading belongs to the text above it */
+.seksjon--nokkeltall + .seksjon--tekst, .seksjon--tekst + .seksjon--dokumentliste:not(:has(h2)) { margin-top: 28px; }
 .smal { max-width: 72ch; }
 .seksjon .prose { max-width: none; padding-bottom: 0; }
 .seksjon .prose > :first-child { margin-top: 0; }

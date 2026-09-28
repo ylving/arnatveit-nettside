@@ -12,6 +12,21 @@ export const structure: StructureResolver = (S) =>
       singleton(S, 'forside', 'Forside'),
       S.documentTypeListItem('side').title('Sider'),
       S.documentTypeListItem('nyhet').title('Nyheter'),
+      S.listItem()
+        .title('Arrangementer')
+        .schemaType('arrangement')
+        .child(
+          S.list()
+            .title('Arrangementer')
+            .items([
+              S.listItem().title('Kommende').schemaType('arrangement').child(
+                S.documentTypeList('arrangement').title('Kommende').filter('_type == "arrangement" && start >= now()').defaultOrdering([{ field: 'start', direction: 'asc' }]),
+              ),
+              S.listItem().title('Tidligere').schemaType('arrangement').child(
+                S.documentTypeList('arrangement').title('Tidligere').filter('_type == "arrangement" && !(start >= now())').defaultOrdering([{ field: 'start', direction: 'desc' }]),
+              ),
+            ]),
+        ),
       S.divider(),
       S.listItem()
         .title('Dokumenter')

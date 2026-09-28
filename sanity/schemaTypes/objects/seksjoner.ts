@@ -3,6 +3,7 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 import { breddeFelt, lenkeAnnotasjon } from './blocks';
 import { lucideIkon } from '../../components/LucideIkon';
+import { KATEGORIER } from '../../standarder';
 
 type Blokk = { _type: string; children?: { text?: string }[] };
 const blokkTekst = (blokker: Blokk[] = []) =>
@@ -100,6 +101,33 @@ export const ansvarsliste = defineType({
   },
 });
 
+export const arrangementer = defineType({
+  name: 'arrangementer',
+  title: 'Hva skjer',
+  type: 'object',
+  icon: lucideIkon('CalendarDays'),
+  description: 'Kommende arrangementer fra «Arrangementer», med valg mellom dugnad, sosialt og alle. Tidligere arrangementer forsvinner av seg selv.',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Hva skjer' }),
+    defineField({
+      name: 'kategori',
+      title: 'Vis først',
+      description: 'Denne typen står først og er valgt når siden åpnes.',
+      type: 'string',
+      options: { list: KATEGORIER.map((k) => ({ title: k.navn, value: k.verdi })), layout: 'radio', direction: 'horizontal' },
+      validation: (r) => r.required(),
+    }),
+    breddeFelt('arrangementer'),
+  ],
+  preview: {
+    select: { tittel: 'tittel', kategori: 'kategori' },
+    prepare: ({ tittel, kategori }) => ({
+      title: tittel || 'Hva skjer',
+      subtitle: `Arrangementer · ${KATEGORIER.find((k) => k.verdi === kategori)?.navn ?? 'velg type'} først`,
+    }),
+  },
+});
+
 export const seksjoner = defineType({
   name: 'seksjoner',
   title: 'Innhold',
@@ -111,6 +139,8 @@ export const seksjoner = defineType({
     defineArrayMember({ type: 'dokumentliste' }),
     defineArrayMember({ type: 'medlemsliste' }),
     defineArrayMember({ type: 'faktaliste' }),
+    defineArrayMember({ type: 'nokkeltall' }),
+    defineArrayMember({ type: 'arrangementer' }),
     defineArrayMember({ type: 'kontaktinfo' }),
     defineArrayMember({ type: 'ansvarsliste' }),
     defineArrayMember({ type: 'knapper' }),
@@ -122,7 +152,7 @@ export const seksjoner = defineType({
       views: [{ name: 'list' }],
       groups: [
         { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'bilde', 'infoboks'] },
-        { name: 'lister', title: 'Lister', of: ['dokumentliste', 'medlemsliste', 'faktaliste'] },
+        { name: 'lister', title: 'Lister', of: ['dokumentliste', 'medlemsliste', 'faktaliste', 'nokkeltall', 'arrangementer'] },
         { name: 'annet', title: 'Kontakt og navigasjon', of: ['kontaktinfo', 'ansvarsliste', 'knapper', 'undersider'] },
       ],
     },

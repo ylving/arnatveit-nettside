@@ -1,0 +1,82 @@
+---
+// Member list grouped by tun: names only, three columns (medlemsliste with visning "tun", e.g. Miljøutvalget).
+// Members of the extended planting committee get a leaf, explained below the list.
+import Icon from '../Icon.astro';
+import Initialer from '../Initialer.astro';
+import { TUN_FARGE, TUN_KANT } from '../../lib/medlem';
+
+const { node } = Astro.props;
+type Medlem = { _key: string; navn: string; tun?: string; beplanting?: boolean };
+const alle: Medlem[] = node.utvalg?.medlemmer ?? [];
+const REKKEFOLGE = ['A-tunet', 'B-tunet', 'C-tunet', 'Ekstern'];
+const grupper = [...REKKEFOLGE, undefined]
+  .map((tun) => ({ tun, medlemmer: alle.filter((m) => (tun ? m.tun === tun : !REKKEFOLGE.includes(m.tun ?? ''))) }))
+  .filter((g) => g.medlemmer.length);
+const antall = (n: number) => `${n} ${n === 1 ? 'medlem' : 'medlemmer'}`;
+---
+<section class="tunliste">
+  {node.tittel && <h2>{node.tittel}</h2>}
+  {node.ingress && <p class="ingress">{node.ingress}</p>}
+  {grupper.map((g) => (
+    <div class="tun">
+      <div class="hode">
+        <h3>
+          {g.tun && TUN_FARGE[g.tun] && (
+            <svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M2 14.5V7l6-5 6 5v7.5z" fill={TUN_FARGE[g.tun]} stroke={TUN_KANT[g.tun]} stroke-width="1.5" stroke-linejoin="round"></path>
+            </svg>
+          )}
+          {g.tun ?? 'Andre'}
+        </h3>
+        <span class="antall">{antall(g.medlemmer.length)}</span>
+      </div>
+      <ul>
+        {g.medlemmer.map((m) => (
+          <li>
+            <Initialer navn={m.navn} size={34} />
+            <span>{m.navn}</span>
+            {m.beplanting && (
+              <span class="blad" title="Utvidet beplantingsutvalg"><Icon name="Leaf" size={16} /><span class="visually-hidden">(utvidet beplantingsutvalg)</span></span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+  {alle.some((m) => m.beplanting) && (
+    <p class="forklaring"><span class="blad"><Icon name="Leaf" size={16} /></span>Sitter også i utvidet beplantingsutvalg</p>
+  )}
+</section>
+<style>
+  .tunliste { max-width: 960px; }
+  h2 { margin-bottom: 8px; }
+  .ingress { margin: 0 0 24px; font-size: 17px; line-height: 1.6; color: var(--muted); }
+  .tun { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; padding: 24px 0; border-top: 1px solid var(--line); }
+  .hode { display: flex; flex-direction: column; gap: 4px; }
+  h3 { display: flex; align-items: center; gap: 10px; font-size: 24px; margin: 0; }
+  h3 svg { flex-shrink: 0; }
+  .antall { font-size: 14px; color: var(--muted); padding-left: 30px; }
+  ul { list-style: none; margin: 0; padding: 2px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 20px; align-content: start; }
+  li { display: flex; align-items: center; gap: 10px; font-size: 16px; line-height: 1.35; min-width: 0; }
+  li :global(.initialer) { font-size: 12px; }
+  .blad { color: #7fa08f; display: inline-flex; flex-shrink: 0; }
+  .forklaring { margin: 0; border-top: 1px solid var(--line); padding-top: 18px; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+  @media (max-width: 1000px) {
+    .tun { grid-template-columns: 160px minmax(0, 1fr); }
+    ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  /* Phones: tun name with the count on one line, names in one column */
+  @media (max-width: 760px) {
+    .ingress { font-size: 15px; margin-bottom: 16px; }
+    .tun { grid-template-columns: 1fr; gap: 12px; padding: 18px 0; }
+    .hode { flex-direction: row; align-items: baseline; gap: 8px; }
+    h3 { font-size: 21px; gap: 8px; align-self: center; }
+    h3 svg { width: 18px; height: 18px; }
+    .antall { padding-left: 0; font-size: 13px; }
+    .antall::before { content: '· '; }
+    ul { grid-template-columns: 1fr; gap: 10px; padding-top: 0; }
+    li { font-size: 15px; }
+    li :global(.initialer) { width: 30px; height: 30px; font-size: 11px; }
+    .forklaring { padding-top: 14px; font-size: 13px; }
+  }
+</style>

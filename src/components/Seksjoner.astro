@@ -9,6 +9,9 @@ import Faktaliste from './portable/Faktaliste.astro';
 import Kontaktinfo from './portable/Kontaktinfo.astro';
 import Knapper from './portable/Knapper.astro';
 import Ansvarsliste from './portable/Ansvarsliste.astro';
+import HvaSkjer from './portable/HvaSkjer.astro';
+import Nokkeltall from './portable/Nokkeltall.astro';
+import TunListe from './portable/TunListe.astro';
 import InfoCards from './InfoCards.astro';
 import { STANDARD_BREDDE, type Bredde } from '../../sanity/standarder';
 
@@ -34,8 +37,10 @@ const bredde = (s: any): Bredde =>
             {s._type === 'bilde' && <Bilde node={s} bredde={b} />}
             {s._type === 'infoboks' && <Infoboks node={s} />}
             {s._type === 'dokumentliste' && <Dokumentliste node={s} />}
-            {s._type === 'medlemsliste' && <Medlemsliste node={s} styretEpost={kontakt?.epost} />}
+            {s._type === 'medlemsliste' && (s.visning === 'tun' ? <TunListe node={s} /> : <Medlemsliste node={s} styretEpost={kontakt?.epost} />)}
             {s._type === 'faktaliste' && <Faktaliste node={s} />}
+            {s._type === 'nokkeltall' && <Nokkeltall node={s} />}
+            {s._type === 'arrangementer' && <HvaSkjer node={s} />}
             {s._type === 'kontaktinfo' && <Kontaktinfo node={{ ...s, kontakt }} />}
             {s._type === 'knapper' && <Knapper node={s} />}
             {s._type === 'ansvarsliste' && <Ansvarsliste node={s} styretEpost={kontakt?.epost} />}
