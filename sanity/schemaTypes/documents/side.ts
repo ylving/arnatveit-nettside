@@ -91,13 +91,12 @@ export const side = defineType({
     defineField({
       name: 'kontaktboks',
       title: 'Kontaktboks i toppen',
-      description: 'Grønn boks ved siden av tittelen, f.eks. «Skriv til hele styret». På mobil blir den én knapp.',
+      description: 'Grønn boks ved siden av tittelen med en e-postadresse som lenke, f.eks. «Skriv til hele styret».',
       type: 'object',
       options: { collapsible: true, collapsed: true },
       fields: [
         defineField({ name: 'tittel', title: 'Tittel', type: 'string', placeholder: 'Skriv til hele styret' }),
         defineField({ name: 'epost', title: 'E-post', description: 'La stå tomt for å bruke styrets e-post fra Innstillinger.', type: 'email' }),
-        defineField({ name: 'knappetekst', title: 'Knappetekst', type: 'string', placeholder: 'Send e-post' }),
       ],
     }),
     defineField({ name: 'seksjoner', title: 'Innhold', type: 'seksjoner' }),

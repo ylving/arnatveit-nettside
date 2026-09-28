@@ -18,9 +18,7 @@ const { slug } = Astro.props;
 const [side, kontakt] = await Promise.all([load<any>(SIDE, { slug }), load<any>(KONTAKT)]);
 // Contact box beside the title: its own email, or the board's from Innstillinger
 const k = side.kontaktboks;
-const boks = k && (k.tittel || k.epost || k.knappetekst)
-  ? { tittel: k.tittel || undefined, epost: k.epost || kontakt?.epost, knappetekst: k.knappetekst || undefined }
-  : null;
+const boks = k && (k.tittel || k.epost) ? { tittel: k.tittel || undefined, epost: k.epost || kontakt?.epost } : null;
 ---
 <Base title={side.seo?.tittel ?? side.tittel} description={side.seo?.beskrivelse ?? side.ingress}>
   <div class="container">

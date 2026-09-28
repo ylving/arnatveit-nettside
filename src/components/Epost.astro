@@ -9,4 +9,6 @@ const at = adresse.indexOf('@');
   /* Last resort for an address longer than the line: break anywhere rather than overflow */
   .epost { overflow-wrap: anywhere; }
   .domene { display: inline-block; max-width: 100%; }
+  /* An inline-block doesn't receive its link's underline: take it over explicitly (also on hover) */
+  .epost, .domene { text-decoration: inherit; }
 </style>
