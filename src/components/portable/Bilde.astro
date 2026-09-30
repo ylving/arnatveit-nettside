@@ -3,7 +3,7 @@ import { urlFor } from '../../lib/sanity';
 const { node, bredde = 'tekst' } = Astro.props;
 const src = (w: number) => urlFor(node).width(w).url();
 // px, not ch: in `sizes`, ch uses the browser's default font and underestimates the text column (~800px)
-const sizes = bredde === 'full' ? '100vw' : bredde === 'bred' ? '(max-width: 1240px) 100vw, 1200px' : '(max-width: 860px) 100vw, 800px';
+const sizes = bredde === 'full' ? '100vw' : bredde === 'bred' ? '(max-width: 1240px) 100vw, 1200px' : bredde === 'breakout' ? '(max-width: 1000px) 100vw, 960px' : '(max-width: 860px) 100vw, 800px';
 // Intrinsic size avoids layout shift while the lazy image loads
 const dim = node.asset?.metadata?.dimensions;
 ---

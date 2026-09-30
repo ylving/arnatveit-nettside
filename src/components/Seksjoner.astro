@@ -1,5 +1,6 @@
 ---
-// Renders side.seksjoner. Each section decides its own width: tekst (72ch) · bred (content container) · full (edge to edge).
+// Renders side.seksjoner. Each section decides its own width: tekst (72ch) · breakout (960px) · bred (content container)
+// · full (edge to edge). Components don't cap their own width; the section's `bredde` does.
 import Innhold from './portable/Innhold.astro';
 import Bilde from './portable/Bilde.astro';
 import Infoboks from './portable/Infoboks.astro';
@@ -40,7 +41,7 @@ const bredde = (s: any): Bredde =>
     return (
       <div class={`seksjon seksjon--${s._type}`} data-bredde={b}>
         <div class={b === 'full' ? undefined : 'container'}>
-          <div class={b === 'tekst' ? 'smal' : undefined}>
+          <div class={b === 'tekst' ? 'smal' : b === 'breakout' ? 'breakout' : undefined}>
             {s._type === 'tekst' && <div class="prose"><Innhold value={s.innhold} /></div>}
             {s._type === 'bilde' && <Bilde node={s} bredde={b} />}
             {s._type === 'infoboks' && <Infoboks node={s} />}

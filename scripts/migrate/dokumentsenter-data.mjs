@@ -81,5 +81,5 @@ export const INGRESS = 'Søknader, veiledninger og sjekklister. Skal du bygge ut
 /** The page's sections */
 export const seksjoner = (oppgaveIds) => [
   { _type: 'oppgaver', _key: 'jeg-vil', tittel: 'Jeg vil …', ingress: 'Velg en oppgave for å se steg for steg hva du må gjøre.', oppgaver: oppgaveIds.map((id) => ({ _type: 'reference', _ref: id, _key: id })), bredde: 'bred' },
-  { _type: 'dokumentsok', _key: 'alle-dokumenter', tittel: 'Alle dokumenter', kategorier: KATEGORIER.map((k) => ({ _type: 'reference', _ref: k._id, _key: k.slug })), bredde: 'bred' },
+  { _type: 'dokumentsok', _key: 'alle-dokumenter', tittel: 'Alle dokumenter', kategorier: KATEGORIER.map((k) => ({ _type: 'reference', _ref: k._id, _key: k.slug })), bredde: 'breakout' },
 ];

@@ -31,8 +31,8 @@ const dokumentliste = (kategori, tittel, grupperEtterAar = false) => ({ _type: '
 const medlemsliste = (id) => ({ _type: 'medlemsliste', _key: key(), utvalg: ref(`utvalg-${id}`) });
 const faktaliste = (tittel, rader) => ({ _type: 'faktaliste', _key: key(), tittel, rader: rader.map(([etikett, verdi]) => ({ _type: 'rad', _key: key(), etikett, verdi })) });
 const lenke = (tekst, target) => ({ _type: 'lenke', tekst, ...(target.startsWith('#') ? { intern: ref(target.slice(1)) } : { url: target }) });
-const nokkeltall = (tittel, tall) => ({ _type: 'nokkeltall', _key: key(), tittel, bredde: 'bred', tall: tall.map(([verdi, tekst]) => ({ _type: 'tallrad', _key: key(), verdi, tekst })) });
-const hvaSkjer = (kategori) => ({ _type: 'arrangementer', _key: key(), tittel: 'Hva skjer', kategori, bredde: 'bred' });
+const nokkeltall = (tittel, tall) => ({ _type: 'nokkeltall', _key: key(), tittel, bredde: 'breakout', tall: tall.map(([verdi, tekst]) => ({ _type: 'tallrad', _key: key(), verdi, tekst })) });
+const hvaSkjer = (kategori) => ({ _type: 'arrangementer', _key: key(), tittel: 'Hva skjer', kategori, bredde: 'breakout' });
 const lenkeknapp = (tekst, target) => ({ _type: 'lenkeknapp', _key: key(), lenke: lenke(tekst, target) });
 
 // Dokumentsenter's categories (Søknader, Bygging, HMS, Skjemaer) come from dokumentsenter-data.mjs. ABC-nytt issues
@@ -159,7 +159,7 @@ export function buildContent({ protokoll2026, dokumentId }) {
       ingress: 'Miljøutvalet har blandt anna ansvar for sosiale arrangement i borettslaget og for gjennomføring av årlig dugnad.',
       innhold: [
         hvaSkjer('sosialt'),
-        { ...medlemsliste('miljoutvalget'), tittel: 'Utvalget', ingress: 'Miljøutvalget har medlemmer fra alle tre tun.', visning: 'tun' },
+        { ...medlemsliste('miljoutvalget'), tittel: 'Utvalget', ingress: 'Miljøutvalget har medlemmer fra alle tre tun.', visning: 'tun', bredde: 'breakout' },
       ],
     }),
     side('dokumentsenter', 'Dokumentsenter', {

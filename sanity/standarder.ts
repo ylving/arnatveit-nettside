@@ -2,27 +2,28 @@
 export const MENY_BRYTEPUNKT = 1080;
 // Icon shown on a child page's card when none is chosen (a Lucide icon name)
 export const STANDARD_IKON = 'FileText';
-// Default width per page section type when `bredde` is not set: tekst = text column (72ch), bred = content container
+// Default width per page section type when `bredde` is not set: tekst = text column (72ch), breakout = between
+// text and wide (--breakout, 960px), bred = content container
 export const STANDARD_BREDDE = {
   bilde: 'tekst',
   dokumentliste: 'tekst',
   faktaliste: 'tekst',
-  nokkeltall: 'bred',
+  nokkeltall: 'breakout',
   knapper: 'tekst',
   medlemsliste: 'bred',
   kontaktinfo: 'bred',
   undersider: 'bred',
   ansvarsliste: 'bred',
-  arrangementer: 'bred',
+  arrangementer: 'breakout',
   oppgaver: 'bred',
-  dokumentsok: 'bred',
+  dokumentsok: 'breakout',
   abcUtgaver: 'bred',
   borettslagsfakta: 'bred',
   punkter: 'bred',
   oppfordring: 'bred',
   generalforsamlinger: 'bred',
 } as const;
-export type Bredde = 'tekst' | 'bred' | 'full';
+export type Bredde = 'tekst' | 'breakout' | 'bred' | 'full';
 // Event categories (arrangement.kategori). Colours are tokens in global.css (--dugnad*, --sosialt*).
 export const KATEGORIER = [
   { verdi: 'dugnad', navn: 'Dugnad', ikon: 'Sprout' },

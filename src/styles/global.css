@@ -41,6 +41,7 @@
 
   --gutter: clamp(20px, 6vw, 120px);
   --max: 1200px;
+  --breakout: 960px; /* section width between the text column and --max */
   --radius-lg: clamp(20px, 2.5vw, 28px);
   --radius: 18px;
 }
@@ -97,6 +98,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015
 .seksjon--nokkeltall + .seksjon--tekst, .seksjon--tekst + .seksjon--dokumentliste:not(:has(h2)) { margin-top: 28px; }
 .seksjon--fargebaand, .seksjon--fargebaand + .seksjon { margin-top: clamp(48px, 7vw, 96px); }
 .smal { max-width: 72ch; }
+.breakout { max-width: var(--breakout); }
 .seksjon .prose { max-width: none; padding-bottom: 0; }
 .seksjon .prose > :first-child { margin-top: 0; }
 .seksjon h2 { font-size: clamp(28px, 3vw, 36px); }

@@ -11,6 +11,7 @@ export const breddeFelt = (type: keyof typeof STANDARD_BREDDE) =>
     options: {
       list: [
         { title: 'Tekstbredde', value: 'tekst' },
+        { title: 'Breakout', value: 'breakout' },
         { title: 'Bred', value: 'bred' },
         ...(type === 'bilde' ? [{ title: 'Full bredde', value: 'full' }] : []),
       ],
