@@ -120,6 +120,7 @@
         <li><a href="#undersider">Undersider og adresser</a></li>
         <li><a href="#styret">Styre og utvalg</a></li>
         <li><a href="#dokumenter">Dokumenter</a></li>
+        <li><a href="#abc-nytt">ABC-nytt</a></li>
         <li><a href="#nyheter">Nyheter</a></li>
         <li><a href="#arrangementer">Arrangementer</a></li>
         <li><a href="#forsiden">Forsiden</a></li>
@@ -164,6 +165,9 @@
               <tr><td>Bilde</td><td>Et bilde med alternativ tekst (påkrevd, for skjermlesere) og valgfri bildetekst.</td></tr>
               <tr><td>Infoboks</td><td>En grønn boks for noe som skal skille seg ut, som satser eller frister.</td></tr>
               <tr><td>Dokumentliste</td><td>Alle dokumentene i én kategori, for eksempel Protokoller. Oppdateres av seg selv når du laster opp nye dokumenter. La <span class="felt">Overskrift</span> stå tom når listen hører til teksten over.</td></tr>
+              <tr><td>Alle dokumenter (med søk)</td><td>Dokumentene i kategoriene du velger, gruppert etter kategori, med søkefelt og filterknapper. Brukes på Dokumentsenter. Dra kategoriene i den rekkefølgen de skal stå.</td></tr>
+              <tr><td>Jeg vil …</td><td>Kort for oppgaver som «Bygge ark eller tilbygg». Hvert kort åpner en steg-for-steg-veiledning (se <a href="#dokumenter">Dokumenter</a>). Dra oppgavene i den rekkefølgen de skal stå.</td></tr>
+              <tr><td>ABC-nytt-utgaver</td><td>Siste utgave ved sidetittelen, tidligere utgaver, arkiv etter år og «Har du noe til neste nummer?». Brukes på ABC-nytt (se <a href="#abc-nytt">ABC-nytt</a>).</td></tr>
               <tr><td>Medlemsliste</td><td>Medlemmene i et utvalg fra <span class="felt">Styre og utvalg</span>. Varamedlemmer får egen liste under. Velg <span class="felt">Visning</span>: «Rader med kontaktinfo» (som Styret) eller «Navn gruppert etter tun» (som Miljøutvalget).</td></tr>
               <tr><td>Nøkkeltall</td><td>Opptil fire store tall med en kort tekst under, som «150 kr – per time for voksne» på Dugnad.</td></tr>
               <tr><td>Hva skjer</td><td>Kommende arrangementer fra <a href="#arrangementer">Arrangementer</a>, med valg mellom dugnad, sosialt og alle. <span class="felt">Vis først</span> bestemmer hvilken type som er valgt når siden åpnes.</td></tr>
@@ -214,6 +218,7 @@
               <tr><td>Varamedlem</td><td>Personen vises i en egen liste, «Varamedlemmer», under de faste medlemmene.</td></tr>
               <tr><td>Utvidet beplantingsutvalg</td><td>Bare i Miljøutvalget. Personen får et lite blad ved navnet i medlemslisten.</td></tr>
               <tr><td>Kontaktperson for borettslaget</td><td>Vises som kontaktperson i kontaktinfoen på Kontakt og Om borettslaget. Bare én person kan ha dette slått på.</td></tr>
+              <tr><td>Ansvarlig for ABC-nytt</td><td>Navnet vises på ABC-nytt-siden: «… har ansvaret for ABC-nytt». Bare én person kan ha dette slått på.</td></tr>
             </tbody>
           </table>
         </div>
@@ -221,22 +226,43 @@
         <ol>
           <li>Åpne Styret under <span class="felt">Styre og utvalg</span>.</li>
           <li>Legg til nye medlemmer og fjern dem som går ut. Husk rolle, tun og kontaktinfo.</li>
-          <li>Flytt <span class="felt">Ansvarsområder</span> til de nye personene, og sjekk <span class="felt">Varamedlem</span> og <span class="felt">Kontaktperson for borettslaget</span>.</li>
+          <li>Flytt <span class="felt">Ansvarsområder</span> til de nye personene, og sjekk <span class="felt">Varamedlem</span>, <span class="felt">Kontaktperson for borettslaget</span> og <span class="felt">Ansvarlig for ABC-nytt</span>.</li>
           <li>Trykk <span class="knapp">Publish</span>. Styret-siden, kontaktinfoen og «Hvem kontakter jeg?» oppdateres samtidig.</li>
         </ol>
       </section>
 
       <section id="dokumenter">
         <h2>Dokumenter</h2>
-        <p>Protokoller, ABC-nytt, søknadsskjemaer og andre PDF-er ligger under <span class="felt">Dokumenter</span>. Der kan du bla i alle dokumenter, eller per kategori.</p>
+        <p>Protokoller, søknadsskjemaer, sjekklister og andre PDF-er ligger under <span class="felt">Dokumenter</span>. Der kan du bla i alle dokumenter, eller per kategori. ABC-nytt har sin egen liste (se <a href="#abc-nytt">ABC-nytt</a>).</p>
         <ol>
           <li>Lag et nytt dokument og gi det en <span class="felt">Tittel</span>, for eksempel «Generalforsamling 2027».</li>
-          <li>Last opp PDF-en i <span class="felt">Fil</span> og velg <span class="felt">Kategori</span>.</li>
-          <li>Sett <span class="felt">Dato</span>. Den styrer rekkefølgen, med de nyeste først. Vet du bare året, velger du 1. januar.</li>
-          <li>Skriv gjerne en kort <span class="felt">Beskrivelse</span>, for eksempel hva man gjør med skjemaet. Den vises under tittelen i listen.</li>
-          <li>Publiser. Dokumentet dukker opp i alle dokumentlister for den kategorien.</li>
+          <li>Last opp PDF-en i <span class="felt">Fil</span> og velg <span class="felt">Kategori</span>. Filtype og størrelse («PDF · 37 kB») vises av seg selv.</li>
+          <li>Sett <span class="felt">Dato</span>. Den styrer rekkefølgen i kategorier som er sortert «Nyeste først». Vet du bare året, velger du 1. januar.</li>
+          <li>Skriv gjerne en kort <span class="felt">Beskrivelse</span> (under 80 tegn), for eksempel hva man gjør med skjemaet. Den vises under tittelen.</li>
+          <li>Gjelder dokumentet ett tun, velg <span class="felt">Tun</span>. Det vises som et lite merke, for eksempel på sjekklistene for lekeplassene. «Felles» er fellesarealene. Skriv ikke tunet i tittelen også.</li>
+          <li>Publiser. Dokumentet dukker opp i alle lister for den kategorien.</li>
         </ol>
-        <p>ABC-nytt vises gruppert etter år, og siste utgave vises automatisk på forsiden.</p>
+        <h3>Kategorier</h3>
+        <p>Under <span class="felt">Dokumenter → Kategorier</span> bestemmer du for hver kategori:</p>
+        <ul>
+          <li><span class="felt">Tekst under overskriften</span>: linjen under gruppen i Dokumentsenteret, for eksempel «Dette må styret godkjenne før du setter i gang.»</li>
+          <li><span class="felt">Farge</span> og <span class="felt">Ikon</span>: ikonet ved hvert dokument i kategorien.</li>
+          <li><span class="felt">Sortering</span>: nyeste først, alfabetisk, eller «Egen rekkefølge». Da bruker du feltet <span class="felt">Rekkefølge</span> på dokumentene (1, 2, 3 …, lavest først).</li>
+        </ul>
+        <h3>Oppgaver («Jeg vil …»)</h3>
+        <p>Kortene øverst i Dokumentsenteret ligger under <span class="felt">Dokumenter → Oppgaver</span>. En oppgave har tittel, ikon, farge og en liste med <span class="felt">Steg</span>. Hvert steg har en tekst og kan ha ett eller flere <span class="felt">Dokumenter</span>, som vises som bokser: trykk på boksen for å åpne dokumentet, eller på pilen for å laste det ned. Under <span class="felt">Spørsmål?</span> skriver du hvem man kan spørre. La e-posten stå tom for å bruke styrets adresse. En ny oppgave må også legges til i seksjonen «Jeg vil …» på Dokumentsenter-siden.</p>
+      </section>
+
+      <section id="abc-nytt">
+        <h2>ABC-nytt</h2>
+        <p>Hver utgave ligger under <span class="felt">ABC-nytt</span> i menyen til venstre, med den nyeste øverst.</p>
+        <ol>
+          <li>Lag en ny utgave og velg <span class="felt">Måned</span> og <span class="felt">År</span>. Det kan bare være én utgave per måned.</li>
+          <li>Last opp PDF-en i <span class="felt">PDF</span>.</li>
+          <li>Vent noen sekunder: <span class="felt">Forside</span> lages av seg selv fra første side i PDF-en. Vil du bruke et annet bilde, laster du det opp i stedet. Da blir det stående. Knappen <span class="knapp">Lag forside på nytt</span> lager den fra PDF-en igjen.</li>
+          <li>Publiser og trykk <span class="knapp">Oppdater nettsiden</span>. Utgaven vises som «Siste utgave» på ABC-nytt-siden og på forsiden.</li>
+        </ol>
+        <p>Arkivet på siden viser alle år med utgaver, med én knapp per måned. Navnet i «Har du noe til neste nummer?» kommer fra <a href="#styret">Styre og utvalg</a> (<span class="felt">Ansvarlig for ABC-nytt</span>).</p>
       </section>
 
       <section id="nyheter">

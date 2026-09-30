@@ -1,0 +1,195 @@
+---
+// "Jeg vil …": task cards that open a step-by-step guide. Without JS each task is a <details> (one open at a time,
+// all content in the HTML). The script turns them into buttons with aria-expanded; the guide then opens below the
+// row of cards on wide screens and directly below the card on phones (grid placement, see the styles).
+import Icon from '../Icon.astro';
+import { filInfo, lastNedUrl } from '../../lib/dokument';
+
+const { node, styretEpost } = Astro.props;
+const oppgaver: any[] = (node.oppgaver ?? []).filter(Boolean);
+const id = (o: any) => `oppgave-${o._id}`;
+---
+{oppgaver.length > 0 && (
+  <section class="oppgaver">
+    <div class="topp">
+      {node.tittel && <h2>{node.tittel}</h2>}
+      {node.ingress && <p class="ingress">{node.ingress}</p>}
+    </div>
+    <div class="rad" style={`--antall: ${Math.min(oppgaver.length, 4)}`}>
+      {oppgaver.map((o) => {
+        const farge = o.aksent === 'gronn' ? 'gronn' : 'oker';
+        const epost = o.kontaktEpost || styretEpost;
+        return (
+          <details class="oppgave" name="jeg-vil" style={`--bg: var(--farge-${farge}-bg); --fg: var(--farge-${farge})`}>
+            <summary class="kort">
+              <span class="kort-ikon"><Icon name={o.ikon || 'FileText'} size={22} /></span>
+              <span class="kort-tekst"><span class="kort-tittel">{o.tittel}</span><span class="se">Se hvordan</span></span>
+              <span class="chevron"><Icon name="ChevronDown" size={22} /></span>
+            </summary>
+            <div class="guide" id={id(o)} role="region" aria-label={o.tittel}>
+              <div class="steg-kolonne">
+                <p class="slik">Slik gjør du det</p>
+                <h3>{o.tittel}</h3>
+                <ol class="steg">
+                  {(o.steg ?? []).map((s: any, i: number) => (
+                    <li>
+                      <span class="nr">{i + 1}</span>
+                      <p>{s.tekst}</p>
+                      {s.dokumenter?.length > 0 && (
+                        <ul class="vedlegg">
+                          {s.dokumenter.filter(Boolean).map((d: any) => (
+                            <li>
+                              <Icon name="FileText" size={18} />
+                              <span class="v-tekst">
+                                <a class="v-tittel" href={d.url} target="_blank" rel="noopener">{d.tittel}</a> <span class="v-info">{filInfo(d)}</span>
+                              </span>
+                                        <a class="v-last-ned" href={lastNedUrl(d)} download={d.filnavn ?? ''} aria-label={`Last ned ${d.tittel}`}><Icon name="Download" size={15} /></a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+              <aside class="sporsmal">
+                <p class="sporsmal-tittel">Spørsmål?</p>
+                {o.kontakttekst && <p>{o.kontakttekst}</p>}
+                {epost && <a class="epost" href={`mailto:${epost}`}>{epost}</a>}
+                <button type="button" class="lukk" hidden><Icon name="X" size={14} />Lukk</button>
+              </aside>
+            </div>
+          </details>
+        );
+      })}
+    </div>
+    <script is:inline>
+      // Cards become toggle buttons; the guide is a sibling so the grid can place it below the row (wide) or the card (phone)
+      (() => {
+        const rad = document.currentScript.parentElement.querySelector('.rad');
+        if (!rad) return;
+        const par = [...rad.querySelectorAll('details')].map((d) => {
+          const knapp = document.createElement('button');
+          const summary = d.querySelector('summary');
+          for (const a of summary.attributes) knapp.setAttribute(a.name, a.value); // class + Astro's scoping attribute
+          knapp.type = 'button';
+          knapp.innerHTML = summary.innerHTML;
+          knapp.style.cssText = d.getAttribute('style');
+          const guide = d.querySelector('.guide');
+          guide.style.cssText = d.getAttribute('style');
+          guide.hidden = true;
+          knapp.setAttribute('aria-expanded', 'false');
+          knapp.setAttribute('aria-controls', guide.id);
+          d.replaceWith(knapp, guide);
+          return { knapp, guide };
+        });
+        const vis = (aapen) => par.forEach((p) => {
+          const paa = p === aapen;
+          p.knapp.setAttribute('aria-expanded', String(paa));
+          p.guide.hidden = !paa;
+        });
+        par.forEach((p) => {
+          p.knapp.addEventListener('click', () => vis(p.knapp.getAttribute('aria-expanded') === 'true' ? null : p));
+          const lukk = p.guide.querySelector('.lukk');
+          lukk.hidden = false;
+          lukk.addEventListener('click', () => { vis(null); p.knapp.focus(); });
+        });
+        rad.classList.add('js');
+      })();
+    </script>
+  </section>
+)}
+<style>
+  .topp { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin-bottom: 24px; }
+  .topp h2 { font-size: 32px; }
+  .ingress { margin: 0; font-size: 15px; color: var(--muted); }
+
+  .rad { display: grid; gap: 16px; }
+  .rad.js { grid-template-columns: repeat(var(--antall), minmax(0, 1fr)); }
+  .rad.js > .kort { grid-row: 1; }
+  .rad.js > .guide { grid-column: 1 / -1; grid-row: 2; }
+
+  .kort {
+    display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; grid-template-rows: auto 1fr; gap: 16px 12px; align-content: start;
+    width: 100%; min-height: 150px; padding: 22px; border-radius: 20px; border: 2px solid transparent;
+    background: var(--bg); color: var(--ink); font: inherit; text-align: left; cursor: pointer; list-style: none;
+  }
+  .kort::-webkit-details-marker { display: none; }
+  .kort-ikon { width: 46px; height: 46px; border-radius: 50%; background: #fff; color: var(--fg); display: grid; place-items: center; }
+  .kort-tekst { grid-column: 1 / -1; grid-row: 2; align-self: end; display: flex; flex-direction: column; gap: 4px; }
+  .kort-tittel { font-family: var(--serif); font-size: 22px; line-height: 1.2; }
+  .se { font-size: 14px; color: var(--muted); }
+  .chevron { grid-column: 3; grid-row: 1; display: flex; color: var(--fg); transition: transform 0.15s; }
+  .oppgave[open] > .kort, .kort[aria-expanded='true'] { border-color: var(--fg); }
+  .oppgave[open] .chevron, .kort[aria-expanded='true'] .chevron { transform: rotate(180deg); }
+  .kort:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 20px; }
+
+  /* No JS: a stacked list of <details>, like the phone layout */
+  .oppgave { display: flex; flex-direction: column; gap: 8px; }
+  .rad:not(.js) .kort { min-height: 0; grid-template-rows: auto; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; }
+  .rad:not(.js) .kort-tekst { grid-column: 2; grid-row: 1; }
+  .rad:not(.js) .chevron { grid-column: 3; }
+
+  .guide { background: var(--bg); border-radius: 20px; padding: 32px 36px; display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 48px; }
+  .slik { margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg); }
+  .guide h3 { font-size: 28px; margin-bottom: 18px; }
+  .steg { list-style: none; margin: 0; padding: 0; }
+  .steg > li { display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: 14px; padding: 14px 0; border-top: 1px solid rgba(29, 36, 32, 0.1); }
+  .steg .vedlegg { grid-column: 2; }
+  .nr { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 14px; font-weight: 600; color: var(--fg); }
+  .steg > li > p { margin: 2px 0 0; font-size: 16px; font-weight: 500; line-height: 1.45; }
+  /* Documents under a step: white boxes that open the file (the title link covers the box) + download, like the document rows */
+  .vedlegg { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .vedlegg li {
+    display: flex; align-items: center; gap: 10px; max-width: 100%; padding: 6px 6px 6px 14px;
+    background: #fff; border-radius: 12px; font-size: 15px; position: relative;
+  }
+  .vedlegg li > :global(svg) { color: var(--fg); flex-shrink: 0; }
+  .v-tekst { min-width: 0; line-height: 1.35; }
+  .v-tittel { font-weight: 600; color: var(--ink); }
+  .v-tittel::after { content: ''; position: absolute; inset: 0; border-radius: 12px; }
+  .vedlegg li:hover .v-tittel { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .v-tittel:focus-visible { outline: none; }
+  .v-tittel:focus-visible::after { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .v-info { font-size: 13px; color: var(--faint); margin-left: 4px; white-space: nowrap; }
+  .v-last-ned { position: relative; z-index: 1; margin-left: 4px; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+  .v-last-ned:hover { background: #264c40; color: #fff; }
+  .sporsmal { padding-top: 30px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .sporsmal p { margin: 0; font-size: 15px; color: var(--ink-2); }
+  .sporsmal .sporsmal-tittel { font-size: 16px; font-weight: 600; color: var(--ink); }
+  .epost { font-size: 15px; font-weight: 600; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+  .lukk {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; min-height: 40px; padding: 0 16px; border-radius: 999px;
+    border: 1px solid rgba(29, 36, 32, 0.2); background: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--ink); cursor: pointer;
+  }
+  .lukk:hover { border-color: var(--ink); }
+
+  /* Too narrow for steps + a 280px "Spørsmål?" column: questions go below the steps */
+  @media (max-width: 1100px) {
+    .guide { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 28px; }
+    .sporsmal { padding-top: 0; }
+  }
+  @media (max-width: 900px) {
+    .rad.js { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .rad.js > .kort, .rad.js > .guide { grid-row: auto; }
+    .rad.js > .guide { margin-bottom: 8px; }
+    .rad.js .kort { min-height: 0; grid-template-rows: auto; align-items: center; }
+    .rad.js .kort-tekst { grid-column: 2; grid-row: 1; }
+  }
+  @media (max-width: 640px) {
+    .topp { flex-direction: column; margin-bottom: 18px; }
+    .topp h2 { font-size: 26px; }
+    .kort { padding: 16px; grid-template-columns: 40px minmax(0, 1fr) auto !important; }
+    .kort-ikon { width: 40px; height: 40px; }
+    .kort-tittel { font-size: 18px; }
+    .se { font-size: 13px; }
+    .guide { gap: 20px; padding: 20px; }
+    .guide h3 { font-size: 24px; }
+    /* Phones: full-width boxes, a 44px download target */
+    .vedlegg { align-items: stretch; }
+    .steg .vedlegg { grid-column: 1 / -1; }
+    .vedlegg li { padding: 4px 0 4px 12px; }
+    .v-last-ned { width: 44px; height: 44px; margin-left: auto; background: none; color: var(--accent); }
+    .v-last-ned:hover { background: var(--accent-soft); color: var(--accent); }
+  }
+</style>

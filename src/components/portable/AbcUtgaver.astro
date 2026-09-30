@@ -1,0 +1,158 @@
+---
+// ABC-nytt: "Tidligere utgaver" (the five before the newest; three on phones), "Arkiv" (one row per year with
+// twelve months) and "Har du noe til neste nummer?". The newest issue is shown beside the page title (AbcSiste).
+// Phones with JS pick one year at a time; without JS all years are stacked.
+import Icon from '../Icon.astro';
+import AbcForside from '../AbcForside.astro';
+import { formatSize } from '../../lib/urls';
+import { MAANEDER, utgaveNavn } from '../../../sanity/standarder';
+
+const { node, styretEpost } = Astro.props;
+const utgaver: any[] = node.utgaver ?? [];
+const tidligere = utgaver.slice(1, 6);
+const aarene = Object.entries(Object.groupBy(utgaver, (u: any) => String(u.aar)))
+  .sort(([a], [b]) => Number(b) - Number(a))
+  .map(([aar, liste]) => ({ aar, perMaaned: new Map((liste ?? []).map((u: any) => [u.maaned, u])) }));
+const antall = (n: number) => `${n} ${n === 1 ? 'utgave' : 'utgaver'}`;
+const kort = (m: string) => m.slice(0, 3);
+const epost = node.innspillEpost || styretEpost;
+---
+<div class="abc">
+  {tidligere.length > 0 && (
+    <section class="tidligere">
+      <h2>Tidligere utgaver</h2>
+      <ul>
+        {tidligere.map((u) => (
+          <li>
+            <a href={u.url} target="_blank" rel="noopener">
+              <AbcForside utgave={u} bredde={208} sizes="(max-width: 640px) 30vw, 208px" />
+              <span class="navn">{utgaveNavn(u.maaned, u.aar)}</span>
+              <span class="info">{formatSize(u.size)}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {aarene.length > 0 && (
+    <section class="arkiv">
+      <div class="arkiv-topp">
+        <h2>Arkiv</h2>
+        <p class="hint">Klikk på en måned for å åpne utgaven</p>
+      </div>
+      <div class="aarvalg" role="group" aria-label="Velg år" hidden>
+        {aarene.map(({ aar }) => <button type="button" data-aar={aar} aria-pressed="false">{aar}</button>)}
+      </div>
+      {aarene.map(({ aar, perMaaned }) => (
+        <div class="aar" data-aar={aar}>
+          <h3>{aar}</h3>
+          <p class="antall">{antall(perMaaned.size)}<span class="i-aar"> i {aar}</span></p>
+          <ul class="maaneder">
+            {MAANEDER.map((m, i) => {
+              const u = perMaaned.get(i + 1);
+              return (
+                <li>
+                  {u ? (
+                    <a href={u.url} target="_blank" rel="noopener" aria-label={`ABC-nytt ${m} ${aar}`}>{kort(m)}</a>
+                  ) : (
+                    <span aria-hidden="true">{kort(m)}</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+      <script is:inline>
+        // Phones: one year at a time, newest selected. The buttons only show at phone widths (see the styles).
+        (() => {
+          const el = document.currentScript.parentElement;
+          const knapper = el.querySelectorAll('.aarvalg button');
+          const vis = (aar) => {
+            knapper.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.aar === aar)));
+            el.querySelectorAll('.aar').forEach((a) => a.classList.toggle('valgt', a.dataset.aar === aar));
+          };
+          knapper.forEach((b) => b.addEventListener('click', () => vis(b.dataset.aar)));
+          if (knapper[0]) vis(knapper[0].dataset.aar);
+          el.querySelector('.aarvalg').hidden = false;
+          el.classList.add('js');
+        })();
+      </script>
+    </section>
+  )}
+
+  <section class="innspill">
+    <span class="innspill-ikon"><Icon name="PenLine" size={22} /></span>
+    <div class="innspill-tekst">
+      <h2>{node.innspillTittel || 'Har du noe til neste nummer?'}</h2>
+      <p>{[node.innspillTekst, node.redaktor && `${node.redaktor} har ansvaret for ABC-nytt.`].filter(Boolean).join(' ')}</p>
+    </div>
+    {epost && <a class="btn btn--dark" href={`mailto:${epost}?subject=${encodeURIComponent('Innspill til ABC-nytt')}`}>Send innspill</a>}
+  </section>
+</div>
+<style>
+  .abc { display: flex; flex-direction: column; gap: clamp(48px, 6vw, 72px); }
+  .abc h2 { font-size: 40px; }
+  ul { list-style: none; margin: 0; padding: 0; }
+
+  .tidligere h2 { margin-bottom: 28px; }
+  .tidligere ul { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 32px; }
+  .tidligere a { display: flex; flex-direction: column; color: var(--ink); }
+  .tidligere a :global(.forside) { box-shadow: 0 1px 2px rgba(29, 36, 32, 0.08), 0 4px 16px rgba(29, 36, 32, 0.1); transition: transform 0.15s; }
+  .tidligere a:hover :global(.forside) { transform: translateY(-3px); }
+  .tidligere a:hover .navn { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .navn { margin-top: 14px; font-weight: 600; font-size: 16px; }
+  .info { font-size: 14px; color: var(--faint); }
+
+  .arkiv-topp { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 24px; flex-wrap: wrap; margin-bottom: 16px; }
+  .arkiv h2 { font-size: 32px; }
+  .hint { margin: 0; font-size: 14px; color: var(--muted); }
+  .aar { display: grid; grid-template-columns: 120px minmax(0, 1fr) 110px; grid-template-areas: 'aar maaneder antall'; align-items: center; gap: 20px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .aar:last-child { border-bottom: 1px solid var(--line); }
+  .aar h3 { grid-area: aar; font-size: 24px; }
+  .antall { grid-area: antall; margin: 0; font-size: 14px; color: var(--faint); text-align: right; }
+  .i-aar { display: none; }
+  .maaneder { grid-area: maaneder; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; }
+  .maaneder a, .maaneder span { display: grid; place-items: center; height: 36px; border-radius: 999px; font-size: 14px; font-weight: 600; }
+  .maaneder a { background: var(--surface); border: 1px solid var(--kant); color: var(--accent); }
+  .maaneder a:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .maaneder span { color: #c9c3b7; font-weight: 500; }
+  .aarvalg { display: none !important; }
+
+  .innspill { display: flex; align-items: center; gap: 24px; padding-top: 32px; border-top: 2px solid var(--ink); }
+  .innspill-ikon { width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; background: var(--farge-oker-bg); color: var(--farge-oker); display: grid; place-items: center; }
+  .innspill-tekst { flex: 1; }
+  .abc .innspill h2 { font-size: 26px; }
+  .innspill p { margin: 6px 0 0; font-size: 16px; color: var(--muted); }
+
+  @media (max-width: 1000px) {
+    .aar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'aar antall' 'maaneder maaneder'; gap: 10px 16px; }
+  }
+  @media (max-width: 760px) {
+    .tidligere ul { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 12px; }
+    .tidligere li:nth-child(n + 4) { display: none; }
+    .innspill { flex-direction: column; align-items: stretch; gap: 14px; }
+    .innspill .btn { width: 100%; }
+  }
+  @media (max-width: 640px) {
+    .abc h2 { font-size: 26px; }
+    .tidligere h2 { margin-bottom: 18px; }
+    .navn { margin-top: 10px; font-size: 14px; }
+    .info { font-size: 12px; }
+    .hint { display: none; }
+    .maaneder { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .maaneder a, .maaneder span { height: 48px; border-radius: 14px; font-size: 15px; }
+    .maaneder span { border: 1px dashed #ddd7cb; }
+    /* With JS: year buttons, and only the chosen year */
+    .arkiv.js .aarvalg { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+    .aarvalg button { height: 44px; border-radius: 999px; border: 1px solid var(--kant); background: var(--surface); font-family: var(--serif); font-size: 17px; color: var(--ink); cursor: pointer; }
+    .aarvalg button[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .arkiv.js .aar { display: none; }
+    .arkiv.js .aar.valgt { display: block; border: 0; padding: 0; }
+    .arkiv.js .aar.valgt h3 { display: none; }
+    .arkiv.js .antall { text-align: left; margin-bottom: 10px; color: var(--muted); }
+    .arkiv.js .i-aar { display: inline; }
+    .abc .innspill h2 { font-size: 22px; }
+  }
+</style>

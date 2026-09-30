@@ -128,6 +128,76 @@ export const arrangementer = defineType({
   },
 });
 
+export const oppgaver = defineType({
+  name: 'oppgaver',
+  title: 'Jeg vil …',
+  type: 'object',
+  icon: lucideIkon('ListChecks'),
+  description: 'Kort for oppgaver som «Bygge ark eller tilbygg». Hvert kort åpner en steg-for-steg-veiledning med dokumentene som trengs.',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Jeg vil …' }),
+    defineField({ name: 'ingress', title: 'Tekst ved overskriften', type: 'string', initialValue: 'Velg en oppgave for å se steg for steg hva du må gjøre.' }),
+    defineField({
+      name: 'oppgaver',
+      title: 'Oppgaver',
+      description: 'Dra for å endre rekkefølgen. Oppgavene lages under Dokumenter → Oppgaver.',
+      type: 'array',
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'oppgave' }] })],
+      validation: (r) => r.required().min(1).unique(),
+    }),
+    breddeFelt('oppgaver'),
+  ],
+  preview: {
+    select: { tittel: 'tittel', a: 'oppgaver.0.tittel', b: 'oppgaver.1.tittel' },
+    prepare: ({ tittel, a, b }) => ({ title: tittel || 'Jeg vil …', subtitle: `Oppgaver · ${[a, b].filter(Boolean).join(', ')}…` }),
+  },
+});
+
+export const dokumentsok = defineType({
+  name: 'dokumentsok',
+  title: 'Alle dokumenter (med søk)',
+  type: 'object',
+  icon: lucideIkon('FileSearch'),
+  description: 'Dokumentene i de valgte kategoriene, gruppert etter kategori, med søkefelt og filter.',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Alle dokumenter' }),
+    defineField({
+      name: 'kategorier',
+      title: 'Kategorier',
+      description: 'Dra for å endre rekkefølgen. Teksten under hver gruppe og fargen settes på kategorien.',
+      type: 'array',
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'dokumentkategori' }] })],
+      validation: (r) => r.required().min(1).unique(),
+    }),
+    breddeFelt('dokumentsok'),
+  ],
+  preview: {
+    select: { tittel: 'tittel', a: 'kategorier.0.tittel', b: 'kategorier.1.tittel', c: 'kategorier.2.tittel' },
+    prepare: ({ tittel, a, b, c }) => ({ title: tittel || 'Alle dokumenter', subtitle: `Dokumenter · ${[a, b, c].filter(Boolean).join(', ')}` }),
+  },
+});
+
+export const abcUtgaver = defineType({
+  name: 'abcUtgaver',
+  title: 'ABC-nytt-utgaver',
+  type: 'object',
+  icon: lucideIkon('Newspaper'),
+  description: 'Siste utgave (ved sidetittelen), tidligere utgaver, arkiv etter år og «Har du noe til neste nummer?». Utgavene lastes opp under ABC-nytt.',
+  fields: [
+    defineField({ name: 'innspillTittel', title: 'Innspill – overskrift', type: 'string', initialValue: 'Har du noe til neste nummer?' }),
+    defineField({
+      name: 'innspillTekst',
+      title: 'Innspill – tekst',
+      description: 'Navnet på den som har ansvaret legges til etter teksten. Det settes under Styre og utvalg («Ansvarlig for ABC-nytt»).',
+      type: 'string',
+      initialValue: 'Tips, bilder og beskjeder til naboene er velkomne.',
+    }),
+    defineField({ name: 'innspillEpost', title: 'Innspill – e-post', description: 'La stå tomt for å bruke styrets e-post fra Innstillinger.', type: 'email' }),
+    breddeFelt('abcUtgaver'),
+  ],
+  preview: { prepare: () => ({ title: 'ABC-nytt-utgaver', subtitle: 'Siste utgave, tidligere utgaver og arkiv' }) },
+});
+
 export const seksjoner = defineType({
   name: 'seksjoner',
   title: 'Innhold',
@@ -137,6 +207,9 @@ export const seksjoner = defineType({
     defineArrayMember({ type: 'bilde' }),
     defineArrayMember({ type: 'infoboks' }),
     defineArrayMember({ type: 'dokumentliste' }),
+    defineArrayMember({ type: 'dokumentsok' }),
+    defineArrayMember({ type: 'oppgaver' }),
+    defineArrayMember({ type: 'abcUtgaver' }),
     defineArrayMember({ type: 'medlemsliste' }),
     defineArrayMember({ type: 'faktaliste' }),
     defineArrayMember({ type: 'nokkeltall' }),
@@ -152,7 +225,7 @@ export const seksjoner = defineType({
       views: [{ name: 'list' }],
       groups: [
         { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'bilde', 'infoboks'] },
-        { name: 'lister', title: 'Lister', of: ['dokumentliste', 'medlemsliste', 'faktaliste', 'nokkeltall', 'arrangementer'] },
+        { name: 'lister', title: 'Lister', of: ['dokumentliste', 'dokumentsok', 'oppgaver', 'abcUtgaver', 'medlemsliste', 'faktaliste', 'nokkeltall', 'arrangementer'] },
         { name: 'annet', title: 'Kontakt og navigasjon', of: ['kontaktinfo', 'ansvarsliste', 'knapper', 'undersider'] },
       ],
     },

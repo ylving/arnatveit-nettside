@@ -5,7 +5,7 @@ export function docHref(d: DocRef): string | undefined {
   if (!d) return undefined;
   if (d._type === 'side') return d.forelder ? `/${d.forelder}/${d.slug}` : `/${d.slug}`;
   if (d._type === 'nyhet') return `/aktuelt/${d.slug}`;
-  if (d._type === 'dokument') return d.fil;
+  if (d._type === 'dokument' || d._type === 'abcUtgave') return d.fil;
   return undefined;
 }
 

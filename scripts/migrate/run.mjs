@@ -6,6 +6,7 @@ import path from 'node:path';
 import { createClient } from '@sanity/client';
 import { inventory, download } from './inventory.mjs';
 import { buildContent } from './content.mjs';
+import { dokumentFelter } from './dokumentsenter-data.mjs';
 
 const DRY = process.argv.includes('--dry');
 const CACHE = new URL('./cache/', import.meta.url).pathname;
@@ -46,21 +47,40 @@ async function main() {
   const failed = await download(pdfs);
   if (failed.length) throw new Error(`Download failed:\n${failed.join('\n')}`);
 
-  const dokumenter = pdfs.map((d) => ({
-    _id: `dokument-${slugify(d.oldPath.replace(/^\/images\/pdf\//, '').replace(/\.pdf$/i, ''))}`,
-    _type: 'dokument',
-    tittel: title(d),
-    kategori: { _type: 'reference', _ref: `kategori-${d.kategori}` },
-    ...(d.dato && { dato: d.dato }),
-    gamleUrler: [d.oldPath],
-    _localFile: path.join(CACHE, d.localFile),
-  }));
+  // ABC-nytt issues are `abcUtgave` (month + year); Dokumentsenter's documents get their category, title,
+  // description, tun and order from dokumentsenter-data.mjs
+  const dokumenter = pdfs.map((d) => {
+    const _localFile = path.join(CACHE, d.localFile);
+    if (d.kategori === 'abc-nytt') {
+      const [aar, maaned] = d.dato.split('-').map(Number);
+      return { _id: `abc-${d.dato.slice(0, 7)}`, _type: 'abcUtgave', aar, maaned, gamleUrler: [d.oldPath], _localFile };
+    }
+    const tittel = title(d);
+    const felter = ['soknader-og-skjema', 'hms'].includes(d.kategori) ? dokumentFelter(tittel) : undefined;
+    if (felter === null) throw new Error(`Dokumentsenter document not in dokumentsenter-data.mjs: ${tittel}`);
+    return {
+      _id: `dokument-${slugify(d.oldPath.replace(/^\/images\/pdf\//, '').replace(/\.pdf$/i, ''))}`,
+      _type: 'dokument',
+      tittel,
+      kategori: { _type: 'reference', _ref: `kategori-${d.kategori}` },
+      ...(d.dato && { dato: d.dato }),
+      ...felter,
+      gamleUrler: [d.oldPath],
+      _gammelTittel: tittel,
+      _localFile,
+    };
+  });
   const ids = new Set(dokumenter.map((d) => d._id));
-  if (ids.size !== dokumenter.length) throw new Error('Duplicate dokument _id');
+  if (ids.size !== dokumenter.length) throw new Error('Duplicate dokument/abcUtgave _id');
+  const dokumentId = (tittel) => {
+    const d = dokumenter.find((x) => x._gammelTittel === tittel);
+    if (!d) throw new Error(`No document titled "${tittel}"`);
+    return d._id;
+  };
 
   const protokoll2026 = dokumenter.find((d) => d.gamleUrler[0].includes('28.05.2026'))?._id;
   if (!protokoll2026) throw new Error('2026 protocol not found');
-  const docs = [...buildContent({ protokoll2026 }), ...dokumenter];
+  const docs = [...buildContent({ protokoll2026, dokumentId }), ...dokumenter];
 
   // Validate: every _ref points to a document in this import
   const all = new Set(docs.map((d) => d._id));
@@ -73,7 +93,7 @@ async function main() {
   console.log(Object.fromEntries(Object.entries(byType).map(([k, v]) => [k, v.length])));
 
   if (DRY) {
-    await fs.writeFile(path.join(CACHE, 'import.json'), JSON.stringify(docs, null, 2));
+    await fs.writeFile(path.join(CACHE, 'import.json'), JSON.stringify(docs.map(({ _gammelTittel, ...d }) => d), null, 2));
     console.log('Dry run — wrote cache/import.json');
     return;
   }
@@ -96,7 +116,7 @@ async function main() {
   console.log();
 
   const tx = client.transaction();
-  for (const { _localFile, ...doc } of docs) tx.createOrReplace(doc);
+  for (const { _localFile, _gammelTittel, ...doc } of docs) tx.createOrReplace(doc);
   await tx.commit({ visibility: 'async' });
   console.log('Import committed.');
 }

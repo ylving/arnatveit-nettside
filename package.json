@@ -22,12 +22,14 @@
     "astro": "^7.3.5",
     "astro-portabletext": "^1.0.1",
     "lucide": "^1.48.0",
+    "pdfjs-dist": "^6.3.289",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "sanity": "^6.16.0",
     "styled-components": "^6.5.3"
   },
   "devDependencies": {
+    "@napi-rs/canvas": "^1.0.9",
     "cheerio": "^1.2.0",
     "typescript": "^7.0.2",
     "wrangler": "^4.140.0"

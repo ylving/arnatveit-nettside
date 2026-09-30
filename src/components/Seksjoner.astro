@@ -12,6 +12,9 @@ import Ansvarsliste from './portable/Ansvarsliste.astro';
 import HvaSkjer from './portable/HvaSkjer.astro';
 import Nokkeltall from './portable/Nokkeltall.astro';
 import TunListe from './portable/TunListe.astro';
+import Oppgaver from './portable/Oppgaver.astro';
+import Dokumentsok from './portable/Dokumentsok.astro';
+import AbcUtgaver from './portable/AbcUtgaver.astro';
 import InfoCards from './InfoCards.astro';
 import { STANDARD_BREDDE, type Bredde } from '../../sanity/standarder';
 
@@ -37,6 +40,9 @@ const bredde = (s: any): Bredde =>
             {s._type === 'bilde' && <Bilde node={s} bredde={b} />}
             {s._type === 'infoboks' && <Infoboks node={s} />}
             {s._type === 'dokumentliste' && <Dokumentliste node={s} />}
+            {s._type === 'oppgaver' && <Oppgaver node={s} styretEpost={kontakt?.epost} />}
+            {s._type === 'dokumentsok' && <Dokumentsok node={s} styretEpost={kontakt?.epost} />}
+            {s._type === 'abcUtgaver' && <AbcUtgaver node={s} styretEpost={kontakt?.epost} />}
             {s._type === 'medlemsliste' && (s.visning === 'tun' ? <TunListe node={s} /> : <Medlemsliste node={s} styretEpost={kontakt?.epost} />)}
             {s._type === 'faktaliste' && <Faktaliste node={s} />}
             {s._type === 'nokkeltall' && <Nokkeltall node={s} />}

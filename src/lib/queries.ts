@@ -4,7 +4,17 @@ export const DOC_REF_FIELDS = `_type, "slug": slug.current, "forelder": forelder
 export const DOC_REF = `{ ${DOC_REF_FIELDS} }`;
 export const SIDE_KORT = `{ ${DOC_REF_FIELDS}, tittel, kort, ikon }`;
 export const LINK = `{ tekst, url, "intern": intern->${DOC_REF} }`;
-export const DOKUMENT = `{ _id, tittel, dato, beskrivelse, "url": fil.asset->url, "size": fil.asset->size }`;
+export const DOKUMENT = `{
+  _id, tittel, dato, beskrivelse, tun, rekkefolge,
+  "url": fil.asset->url, "size": fil.asset->size, "ext": fil.asset->extension, "filnavn": fil.asset->originalFilename,
+  "kategori": kategori->{ farge, ikon }
+}`;
+
+// An ABC-nytt issue, with its cover's size (for width/height on the image)
+export const ABC_UTGAVE = `{
+  _id, maaned, aar, "url": fil.asset->url, "size": fil.asset->size, "filnavn": fil.asset->originalFilename,
+  "forside": forside.asset->{ url, "w": metadata.dimensions.width, "h": metadata.dimensions.height }
+}`;
 
 const MARKDEFS = `markDefs[]{ ..., _type == "link" => { "href": coalesce(intern->${DOC_REF}, href) } }`;
 
@@ -50,6 +60,19 @@ export const SEKSJONER = `seksjoner[]{
       _id,
       "personer": medlemmer[count(ansvar) > 0]{ _key, navn, rolle, telefon, epost, "ansvar": ansvar[]{ omraade, beskrivelse, ikon } }
     }[count(personer) > 0]
+  },
+  _type == "oppgaver" => {
+    ...,
+    "oppgaver": oppgaver[]->{ _id, tittel, ikon, aksent, kontakttekst, kontaktEpost, "steg": steg[]{ _key, tekst, "dokumenter": dokumenter[]->${DOKUMENT} } }
+  },
+  _type == "dokumentsok" => {
+    ...,
+    "grupper": kategorier[]->{ _id, tittel, "slug": slug.current, ingress, sortering, "dokumenter": *[_type == "dokument" && kategori._ref == ^._id] ${DOKUMENT} }
+  },
+  _type == "abcUtgaver" => {
+    ...,
+    "utgaver": *[_type == "abcUtgave" && defined(fil.asset)] | order(aar desc, maaned desc) ${ABC_UTGAVE},
+    "redaktor": array::compact(*[_type == "utvalg" && !(_id in path("drafts.**"))].medlemmer[abcRedaktor == true])[0].navn
   }
 }`;
 

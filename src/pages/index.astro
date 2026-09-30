@@ -7,6 +7,7 @@ import Faktabaand from '../components/Faktabaand.astro';
 import { load, urlFor } from '../lib/sanity';
 import { DOC_REF, DOC_REF_FIELDS, DOKUMENT, LINK, SIDE_KORT } from '../lib/queries';
 import { docHref, linkHref } from '../lib/urls';
+import { utgaveNavn } from '../../sanity/standarder';
 
 const data = await load<any>(`{
   "forside": *[_id == "forside"][0]{
@@ -14,7 +15,7 @@ const data = await load<any>(`{
     dokumentsenter{ ..., "lenke": lenke${LINK}, "dokumenter": dokumenter[]->${DOKUMENT} }
   },
   "nyhet": *[_type == "nyhet"] | order(fremhevet desc, dato desc)[0]{ tittel, merkelapp, ingress, "slug": slug.current, _type, "dokumenter": dokumenter[]->${DOKUMENT} },
-  "abc": *[_type == "dokument" && kategori->slug.current == "abc-nytt"] | order(dato desc)[0]${DOKUMENT},
+  "abc": *[_type == "abcUtgave" && defined(fil.asset)] | order(aar desc, maaned desc)[0]{ maaned, aar, "url": fil.asset->url },
   "praktisk": *[_type == "side" && forelder._ref == "side-praktisk-info"] | order(rekkefolge asc)${SIDE_KORT},
   "gf": *[_id == "side-generalforsamling"][0]${DOC_REF},
   "abcSide": *[_id == "side-abc-nytt"][0]${DOC_REF},
@@ -22,7 +23,7 @@ const data = await load<any>(`{
 }`);
 const { forside: f, nyhet, abc, praktisk, gf, abcSide, piSide } = data;
 const pdf = nyhet?.dokumenter?.[0];
-const abcMonth = abc?.tittel?.replace(/^ABC-nytt\s*/i, '');
+const abcMonth = abc && utgaveNavn(abc.maaned, abc.aar).toLowerCase();
 // Hero image cropped to the illustration's 14:11 frame (hotspot decides the crop)
 const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 11) / 14)).fit('crop').url();
 ---

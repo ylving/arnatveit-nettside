@@ -14,6 +14,18 @@
   --accent-soft: #e4ece6;
   --accent-on: #d6e4da;
   --rust: #8a4e1f;
+  --faint: #7a817c;
+  --line-2: #e8e2d6;
+  --kant: #d5cfc2;
+  /* Document categories and task cards (dokumentkategori.farge, oppgave.aksent) */
+  --farge-oker-bg: #f3e6d6;
+  --farge-oker: #8a4e1f;
+  --farge-gronn-bg: #e4ece6;
+  --farge-gronn: #2f5d4e;
+  --farge-blaa-bg: #e1e8ee;
+  --farge-blaa: #35556e;
+  --farge-sand-bg: #ece6da;
+  --farge-sand: #5e5446;
   /* Event categories (arrangement.kategori) */
   --dugnad-bg: #f3e6d6;
   --dugnad: #8a4e1f;
@@ -48,6 +60,8 @@ body {
 }
 main { flex: 1; }
 img, svg { display: block; max-width: 100%; }
+/* `hidden` wins over component display rules (toggled by the small inline scripts) */
+[hidden] { display: none !important; }
 a { color: inherit; text-decoration: none; }
 a:hover { color: var(--accent); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
@@ -96,6 +110,11 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015
 .page-head.med-boks { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); gap: 24px 56px; align-items: end; }
 .page-head.med-boks .ingress { max-width: 52ch; }
 @media (max-width: 760px) { .page-head.med-boks { grid-template-columns: 1fr; } }
+/* Page head with the newest ABC-nytt issue on the right */
+.page-head.med-abc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px 72px; align-items: center; }
+.page-head.med-abc .ingress { max-width: 500px; }
+@media (max-width: 1100px) { .page-head.med-abc { gap: 32px 40px; } }
+@media (max-width: 760px) { .page-head.med-abc { grid-template-columns: 1fr; } }
 
 .prose { max-width: 72ch; padding-bottom: clamp(56px, 8vw, 112px); }
 .prose > * { margin-block: 0; }

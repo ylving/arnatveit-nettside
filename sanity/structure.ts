@@ -43,8 +43,13 @@ export const structure: StructureResolver = (S) =>
                     .child((id) => S.documentList().title('Dokumenter').filter('_type == "dokument" && kategori._ref == $id').params({ id })),
                 ),
               S.documentTypeListItem('dokumentkategori').title('Kategorier'),
+              S.documentTypeListItem('oppgave').title('Oppgaver («Jeg vil …»)'),
             ]),
         ),
+      S.listItem()
+        .title('ABC-nytt')
+        .schemaType('abcUtgave')
+        .child(S.documentTypeList('abcUtgave').title('ABC-nytt').defaultOrdering([{ field: 'aar', direction: 'desc' }, { field: 'maaned', direction: 'desc' }])),
       S.documentTypeListItem('utvalg').title('Styre og utvalg'),
       S.divider(),
       singleton(S, 'innstillinger', 'Innstillinger'),

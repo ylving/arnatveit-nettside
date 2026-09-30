@@ -1,6 +1,7 @@
 // Hand-curated content from the old site (verbatim text, obvious typos fixed — see docs/MIGRATION.md).
 // Everything uses deterministic _ids so the import can be re-run safely.
 import { tilSeksjoner } from './seksjoner-lib.mjs';
+import * as dokumentsenter from './dokumentsenter-data.mjs';
 
 let n = 0;
 const key = () => `k${(n++).toString(36)}`;
@@ -33,12 +34,11 @@ const nokkeltall = (tittel, tall) => ({ _type: 'nokkeltall', _key: key(), tittel
 const hvaSkjer = (kategori) => ({ _type: 'arrangementer', _key: key(), tittel: 'Hva skjer', kategori, bredde: 'bred' });
 const lenkeknapp = (tekst, target) => ({ _type: 'lenkeknapp', _key: key(), lenke: lenke(tekst, target) });
 
+// Dokumentsenter's categories (Søknader, Bygging, HMS, Skjemaer) come from dokumentsenter-data.mjs. ABC-nytt issues
+// are `abcUtgave` documents, not a category (run.mjs).
 export const KATEGORIER = [
   ['protokoller', 'Protokoller', 'dato'],
   ['arsberetninger', 'Årsberetninger', 'dato'],
-  ['abc-nytt', 'ABC-nytt', 'dato'],
-  ['soknader-og-skjema', 'Søknader og skjema', 'tittel'],
-  ['hms', 'HMS', 'tittel'],
   ['vedtekter', 'Vedtekter og regler', 'tittel'],
   ['dugnad', 'Dugnad', 'tittel'],
 ];
@@ -56,9 +56,13 @@ const ansvar = (omraade, beskrivelse, ikon) => ({ _type: 'ansvarsomraade', _key:
 const medlem = (navn, rolle, tun, telefon, epost, kontaktperson = false, ansvarsomraader = [], vara = false) =>
   ({ _type: 'medlem', _key: key(), navn, rolle, tun, telefon, epost, kontaktperson, vara, ...(ansvarsomraader.length && { ansvar: ansvarsomraader }) });
 
-// `protokoll2026` = _id of the newest GF protocol dokument (resolved by run.mjs)
-export function buildContent({ protokoll2026 }) {
-  const kategorier = KATEGORIER.map(([id, tittel, sortering]) => ({ _id: `kategori-${id}`, _type: 'dokumentkategori', tittel, slug: slug(id), sortering }));
+// `protokoll2026` = _id of the newest GF protocol dokument; `dokumentId(old title)` = a document's _id (both resolved by run.mjs)
+export function buildContent({ protokoll2026, dokumentId }) {
+  const kategorier = [
+    ...KATEGORIER.map(([id, tittel, sortering]) => ({ _id: `kategori-${id}`, _type: 'dokumentkategori', tittel, slug: slug(id), sortering })),
+    ...dokumentsenter.KATEGORIER.map(({ slug: s, ...k }) => ({ ...k, _type: 'dokumentkategori', slug: slug(s), sortering: 'rekkefolge' })),
+  ];
+  const oppgaver = dokumentsenter.oppgaver(dokumentId);
 
   const utvalg = [
     {
@@ -67,7 +71,7 @@ export function buildContent({ protokoll2026 }) {
         medlem('Anders Jordal', 'Styreleder', 'A-tunet', '993 46 090', 'styreleder@arnatveit-borettslag.no', true, [ansvar('Forsikringssaker', 'Skader på bygningene og spørsmål om borettslagets forsikring.', 'Shield')]),
         medlem('Arild Angelskår', 'Nestleder og byggesaker', 'B-tunet', '901 58 413', 'nestleder@arnatveit-borettslag.no', false, [ansvar('Byggesaker', 'Utbygging, varmepumpe og andre endringer på boligen eller uteområdet.', 'House')]),
         medlem('Stian A. Persson', 'Økonomiansvarlig', 'Ekstern', '977 75 994', 'okonomi@arnatveit-borettslag.no', false, [ansvar('Leverandører', 'Er du leverandør og ønsker kontakt med Arnatveit Borettslag?', 'Briefcase')]),
-        medlem('Irene Myking', 'ABC-nytt', 'A-tunet', undefined, 'styret@arnatveit-borettslag.no', false, [], true),
+        { ...medlem('Irene Myking', 'ABC-nytt', 'A-tunet', undefined, 'styret@arnatveit-borettslag.no', false, [], true), abcRedaktor: true },
         medlem('Christer Aarø', 'Webansvarlig', 'B-tunet', '41 16 08 41', 'styret@arnatveit-borettslag.no'),
         medlem('Gro Helen Andersen', 'Dugnadsansvarlig', 'A-tunet', undefined, 'styret@arnatveit-borettslag.no'),
         medlem('Ann Cicilie Tveiten', 'HMS-ansvarlig', 'C-tunet', undefined, 'styret@arnatveit-borettslag.no', false, [], true),
@@ -133,10 +137,9 @@ export function buildContent({ protokoll2026 }) {
     }),
     side('abc-nytt', 'ABC-nytt', {
       ikon: 'Newspaper', kort: 'Informasjonsbladet som kommer ut omtrent seks ganger i året.', rekkefolge: 40, gamleUrler: ['/praktiskinfo/abc-nytt'],
-      ingress: 'Dette er borettslagets informasjonsorgan, og kommer ut ca 6 ganger i året.',
+      ingress: 'Borettslagets informasjonsblad. Det kommer ut rundt seks ganger i året, i postkassen og her.',
       innhold: [
-        p('Under finner du tidligere utgaver.'),
-        dokumentliste('abc-nytt', 'Utgaver', true),
+        { _type: 'abcUtgaver', _key: 'utgaver', innspillTittel: 'Har du noe til neste nummer?', innspillTekst: 'Tips, bilder og beskjeder til naboene er velkomne.', bredde: 'bred' },
         h2('Karneval'),
         p(['Karneval Arnatveit borettslag, februar 1988 (video på YouTube)', 'https://www.youtube-nocookie.com/embed/TjHea3av-rU']),
       ],
@@ -167,12 +170,8 @@ export function buildContent({ protokoll2026 }) {
     }),
     side('dokumentsenter', 'Dokumentsenter', {
       forelder: null, rekkefolge: 20, gamleUrler: ['/praktiskinfo/dokumentsenter'],
-      ingress: 'Skal du bygge ut, montere varmepumpe, eller ønsker dere husdyr? Dette skal styret ha søknad om.',
-      innhold: [
-        p('Under finner du standardsøknader og prosedyrer for søknader.'),
-        dokumentliste('soknader-og-skjema', 'Dokumenter'),
-        dokumentliste('hms', 'HMS'),
-      ],
+      ingress: dokumentsenter.INGRESS,
+      innhold: dokumentsenter.seksjoner(oppgaver.map((o) => o._id)),
     }),
     side('om-borettslaget', 'Om borettslaget', {
       forelder: null, rekkefolge: 30, gamleUrler: [],
@@ -262,5 +261,5 @@ export function buildContent({ protokoll2026 }) {
     },
   };
 
-  return [innstillinger, forside, ...kategorier, ...utvalg, ...sider, ...nyheter];
+  return [innstillinger, forside, ...kategorier, ...oppgaver, ...utvalg, ...sider, ...nyheter];
 }

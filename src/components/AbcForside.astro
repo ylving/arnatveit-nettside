@@ -1,0 +1,49 @@
+---
+// Cover of an ABC-nytt issue: the image made from the PDF's first page, or a drawn A4 card when there is none.
+// `bredde` is the displayed width in px (for srcset/sizes); `sizes` overrides it where the width changes on phones.
+import { utgaveNavn } from '../../sanity/standarder';
+
+type Props = { utgave: any; bredde: number; sizes?: string; eager?: boolean };
+const { utgave, bredde, sizes = `${bredde}px`, eager = false } = Astro.props;
+const navn = utgaveNavn(utgave.maaned, utgave.aar);
+const f = utgave.forside;
+const bilde = (w: number) => `${f.url}?w=${w}&auto=format&q=80`;
+const hoyde = f?.w ? Math.round((bredde * f.h) / f.w) : Math.round(bredde * 1.414);
+// Tint of the image block on the drawn cover, varied by month
+const TONER = ['#C9D8CD', '#E8D3B8', '#CFDDE3', '#D9CFBF', '#BFD1C5', '#E3D7C3'];
+---
+{f?.url ? (
+  <img
+    class="forside"
+    src={bilde(bredde * 2)}
+    srcset={[1, 1.5, 2, 3].map((x) => `${bilde(Math.round(bredde * x))} ${Math.round(bredde * x)}w`).join(', ')}
+    sizes={sizes}
+    width={bredde}
+    height={hoyde}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+    alt={`Forside av ABC-nytt ${navn.toLowerCase()}`}
+  />
+) : (
+  <div class="forside tegnet" role="img" aria-label={`Forside av ABC-nytt ${navn.toLowerCase()}`} style={`--tone: ${TONER[(utgave.maaned ?? 0) % TONER.length]}`}>
+    <span class="masthead">ABC-nytt</span>
+    <span class="dato">{navn}</span>
+    <span class="blokk"></span>
+    <span class="overskrift"></span>
+    <span class="linje"></span><span class="linje"></span><span class="linje kort"></span>
+  </div>
+)}
+<style>
+  .forside {
+    display: block; width: 100%; height: auto; aspect-ratio: 210 / 297; object-fit: cover; object-position: top;
+    background: #fffdf8; border-radius: 6px; box-shadow: 0 1px 2px rgba(29, 36, 32, 0.08), 0 8px 28px rgba(29, 36, 32, 0.12);
+  }
+  /* Drawn cover: sizes in container units so it scales with the card */
+  .tegnet { container-type: inline-size; display: flex; flex-direction: column; padding: 8%; overflow: hidden; }
+  .masthead { font-family: var(--serif); font-weight: 600; font-size: 15cqi; line-height: 1.05; color: var(--accent); padding-bottom: 3cqi; border-bottom: max(1px, 1cqi) solid var(--accent); }
+  .dato { margin-top: 4cqi; font-size: max(6px, 4.3cqi); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .blokk { margin-top: 5cqi; height: 51cqi; background: var(--tone); border-radius: 2px; }
+  .overskrift { margin-top: 7cqi; height: 6cqi; width: 80%; background: var(--ink-2); opacity: 0.85; border-radius: 1px; }
+  .linje { margin-top: 4cqi; height: 2cqi; background: #d9d4c8; border-radius: 1px; }
+  .linje.kort { width: 70%; }
+</style>

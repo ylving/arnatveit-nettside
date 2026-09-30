@@ -1,0 +1,141 @@
+---
+// "Alle dokumenter": documents grouped by category, with search and category chips. Without JS every group is
+// shown and the chips jump to their group; the script turns the chips into filter buttons, shows the search
+// field, and keeps both in the address (?q=…&kategori=…) so a result can be linked.
+import Icon from '../Icon.astro';
+import DokumentRad from '../DokumentRad.astro';
+import { sorter } from '../../lib/dokument';
+
+const { node, styretEpost } = Astro.props;
+const grupper = (node.grupper ?? []).filter(Boolean).map((g: any) => ({ ...g, dokumenter: sorter(g.dokumenter, g.sortering) }));
+const totalt = grupper.reduce((n: number, g: any) => n + g.dokumenter.length, 0);
+const antall = (n: number) => `${n} ${n === 1 ? 'dokument' : 'dokumenter'}`;
+// What the search matches: title, description and tun ("C-tunet", "Felles")
+const sokTekst = (d: any) => [d.tittel, d.beskrivelse, d.tun].filter(Boolean).join(' ').toLowerCase();
+---
+<section class="dokumentsok" id="dokumenter">
+  {node.tittel && <h2 class="hoved">{node.tittel}</h2>}
+  <label class="sok" hidden>
+    <Icon name="Search" size={20} />
+    <span class="visually-hidden">Søk etter dokument</span>
+    <input type="search" name="q" placeholder="Søk etter dokument, f.eks. «lekeplass» eller «C-tunet»" autocomplete="off" enterkeyhint="search" />
+  </label>
+  <nav class="chips" aria-label="Kategorier">
+    <a href="#dokumenter" data-filter="">Alle <span class="n">{totalt}</span></a>
+    {grupper.map((g: any) => <a href={`#${g.slug}`} data-filter={g.slug}>{g.tittel} <span class="n">{g.dokumenter.length}</span></a>)}
+  </nav>
+  {grupper.map((g: any) => (
+    <section class="gruppe" id={g.slug} data-gruppe={g.slug} aria-labelledby={`${g.slug}-tittel`}>
+      <header>
+        <div>
+          <h2 id={`${g.slug}-tittel`}>{g.tittel}</h2>
+          {g.ingress && <p class="ingress">{g.ingress}</p>}
+        </div>
+        <span class="antall" data-antall={g.dokumenter.length}>{antall(g.dokumenter.length)}</span>
+      </header>
+      <ul>{g.dokumenter.map((d: any) => <DokumentRad dok={d} data-sok={sokTekst(d)} />)}</ul>
+    </section>
+  ))}
+  <div class="tom" hidden role="status">
+    <p class="tom-tittel">Fant ingen dokumenter</p>
+    <p>Prøv et annet ord{styretEpost && <>, eller spør styret på <a href={`mailto:${styretEpost}`}>{styretEpost}</a></>}.</p>
+    <button type="button" class="vis-alle">Vis alle</button>
+  </div>
+  <script is:inline>
+    (() => {
+      const el = document.currentScript.parentElement;
+      const input = el.querySelector('.sok input');
+      const grupper = [...el.querySelectorAll('.gruppe')];
+      const tom = el.querySelector('.tom');
+      // Chip links → toggle buttons (same content, class and Astro scoping attribute)
+      const chips = [...el.querySelectorAll('.chips a')].map((a) => {
+        const b = document.createElement('button');
+        for (const at of a.attributes) if (at.name !== 'href') b.setAttribute(at.name, at.value);
+        b.type = 'button';
+        b.innerHTML = a.innerHTML;
+        a.replaceWith(b);
+        return b;
+      });
+      const params = new URLSearchParams(location.search);
+      let filter = chips.some((c) => c.dataset.filter === params.get('kategori')) ? params.get('kategori') : '';
+      input.value = params.get('q') ?? '';
+      // The example terms don't fit on a phone
+      if (matchMedia('(max-width: 640px)').matches) input.placeholder = 'Søk i dokumenter';
+
+      const vis = () => {
+        const ord = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        let noen = false;
+        for (const g of grupper) {
+          let n = 0;
+          for (const li of g.querySelectorAll('li[data-sok]')) {
+            const med = ord.every((o) => li.dataset.sok.includes(o));
+            li.hidden = !med;
+            if (med) n++;
+          }
+          g.hidden = n === 0 || (filter !== '' && g.dataset.gruppe !== filter);
+          const antall = g.querySelector('.antall');
+          antall.textContent = `${n} ${n === 1 ? 'dokument' : 'dokumenter'}`;
+          if (!g.hidden) noen = true;
+        }
+        tom.hidden = noen;
+        chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.filter === filter)));
+        const url = new URL(location.href);
+        input.value.trim() ? url.searchParams.set('q', input.value.trim()) : url.searchParams.delete('q');
+        filter ? url.searchParams.set('kategori', filter) : url.searchParams.delete('kategori');
+        history.replaceState(null, '', url);
+      };
+      chips.forEach((c) => c.addEventListener('click', () => { filter = c.dataset.filter; vis(); }));
+      input.addEventListener('input', vis);
+      el.querySelector('.vis-alle').addEventListener('click', () => { input.value = ''; filter = ''; vis(); input.focus(); });
+      el.querySelector('.sok').hidden = false;
+      el.classList.add('js');
+      vis();
+    })();
+  </script>
+</section>
+<style>
+  .dokumentsok { max-width: 960px; }
+  .hoved { font-size: 40px; margin-bottom: 24px; }
+  .sok {
+    display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 22px; margin-bottom: 16px;
+    border: 1px solid var(--kant); border-radius: 999px; background: var(--surface); color: var(--muted);
+  }
+  .sok:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .sok input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: none; font: inherit; font-size: 17px; color: var(--ink); }
+  .sok input::placeholder { color: var(--faint); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; }
+  .chips > * {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 16px; border-radius: 999px;
+    border: 1px solid var(--kant); background: var(--surface); font: inherit; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer;
+  }
+  .chips > *:hover { border-color: var(--ink); color: var(--ink); }
+  .chips .n { font-weight: 500; opacity: 0.6; }
+  .chips > [aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .gruppe + .gruppe { margin-top: 48px; }
+  .gruppe header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px 24px; margin-bottom: 16px; }
+  .gruppe h2 { font-size: 32px; }
+  .ingress { margin: 6px 0 0; font-size: 15px; color: var(--muted); }
+  .antall { font-size: 14px; color: var(--faint); white-space: nowrap; }
+  ul { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line-2); }
+  .tom { padding: 32px 0; border-top: 1px solid var(--line-2); }
+  .tom p { margin: 0; color: var(--muted); }
+  .tom .tom-tittel { font-family: var(--serif); font-size: 24px; color: var(--ink); margin-bottom: 6px; }
+  .tom a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+  .vis-alle {
+    margin-top: 18px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid var(--kant); background: var(--surface);
+    font: inherit; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer;
+  }
+  .vis-alle:hover { border-color: var(--ink); }
+  @media (max-width: 640px) {
+    .hoved { font-size: 26px; margin-bottom: 18px; }
+    .sok { height: 50px; padding: 0 18px; }
+    .sok input { font-size: 16px; }
+    .chips { margin-bottom: 32px; }
+    .chips > * { min-height: 44px; padding: 0 14px; font-size: 14px; }
+    .gruppe + .gruppe { margin-top: 36px; }
+    .gruppe header { flex-direction: column; align-items: flex-start; margin-bottom: 10px; }
+    .gruppe h2 { font-size: 24px; }
+    .ingress { font-size: 14px; }
+    .antall { font-size: 13px; }
+  }
+</style>

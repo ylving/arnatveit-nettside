@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Seksjoner from '../components/Seksjoner.astro';
 import Brodsmuler from '../components/Brodsmuler.astro';
 import Kontaktboks from '../components/Kontaktboks.astro';
+import AbcSiste from '../components/AbcSiste.astro';
 import { load } from '../lib/sanity';
 import { KONTAKT, SIDE, SIDE_PATHS } from '../lib/queries';
 
@@ -19,16 +20,19 @@ const [side, kontakt] = await Promise.all([load<any>(SIDE, { slug }), load<any>(
 // Contact box beside the title: its own email, or the board's from Innstillinger
 const k = side.kontaktboks;
 const boks = k && (k.tittel || k.epost) ? { tittel: k.tittel || undefined, epost: k.epost || kontakt?.epost } : null;
+// Pages with an ABC-nytt section show the newest issue beside the title
+const abcSiste = side.seksjoner?.find((s: any) => s._type === 'abcUtgaver')?.utgaver?.[0];
 ---
 <Base title={side.seo?.tittel ?? side.tittel} description={side.seo?.beskrivelse ?? side.ingress}>
   <div class="container">
-    <header class:list={['page-head', { 'med-boks': boks }]}>
+    <header class:list={['page-head', { 'med-boks': boks, 'med-abc': abcSiste }]}>
       <div>
         {side.forelder && <Brodsmuler forelder={{ tittel: side.forelder.tittel, href: `/${side.forelder.slug}` }} gjeldende={side.tittel} />}
         <h1>{side.tittel}</h1>
         {side.ingress && <p class="ingress">{side.ingress}</p>}
       </div>
       {boks && <Kontaktboks {...boks} />}
+      {abcSiste && <AbcSiste utgave={abcSiste} />}
     </header>
   </div>
   <Seksjoner seksjoner={side.seksjoner} kontakt={kontakt} barn={side.barn} />
