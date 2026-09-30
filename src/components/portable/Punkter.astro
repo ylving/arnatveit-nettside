@@ -1,0 +1,36 @@
+---
+// Heading on the left (4/12) and short points in a 2-column grid on the right (8/12): thin rule, round icon,
+// Fraunces title, one or two sentences ("Slik fungerer det"). One column on phones.
+import Icon from '../Icon.astro';
+const { node } = Astro.props;
+const punkter: any[] = node.punkter ?? [];
+---
+<section class="punkter">
+  <h2>{node.tittel}</h2>
+  <ul>
+    {punkter.map((p) => (
+      <li>
+        <span class="ikon"><Icon name={p.ikon || 'Info'} size={22} /></span>
+        <h3>{p.tittel}</h3>
+        {p.tekst && <p>{p.tekst}</p>}
+      </li>
+    ))}
+  </ul>
+</section>
+<style>
+  .punkter { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 24px 56px; }
+  .punkter h2 { font-size: 40px; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 48px; }
+  li { border-top: 1px solid var(--kant); padding-top: 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .ikon { width: 48px; height: 48px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; margin-bottom: 4px; }
+  h3 { font-size: 24px; line-height: 1.2; }
+  p { margin: 0; font-size: 16px; line-height: 1.55; color: #46514b; }
+  @media (max-width: 900px) { .punkter { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 640px) {
+    .punkter h2 { font-size: 28px; }
+    ul { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .ikon { width: 44px; height: 44px; }
+    h3 { font-size: 21px; }
+    p { font-size: 15px; }
+  }
+</style>

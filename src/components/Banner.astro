@@ -1,13 +1,15 @@
 ---
 import { linkHref, type Link } from '../lib/urls';
-interface Props { tekst?: string; lenke?: Link }
-const { tekst, lenke } = Astro.props;
-const href = linkHref(lenke);
+interface Props { tekst?: string; lenke?: Link; protokoll?: string }
+const { tekst, lenke, protokoll } = Astro.props;
+// Linked to the newest protocol automatically, or the link chosen in Innstillinger
+const href = protokoll ?? linkHref(lenke);
+const lenketekst = protokoll ? lenke?.tekst || 'Les protokollen' : lenke?.tekst;
 ---
 <div class="banner">
   <div class="container inner">
     <span class="tag">Nytt</span>
-    <span>{tekst}{href && <> <a href={href} class="text-link">{lenke?.tekst}</a></>}</span>
+    <span>{tekst}{href && <> <a href={href} class="text-link">{lenketekst}</a></>}</span>
   </div>
 </div>
 <style>

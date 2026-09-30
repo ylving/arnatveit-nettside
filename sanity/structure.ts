@@ -46,6 +46,7 @@ export const structure: StructureResolver = (S) =>
               S.documentTypeListItem('oppgave').title('Oppgaver («Jeg vil …»)'),
             ]),
         ),
+      S.documentTypeListItem('generalforsamling').title('Generalforsamlinger'),
       S.listItem()
         .title('ABC-nytt')
         .schemaType('abcUtgave')

@@ -27,7 +27,7 @@ export const lenkeAnnotasjon = {
   type: 'object',
   title: 'Lenke',
   fields: [
-    { name: 'intern', title: 'Intern', type: 'reference', to: [{ type: 'side' }, { type: 'nyhet' }, { type: 'dokument' }] },
+    { name: 'intern', title: 'Intern', type: 'reference', to: [{ type: 'side' }, { type: 'nyhet' }, { type: 'dokument' }, { type: 'generalforsamling' }] },
     { name: 'href', title: 'Adresse', type: 'url', validation: (r: any) => r.uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }) },
   ],
 };
@@ -72,7 +72,7 @@ export const dokumentliste = defineType({
       to: [{ type: 'dokumentkategori' }],
       validation: (r) => r.required(),
     }),
-    defineField({ name: 'grupperEtterAar', title: 'Grupper etter år', type: 'boolean', initialValue: false }),
+    defineField({ name: 'grupperEtterAar', title: 'Vis som tidslinje etter år', description: 'Som Protokoller på Generalforsamling: årstall og en linje til venstre, dokumentene til høyre. Ser best ut med Bredde «Bred».', type: 'boolean', initialValue: false }),
     breddeFelt('dokumentliste'),
   ],
   preview: {

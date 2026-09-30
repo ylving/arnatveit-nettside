@@ -10,7 +10,7 @@ export const lenke = defineType({
       name: 'intern',
       title: 'Intern side',
       type: 'reference',
-      to: [{ type: 'side' }, { type: 'nyhet' }, { type: 'dokument' }],
+      to: [{ type: 'side' }, { type: 'nyhet' }, { type: 'dokument' }, { type: 'generalforsamling' }],
       hidden: ({ parent }) => !!parent?.url,
     }),
     defineField({

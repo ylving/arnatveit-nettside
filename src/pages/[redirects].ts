@@ -1,4 +1,4 @@
-// Generates Cloudflare `_redirects` (static assets) from `gamleUrler` on sider, dokumenter and ABC-nytt issues.
+// Generates Cloudflare `_redirects` (static assets) from `gamleUrler` on sider, dokumenter, ABC-nytt issues and general assemblies.
 import type { APIRoute } from 'astro';
 import { load } from '../lib/sanity';
 import { docHref, type DocRef } from '../lib/urls';
@@ -12,7 +12,7 @@ type Kilde = NonNullable<DocRef> & { gamleUrler: string[]; harBarn: boolean };
 
 export const GET: APIRoute = async () => {
   const { kilder, sider, nyheter } = await load<{ kilder: Kilde[]; sider: NonNullable<DocRef>[]; nyheter: string[] }>(`{
-    "kilder": *[_type in ["side", "dokument", "abcUtgave"] && count(gamleUrler) > 0] | order(_updatedAt desc){
+    "kilder": *[_type in ["side", "dokument", "abcUtgave", "generalforsamling"] && count(gamleUrler) > 0] | order(_updatedAt desc){
       gamleUrler, ${DOC_REF_FIELDS},
       "harBarn": _type == "side" && count(*[_type == "side" && forelder._ref == ^._id]) > 0
     },

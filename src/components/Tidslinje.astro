@@ -1,0 +1,43 @@
+---
+// Documents by year as a timeline: year (once per year) · a vertical line with a dot per year (filled for the newest)
+// · document rows (DokumentRad). Used by Protokoller (Generalforsamlinger) and document lists grouped by year.
+import DokumentRad from './DokumentRad.astro';
+import type { Dokument } from '../lib/dokument';
+
+type Props = { grupper: [string, Dokument[]][] };
+const { grupper } = Astro.props;
+---
+<ol class="tidslinje">
+  {grupper.map(([aar, rader], i) => (
+    <li class:list={['aar', { nyest: i === 0 }]}>
+      <span class="aarstall">{aar}</span>
+      <span class="linje" aria-hidden="true"><span class="prikk"></span></span>
+      <ul>{rader.map((d) => <DokumentRad dok={d} />)}</ul>
+    </li>
+  ))}
+</ol>
+<style>
+  .tidslinje { --prikk-y: 40px; list-style: none; margin: 0; padding: 0; }
+  .aar { display: grid; grid-template-columns: 96px 24px minmax(0, 1fr); column-gap: 20px; }
+  .aarstall { font-family: var(--serif); font-size: 28px; line-height: 1; padding-top: calc(var(--prikk-y) - 14px); }
+  /* One continuous line through all years: each year draws its part; it starts at the first dot and ends at the last */
+  .linje { position: relative; }
+  .linje::before { content: ''; position: absolute; left: 11px; width: 2px; top: 0; bottom: 0; background: var(--kant); }
+  .aar:first-child .linje::before { top: var(--prikk-y); }
+  .aar:last-child .linje::before { bottom: auto; height: var(--prikk-y); }
+  .aar:only-child .linje::before { display: none; }
+  .prikk { position: absolute; left: 6px; top: calc(var(--prikk-y) - 6px); width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg); }
+  .nyest .prikk { background: var(--accent); }
+  ul { list-style: none; margin: 0; padding: 0; }
+  .aar:last-child ul { border-bottom: 1px solid var(--line-2); }
+  @media (max-width: 640px) {
+    .tidslinje { --prikk-y: 34px; }
+    .aar { grid-template-columns: 44px 20px minmax(0, 1fr); column-gap: 10px; }
+    .aarstall { font-size: 19px; padding-top: calc(var(--prikk-y) - 10px); }
+    .linje::before { left: 9px; }
+    .prikk { left: 4px; }
+    /* Compact rows: title and size, download icon; no category icon */
+    .aar :global(.dokument-rad) { grid-template-columns: minmax(0, 1fr) 44px; }
+    .aar :global(.dokument-rad .ikon) { display: none; }
+  }
+</style>

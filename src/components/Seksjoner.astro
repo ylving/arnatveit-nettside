@@ -17,6 +17,9 @@ import Dokumentsok from './portable/Dokumentsok.astro';
 import AbcUtgaver from './portable/AbcUtgaver.astro';
 import Fargebaand from './portable/Fargebaand.astro';
 import Borettslagsfakta from './portable/Borettslagsfakta.astro';
+import Punkter from './portable/Punkter.astro';
+import Generalforsamlinger from './portable/Generalforsamlinger.astro';
+import Oppfordring from './Oppfordring.astro';
 import InfoCards from './InfoCards.astro';
 import { STANDARD_BREDDE, type Bredde } from '../../sanity/standarder';
 
@@ -51,6 +54,9 @@ const bredde = (s: any): Bredde =>
             {s._type === 'arrangementer' && <HvaSkjer node={s} />}
             {s._type === 'kontaktinfo' && <Kontaktinfo node={{ ...s, kontakt }} />}
             {s._type === 'fargebaand' && <Fargebaand node={s} />}
+            {s._type === 'punkter' && <Punkter node={s} />}
+            {s._type === 'oppfordring' && <Oppfordring tittel={s.tittel} tekst={s.tekst} knapp={s.knapp} epost={s.epost || kontakt?.epost} emne={s.emne} />}
+            {s._type === 'generalforsamlinger' && <Generalforsamlinger node={s} />}
             {s._type === 'borettslagsfakta' && <Borettslagsfakta node={{ ...s, kontakt }} />}
             {s._type === 'knapper' && <Knapper node={s} />}
             {s._type === 'ansvarsliste' && <Ansvarsliste node={s} styretEpost={kontakt?.epost} />}

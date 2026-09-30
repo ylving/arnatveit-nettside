@@ -3,6 +3,7 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 import { breddeFelt, lenkeAnnotasjon } from './blocks';
 import { lucideIkon } from '../../components/LucideIkon';
+import { IkonVelger } from '../../components/IkonVelger';
 import { KATEGORIER } from '../../standarder';
 
 type Blokk = { _type: string; children?: { text?: string }[] };
@@ -231,6 +232,74 @@ export const borettslagsfakta = defineType({
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Fakta', subtitle: 'Fakta om borettslaget (fra «Om borettslaget»)' }) },
 });
 
+export const punkter = defineType({
+  name: 'punkter',
+  title: 'Punkter med ikon',
+  type: 'object',
+  icon: lucideIkon('LayoutGrid'),
+  description: 'Overskrift til venstre og opptil seks korte punkter med ikon, tittel og tekst til høyre, som «Slik fungerer det» på Generalforsamling.',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', validation: (r) => r.required() }),
+    defineField({
+      name: 'punkter',
+      title: 'Punkter',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'punkt',
+          fields: [
+            defineField({ name: 'ikon', title: 'Ikon', type: 'string', components: { input: IkonVelger } }),
+            defineField({ name: 'tittel', title: 'Tittel', type: 'string', validation: (r) => r.required() }),
+            defineField({ name: 'tekst', title: 'Tekst', description: 'En eller to setninger.', type: 'text', rows: 3 }),
+          ],
+          preview: { select: { title: 'tittel', subtitle: 'tekst' } },
+        }),
+      ],
+      validation: (r) => r.required().min(1).max(6),
+    }),
+    breddeFelt('punkter'),
+  ],
+  preview: { select: { title: 'tittel', a: 'punkter.0.tittel', b: 'punkter.1.tittel' }, prepare: ({ title, a, b }) => ({ title, subtitle: `Punkter · ${[a, b].filter(Boolean).join(', ')} …` }) },
+});
+
+export const oppfordring = defineType({
+  name: 'oppfordring',
+  title: 'Oppfordring med knapp',
+  type: 'object',
+  icon: lucideIkon('PenLine'),
+  description: 'En linje over, et lite ikon, overskrift, tekst og en mørk knapp som åpner en e-post, som «Vil du melde inn en sak?».',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', validation: (r) => r.required() }),
+    defineField({ name: 'tekst', title: 'Tekst', type: 'text', rows: 2 }),
+    defineField({ name: 'knapp', title: 'Knappetekst', type: 'string', validation: (r) => r.required() }),
+    defineField({ name: 'epost', title: 'E-post', description: 'La stå tomt for å bruke styrets e-post fra «Om borettslaget».', type: 'email' }),
+    defineField({ name: 'emne', title: 'Emne i e-posten (valgfritt)', description: 'F.eks. «Sak til generalforsamlingen»', type: 'string' }),
+    breddeFelt('oppfordring'),
+  ],
+  preview: { select: { title: 'tittel', subtitle: 'knapp' }, prepare: ({ title, subtitle }) => ({ title, subtitle: `Oppfordring · ${subtitle ?? ''}` }) },
+});
+
+export const generalforsamlinger = defineType({
+  name: 'generalforsamlinger',
+  title: 'Generalforsamlinger (protokoller)',
+  type: 'object',
+  icon: lucideIkon('Gavel'),
+  description: 'Siste generalforsamling ved sidetittelen, og alle protokoller som en tidslinje. Generalforsamlingene legges inn under «Generalforsamlinger» i menyen.',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Protokoller' }),
+    defineField({ name: 'ingress', title: 'Tekst ved overskriften', type: 'string', initialValue: 'Protokoll fra hver generalforsamling, nyeste først' }),
+    defineField({
+      name: 'neste',
+      title: 'Neste generalforsamling',
+      description: 'Vises nederst i boksen «Siste generalforsamling», etter «Neste:». F.eks. «Ordinær generalforsamling våren 2027. Innkallingen sendes til alle andelseiere.»',
+      type: 'string',
+    }),
+    breddeFelt('generalforsamlinger'),
+  ],
+  preview: { select: { title: 'tittel', subtitle: 'neste' }, prepare: ({ title, subtitle }) => ({ title: title || 'Protokoller', subtitle: `Generalforsamlinger${subtitle ? ` · Neste: ${subtitle}` : ''}` }) },
+});
+
 export const seksjoner = defineType({
   name: 'seksjoner',
   title: 'Innhold',
@@ -250,6 +319,9 @@ export const seksjoner = defineType({
     defineArrayMember({ type: 'kontaktinfo' }),
     defineArrayMember({ type: 'fargebaand' }),
     defineArrayMember({ type: 'borettslagsfakta' }),
+    defineArrayMember({ type: 'punkter' }),
+    defineArrayMember({ type: 'oppfordring' }),
+    defineArrayMember({ type: 'generalforsamlinger' }),
     defineArrayMember({ type: 'ansvarsliste' }),
     defineArrayMember({ type: 'knapper' }),
     defineArrayMember({ type: 'undersider' }),
@@ -259,9 +331,9 @@ export const seksjoner = defineType({
       showIcons: true,
       views: [{ name: 'list' }],
       groups: [
-        { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'fargebaand', 'bilde', 'infoboks'] },
-        { name: 'lister', title: 'Lister', of: ['dokumentliste', 'dokumentsok', 'oppgaver', 'abcUtgaver', 'medlemsliste', 'faktaliste', 'nokkeltall', 'arrangementer'] },
-        { name: 'annet', title: 'Kontakt og navigasjon', of: ['kontaktinfo', 'borettslagsfakta', 'ansvarsliste', 'knapper', 'undersider'] },
+        { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'fargebaand', 'punkter', 'bilde', 'infoboks'] },
+        { name: 'lister', title: 'Lister', of: ['dokumentliste', 'dokumentsok', 'generalforsamlinger', 'oppgaver', 'abcUtgaver', 'medlemsliste', 'faktaliste', 'nokkeltall', 'arrangementer'] },
+        { name: 'annet', title: 'Kontakt og navigasjon', of: ['kontaktinfo', 'borettslagsfakta', 'oppfordring', 'ansvarsliste', 'knapper', 'undersider'] },
       ],
     },
   },

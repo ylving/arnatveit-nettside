@@ -1,13 +1,31 @@
 // GROQ projections shared across pages
 // `forelder` = parent page slug (pages are at most one level deep)
-export const DOC_REF_FIELDS = `_type, "slug": slug.current, "forelder": forelder->slug.current, "fil": fil.asset->url`;
+export const DOC_REF_FIELDS = `_type, "slug": slug.current, "forelder": forelder->slug.current, "fil": coalesce(fil.asset->url, protokoll.asset->url)`;
 export const DOC_REF = `{ ${DOC_REF_FIELDS} }`;
 export const SIDE_KORT = `{ ${DOC_REF_FIELDS}, tittel, kort, ikon }`;
 export const LINK = `{ tekst, url, "intern": intern->${DOC_REF} }`;
+// A general assembly's name, as gfNavn() in sanity/standarder.ts
+const GF_TITTEL = `select(type == "ekstraordinaer" => "Ekstraordinær generalforsamling ", "Generalforsamling ") + string::split(dato, "-")[0]`;
+
+// A document row. General assemblies (their protocol) get the same shape, so they can be attached to news too.
 export const DOKUMENT = `{
-  _id, tittel, dato, beskrivelse, tun, rekkefolge,
-  "url": fil.asset->url, "size": fil.asset->size, "ext": fil.asset->extension, "filnavn": fil.asset->originalFilename,
-  "kategori": kategori->{ farge, ikon }
+  _id, dato, beskrivelse, tun, rekkefolge,
+  _type == "generalforsamling" => {
+    "tittel": ${GF_TITTEL},
+    "url": protokoll.asset->url, "size": protokoll.asset->size, "ext": protokoll.asset->extension, "filnavn": protokoll.asset->originalFilename,
+    "kategori": { "farge": select(type == "ekstraordinaer" => "oker", "gronn"), "ikon": "FileText" }
+  },
+  _type != "generalforsamling" => {
+    tittel,
+    "url": fil.asset->url, "size": fil.asset->size, "ext": fil.asset->extension, "filnavn": fil.asset->originalFilename,
+    "kategori": kategori->{ farge, ikon }
+  }
+}`;
+
+// A general assembly: its protocol as a document row, plus date, type, place and the optional invitation
+export const GENERALFORSAMLING = `{
+  ...${DOKUMENT}, type, sted,
+  "innkalling": innkalling.asset->{ "url": url, "size": size, "ext": extension, "filnavn": originalFilename }
 }`;
 
 // An ABC-nytt issue, with its cover's size (for width/height on the image)
@@ -70,6 +88,11 @@ export const SEKSJONER = `seksjoner[]{
     ...,
     "grupper": kategorier[]->{ _id, tittel, "slug": slug.current, ingress, sortering, "dokumenter": *[_type == "dokument" && kategori._ref == ^._id] ${DOKUMENT} }
   },
+  _type == "generalforsamlinger" => {
+    ...,
+    // Same date (only the year known): the extraordinary one first, as in the design
+    "moter": *[_type == "generalforsamling" && defined(protokoll.asset) && !(_id in path("drafts.**"))] | order(dato desc, type asc) ${GENERALFORSAMLING}
+  },
   _type == "abcUtgaver" => {
     ...,
     "utgaver": *[_type == "abcUtgave" && defined(fil.asset)] | order(aar desc, maaned desc) ${ABC_UTGAVE},
@@ -87,7 +110,11 @@ export const INNSTILLINGER = `*[_id == "innstillinger"][0]{
   navn, beskrivelse, menyBrytepunkt,
   "kontakt": *[_id == "omBorettslaget"][0]{ epost },
   "hovedmeny": hovedmeny[]${LINK},
-  banner{ aktiv, tekst, "lenke": lenke${LINK} },
+  banner{
+    aktiv, tekst, "lenke": lenke${LINK},
+    // "Lenk til protokollen fra siste generalforsamling"
+    sisteProtokoll == true => { "protokoll": *[_type == "generalforsamling" && defined(protokoll.asset) && !(_id in path("drafts.**"))] | order(dato desc, type asc)[0].protokoll.asset->url }
+  },
   "praktiskInfo": *[_type == "side" && forelder._ref == "side-praktisk-info"] | order(rekkefolge asc)${SIDE_KORT},
   "dokumentsenter": *[_id == "side-dokumentsenter"][0]${DOC_REF},
   "omside": *[_id == "side-om-borettslaget"][0]${DOC_REF}

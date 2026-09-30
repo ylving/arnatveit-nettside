@@ -1,0 +1,64 @@
+---
+// "Siste generalforsamling": the newest assembly beside the page title (pages with a Generalforsamlinger section).
+// Date block (weekday, day, month + year), title, place, protocol buttons and the editable "Neste:" line.
+import Icon from './Icon.astro';
+import { lastNedUrl } from '../lib/dokument';
+
+const { mote, neste } = Astro.props;
+const dato = new Date(`${mote.dato}T12:00:00`);
+// "1. januar" is how editors enter "only the year is known": then the block shows the year only
+const kunAar = mote.dato.endsWith('-01-01');
+const del = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('nb-NO', o).format(dato);
+const ukedag = del({ weekday: 'short' }).replace('.', '');
+---
+<div class="ramme">
+  <aside class="gf-siste" aria-label="Siste generalforsamling">
+    <p class="kicker">Siste generalforsamling</p>
+    <div class="hode">
+      <time class="dato" datetime={mote.dato}>
+        {kunAar ? <span class="dag">{dato.getFullYear()}</span> : (
+          <><span class="ukedag">{ukedag}</span><span class="dag">{dato.getDate()}</span><span class="mnd">{del({ month: 'long' })} {dato.getFullYear()}</span></>
+        )}
+      </time>
+      <div>
+        <p class="navn">{mote.tittel}</p>
+        {mote.sted && <p class="sted"><Icon name="MapPin" size={16} />{mote.sted}</p>}
+      </div>
+    </div>
+    <div class="knapper">
+      <a class="btn btn--primary" href={mote.url} target="_blank" rel="noopener"><Icon name="Eye" size={18} />Les protokollen</a>
+      <a class="btn" href={lastNedUrl(mote)} download={mote.filnavn ?? ''}><Icon name="Download" size={18} />Last ned</a>
+    </div>
+    {neste && <p class="neste"><strong>Neste:</strong> {neste}</p>}
+  </aside>
+</div>
+<style>
+  .ramme { container-type: inline-size; }
+  .gf-siste { background: var(--accent-soft); border-radius: 28px; padding: 32px; display: flex; flex-direction: column; gap: 20px; }
+  p { margin: 0; }
+  .kicker { color: var(--accent); }
+  .hode { display: flex; align-items: center; gap: 20px; }
+  .dato { width: 84px; height: 96px; flex-shrink: 0; border-radius: 16px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; }
+  .ukedag { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .dag { font-family: var(--serif); font-size: 38px; line-height: 1.05; }
+  .mnd { font-size: 13px; font-weight: 500; color: var(--ink-2); }
+  .hode > div { min-width: 0; }
+  .navn { font-family: var(--serif); font-size: 28px; line-height: 1.15; overflow-wrap: break-word; hyphens: auto; }
+  .sted { display: flex; align-items: center; gap: 6px; margin-top: 6px !important; font-size: 15px; color: #46514b; }
+  .sted :global(svg) { color: var(--accent); flex-shrink: 0; }
+  .knapper { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .knapper .btn { min-height: 48px; padding: 0 14px; gap: 8px; font-size: 15px; }
+  .knapper .btn:not(.btn--primary) { border-color: #fff; }
+  .neste { padding-top: 16px; border-top: 1px solid #c9d8cd; font-size: 15px; line-height: 1.5; color: #46514b; }
+  .neste strong { color: var(--ink); font-weight: 600; }
+  /* Narrow panel (phones, or beside the title on mid-size screens) */
+  @container (max-width: 400px) {
+    .gf-siste { border-radius: 22px; padding: 20px; }
+    .dato { width: 64px; height: 76px; border-radius: 12px; }
+    .dag { font-size: 30px; }
+    .navn { font-size: 22px; }
+  }
+  /* Phones: the two buttons stay side by side without their icons */
+  @container (max-width: 360px) { .knapper .btn { padding: 0 8px; } .knapper :global(svg) { display: none; } }
+  @container (max-width: 260px) { .knapper { grid-template-columns: 1fr; } }
+</style>

@@ -30,7 +30,19 @@ export const innstillinger = defineType({
       fields: [
         defineField({ name: 'aktiv', title: 'Vis banner', type: 'boolean', initialValue: false }),
         defineField({ name: 'tekst', title: 'Tekst', type: 'string' }),
-        defineField({ name: 'lenke', title: 'Lenke', type: 'lenke' }),
+        defineField({
+          name: 'sisteProtokoll',
+          title: 'Lenk til protokollen fra siste generalforsamling',
+          description: 'Lenken går da alltid til den nyeste protokollen under Generalforsamlinger. Lenketeksten tas fra «Lenke», ellers «Les protokollen».',
+          type: 'boolean',
+          initialValue: false,
+        }),
+        defineField({
+          name: 'lenke',
+          title: 'Lenke',
+          type: 'lenke',
+          description: 'Står «Lenk til protokollen …» på, brukes bare teksten herfra.',
+        }),
       ],
     }),
   ],

@@ -18,6 +18,9 @@ export const STANDARD_BREDDE = {
   dokumentsok: 'bred',
   abcUtgaver: 'bred',
   borettslagsfakta: 'bred',
+  punkter: 'bred',
+  oppfordring: 'bred',
+  generalforsamlinger: 'bred',
 } as const;
 export type Bredde = 'tekst' | 'bred' | 'full';
 // Event categories (arrangement.kategori). Colours are tokens in global.css (--dugnad*, --sosialt*).
@@ -50,3 +53,11 @@ export const MAANEDER = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'j
 const stor = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 /** ABC-nytt issue name: (3, 2026) → "Mars 2026" */
 export const utgaveNavn = (maaned?: number, aar?: number) => [maaned && stor(MAANEDER[maaned - 1] ?? ''), aar].filter(Boolean).join(' ');
+// General assemblies (generalforsamling.type). Extraordinary ones get the ochre tint in document rows.
+export const GF_TYPER = [
+  { verdi: 'ordinaer', navn: 'Ordinær' },
+  { verdi: 'ekstraordinaer', navn: 'Ekstraordinær' },
+] as const;
+/** "Generalforsamling 2026" / "Ekstraordinær generalforsamling 2017" */
+export const gfNavn = (type?: string, dato?: string) =>
+  `${type === 'ekstraordinaer' ? 'Ekstraordinær generalforsamling' : 'Generalforsamling'}${dato ? ` ${dato.slice(0, 4)}` : ''}`;

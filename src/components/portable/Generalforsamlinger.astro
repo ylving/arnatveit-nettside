@@ -1,0 +1,35 @@
+---
+// "Protokoller": the protocols as a timeline by year (Tidslinje; extraordinary assemblies in ochre), plus the
+// invitation as its own row when there is one.
+// The newest assembly is also shown beside the page title (GfSiste).
+import Tidslinje from '../Tidslinje.astro';
+
+const { node } = Astro.props;
+const moter: any[] = node.moter ?? [];
+// The protocol, and the invitation as its own row (same tint)
+const rader = (m: any) => [
+  m,
+  ...(m.innkalling?.url ? [{ ...m.innkalling, _id: `${m._id}-innkalling`, tittel: `Innkalling til ${m.tittel.charAt(0).toLowerCase()}${m.tittel.slice(1)}`, kategori: m.kategori }] : []),
+];
+const grupper = Object.entries(Object.groupBy(moter, (m: any) => m.dato.slice(0, 4)))
+  .sort(([a], [b]) => b.localeCompare(a))
+  .map(([aar, liste]) => [aar, (liste ?? []).flatMap(rader)] as [string, any[]]);
+---
+<section class="protokoller">
+  <div class="topp">
+    {node.tittel && <h2>{node.tittel}</h2>}
+    {node.ingress && <p class="ingress">{node.ingress}</p>}
+  </div>
+  {moter.length > 0 ? (
+    <Tidslinje grupper={grupper} />
+  ) : <p class="ingress">Ingen protokoller ennå.</p>}
+</section>
+<style>
+  .topp { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 24px; margin-bottom: 20px; }
+  .protokoller h2 { font-size: 40px; }
+  .ingress { margin: 0; font-size: 15px; color: var(--muted); }
+  @media (max-width: 640px) {
+    .protokoller h2 { font-size: 28px; }
+    .topp .ingress { display: none; }
+  }
+</style>

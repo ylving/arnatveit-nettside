@@ -2,7 +2,7 @@
 // ABC-nytt: "Tidligere utgaver" (the five before the newest; three on phones), "Arkiv" (one row per year with
 // twelve months) and "Har du noe til neste nummer?". The newest issue is shown beside the page title (AbcSiste).
 // Phones with JS pick one year at a time; without JS all years are stacked.
-import Icon from '../Icon.astro';
+import Oppfordring from '../Oppfordring.astro';
 import AbcForside from '../AbcForside.astro';
 import { formatSize } from '../../lib/urls';
 import { MAANEDER, utgaveNavn } from '../../../sanity/standarder';
@@ -82,14 +82,13 @@ const epost = node.innspillEpost || styretEpost;
     </section>
   )}
 
-  <section class="innspill">
-    <span class="innspill-ikon"><Icon name="PenLine" size={22} /></span>
-    <div class="innspill-tekst">
-      <h2>{node.innspillTittel || 'Har du noe til neste nummer?'}</h2>
-      <p>{[node.innspillTekst, node.redaktor && `${node.redaktor} har ansvaret for ABC-nytt.`].filter(Boolean).join(' ')}</p>
-    </div>
-    {epost && <a class="btn btn--dark" href={`mailto:${epost}?subject=${encodeURIComponent('Innspill til ABC-nytt')}`}>Send innspill</a>}
-  </section>
+  <Oppfordring
+    tittel={node.innspillTittel || 'Har du noe til neste nummer?'}
+    tekst={[node.innspillTekst, node.redaktor && `${node.redaktor} har ansvaret for ABC-nytt.`].filter(Boolean).join(' ')}
+    knapp="Send innspill"
+    epost={epost}
+    emne="Innspill til ABC-nytt"
+  />
 </div>
 <style>
   .abc { display: flex; flex-direction: column; gap: clamp(48px, 6vw, 72px); }
@@ -120,11 +119,6 @@ const epost = node.innspillEpost || styretEpost;
   .maaneder span { color: #c9c3b7; font-weight: 500; }
   .aarvalg { display: none !important; }
 
-  .innspill { display: flex; align-items: center; gap: 24px; padding-top: 32px; border-top: 2px solid var(--ink); }
-  .innspill-ikon { width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; background: var(--farge-oker-bg); color: var(--farge-oker); display: grid; place-items: center; }
-  .innspill-tekst { flex: 1; }
-  .abc .innspill h2 { font-size: 26px; }
-  .innspill p { margin: 6px 0 0; font-size: 16px; color: var(--muted); }
 
   @media (max-width: 1000px) {
     .aar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'aar antall' 'maaneder maaneder'; gap: 10px 16px; }
@@ -132,8 +126,6 @@ const epost = node.innspillEpost || styretEpost;
   @media (max-width: 760px) {
     .tidligere ul { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 12px; }
     .tidligere li:nth-child(n + 4) { display: none; }
-    .innspill { flex-direction: column; align-items: stretch; gap: 14px; }
-    .innspill .btn { width: 100%; }
   }
   @media (max-width: 640px) {
     .abc h2 { font-size: 26px; }
@@ -153,6 +145,5 @@ const epost = node.innspillEpost || styretEpost;
     .arkiv.js .aar.valgt h3 { display: none; }
     .arkiv.js .antall { text-align: left; margin-bottom: 10px; color: var(--muted); }
     .arkiv.js .i-aar { display: inline; }
-    .abc .innspill h2 { font-size: 22px; }
   }
 </style>

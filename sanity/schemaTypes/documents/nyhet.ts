@@ -11,7 +11,7 @@ export const nyhet = defineType({
     defineField({ name: 'merkelapp', title: 'Merkelapp', description: 'F.eks. «Generalforsamling 2026»', type: 'string' }),
     defineField({ name: 'ingress', title: 'Ingress', type: 'text', rows: 3, validation: (r) => r.required() }),
     defineField({ name: 'innhold', title: 'Innhold', type: 'innhold' }),
-    defineField({ name: 'dokumenter', title: 'Vedlagte dokumenter', type: 'array', of: [{ type: 'reference', to: [{ type: 'dokument' }] }] }),
+    defineField({ name: 'dokumenter', title: 'Vedlagte dokumenter', type: 'array', of: [{ type: 'reference', to: [{ type: 'dokument' }, { type: 'generalforsamling' }] }] }),
     defineField({ name: 'fremhevet', title: 'Fremhev på forsiden', type: 'boolean', initialValue: false }),
     defineField({ name: 'seo', title: 'SEO', type: 'seo' }),
   ],

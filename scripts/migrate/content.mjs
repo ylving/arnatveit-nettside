@@ -2,6 +2,7 @@
 // Everything uses deterministic _ids so the import can be re-run safely.
 import { tilSeksjoner } from './seksjoner-lib.mjs';
 import * as dokumentsenter from './dokumentsenter-data.mjs';
+import * as generalforsamling from './generalforsamling-data.mjs';
 
 let n = 0;
 const key = () => `k${(n++).toString(36)}`;
@@ -35,9 +36,8 @@ const hvaSkjer = (kategori) => ({ _type: 'arrangementer', _key: key(), tittel: '
 const lenkeknapp = (tekst, target) => ({ _type: 'lenkeknapp', _key: key(), lenke: lenke(tekst, target) });
 
 // Dokumentsenter's categories (Søknader, Bygging, HMS, Skjemaer) come from dokumentsenter-data.mjs. ABC-nytt issues
-// are `abcUtgave` documents, not a category (run.mjs).
+// and protocols are their own types (`abcUtgave`, `generalforsamling`), not categories (run.mjs).
 export const KATEGORIER = [
-  ['protokoller', 'Protokoller', 'dato'],
   ['arsberetninger', 'Årsberetninger', 'dato'],
   ['vedtekter', 'Vedtekter og regler', 'tittel'],
   ['dugnad', 'Dugnad', 'tittel'],
@@ -56,7 +56,7 @@ const ansvar = (omraade, beskrivelse, ikon) => ({ _type: 'ansvarsomraade', _key:
 const medlem = (navn, rolle, tun, telefon, epost, kontaktperson = false, ansvarsomraader = [], vara = false) =>
   ({ _type: 'medlem', _key: key(), navn, rolle, tun, telefon, epost, kontaktperson, vara, ...(ansvarsomraader.length && { ansvar: ansvarsomraader }) });
 
-// `protokoll2026` = _id of the newest GF protocol dokument; `dokumentId(old title)` = a document's _id (both resolved by run.mjs)
+// `protokoll2026` = _id of the 2026 generalforsamling; `dokumentId(old title)` = a document's _id (both resolved by run.mjs)
 export function buildContent({ protokoll2026, dokumentId }) {
   const kategorier = [
     ...KATEGORIER.map(([id, tittel, sortering]) => ({ _id: `kategori-${id}`, _type: 'dokumentkategori', tittel, slug: slug(id), sortering })),
@@ -97,17 +97,11 @@ export function buildContent({ protokoll2026, dokumentId }) {
     }),
     side('generalforsamling', 'Generalforsamling', {
       ikon: 'Users', kort: 'Borettslagets øverste organ, bestående av andelseierne. Innkallinger og protokoller.', rekkefolge: 10, gamleUrler: ['/praktiskinfo/generalforsamling'],
-      ingress: 'Generalforsamlingen er borettslagets øverste organ, og består av andelseierne.',
+      ingress: generalforsamling.INGRESS,
+      // Protocols are `generalforsamling` documents (run.mjs); Årsberetninger isn't in the design but is kept
       innhold: [
-        h2('Om generalforsamlingen'),
-        p('Generalforsamlingen er borettslagets øverste organ, og består av andelseierne. Styret skal kalle inn til generalforsamling etter lagets vedtekter og borettslagsloven.'),
-        p('Generalforsamlingen velger styret som skal bestå av representanter fra borettslagets tre tun. I tillegg har Arnatveit Borettslag valgt at styret også skal bestå av ett eksternt styremedlem.'),
-        p('Før generalforsamlingen starter har en valgkomite jobbet med å finne fram til kandidater som ønsker å sitte i borettslagets styre. Disse skal erstatte styremedlemmer som er på valg, og som ønsker å fratre.'),
-        p('Ekstraordinær generalforsamling kan finne sted i et borettslag. Da er det kun én enkeltsak som skal behandles. Slike ekstraordinære generalforsamlinger holdes når styret finner det nødvendig, eller når revisor eller minst to andelseiere, som tilsammen har minst 1/10 del av lagets totale stemmer, krever det, og samtidig oppgir hvilken sak som ønskes behandlet.'),
-        h3('Valgkomiteen i Arnatveit Borettslag'),
-        p('Valgkomiteen består av representanter fra hvert av Arnatveit Borettslags tre tun.'),
-        dokumentliste('protokoller', 'Protokoller'),
-        dokumentliste('arsberetninger', 'Årsberetninger'),
+        ...generalforsamling.SEKSJONER,
+        { ...dokumentliste('arsberetninger', 'Årsberetninger', true), bredde: 'bred' },
       ],
     }),
     side('vedtekter', 'Vedtekter', {
@@ -216,7 +210,7 @@ export function buildContent({ protokoll2026, dokumentId }) {
       lenke('Om oss og kontakt', '#side-om-borettslaget'),
       lenke('Nytt', '/aktuelt'),
     ].map((l) => ({ ...l, _key: key() })),
-    banner: { aktiv: true, tekst: 'Generalforsamlingen 2026 ble avholdt 28. mai.', lenke: lenke('Les protokollen', `#${protokoll2026}`) },
+    banner: { aktiv: true, tekst: 'Generalforsamlingen 2026 ble avholdt 28. mai.', sisteProtokoll: true, lenke: { _type: 'lenke', tekst: 'Les protokollen' } },
   };
 
   // Contact details and facts (the contact person is the member with `kontaktperson` on)

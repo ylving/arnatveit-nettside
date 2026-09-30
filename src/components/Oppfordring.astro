@@ -1,0 +1,30 @@
+---
+// Call to action: a dark rule above, a small ochre pen icon, heading + text, and a dark button that opens an email
+// ("Vil du melde inn en sak?", "Har du noe til neste nummer?"). Stacked with a full-width button on narrow screens.
+import Icon from './Icon.astro';
+
+type Props = { tittel: string; tekst?: string; knapp: string; epost?: string; emne?: string };
+const { tittel, tekst, knapp, epost, emne } = Astro.props;
+const href = epost && `mailto:${epost}${emne ? `?subject=${encodeURIComponent(emne)}` : ''}`;
+---
+<section class="oppfordring">
+  <span class="ikon"><Icon name="PenLine" size={22} /></span>
+  <div class="tekst">
+    <h2>{tittel}</h2>
+    {tekst && <p>{tekst}</p>}
+  </div>
+  {href && <a class="btn btn--dark" href={href}>{knapp}</a>}
+</section>
+<style>
+  .oppfordring { display: flex; align-items: center; gap: 24px; padding-top: 32px; border-top: 2px solid var(--ink); }
+  .ikon { width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; background: var(--farge-oker-bg); color: var(--farge-oker); display: grid; place-items: center; }
+  .tekst { flex: 1; }
+  .oppfordring h2 { font-size: 26px; }
+  p { margin: 6px 0 0; font-size: 16px; color: var(--muted); }
+  @media (max-width: 760px) {
+    .oppfordring { flex-direction: column; align-items: stretch; gap: 14px; }
+    .ikon { width: 44px; height: 44px; }
+    .btn { width: 100%; }
+  }
+  @media (max-width: 640px) { .oppfordring h2 { font-size: 22px; } p { font-size: 15px; } }
+</style>

@@ -7,6 +7,7 @@ import { createClient } from '@sanity/client';
 import { inventory, download } from './inventory.mjs';
 import { buildContent } from './content.mjs';
 import { dokumentFelter } from './dokumentsenter-data.mjs';
+import { tilGeneralforsamling } from './generalforsamling-data.mjs';
 
 const DRY = process.argv.includes('--dry');
 const CACHE = new URL('./cache/', import.meta.url).pathname;
@@ -51,6 +52,8 @@ async function main() {
   // description, tun and order from dokumentsenter-data.mjs
   const dokumenter = pdfs.map((d) => {
     const _localFile = path.join(CACHE, d.localFile);
+    // Protocols are `generalforsamling` documents (date, ordinary/extraordinary)
+    if (d.kategori === 'protokoller') return { ...tilGeneralforsamling({ tittel: title(d), dato: d.dato, gamleUrler: [d.oldPath] }), _localFile };
     if (d.kategori === 'abc-nytt') {
       const [aar, maaned] = d.dato.split('-').map(Number);
       return { _id: `abc-${d.dato.slice(0, 7)}`, _type: 'abcUtgave', aar, maaned, gamleUrler: [d.oldPath], _localFile };
@@ -71,14 +74,14 @@ async function main() {
     };
   });
   const ids = new Set(dokumenter.map((d) => d._id));
-  if (ids.size !== dokumenter.length) throw new Error('Duplicate dokument/abcUtgave _id');
+  if (ids.size !== dokumenter.length) throw new Error('Duplicate dokument/abcUtgave/generalforsamling _id');
   const dokumentId = (tittel) => {
     const d = dokumenter.find((x) => x._gammelTittel === tittel);
     if (!d) throw new Error(`No document titled "${tittel}"`);
     return d._id;
   };
 
-  const protokoll2026 = dokumenter.find((d) => d.gamleUrler[0].includes('28.05.2026'))?._id;
+  const protokoll2026 = dokumenter.find((d) => d._type === 'generalforsamling' && d.gamleUrler[0].includes('28.05.2026'))?._id;
   if (!protokoll2026) throw new Error('2026 protocol not found');
   const docs = [...buildContent({ protokoll2026, dokumentId }), ...dokumenter];
 
@@ -109,7 +112,7 @@ async function main() {
     for (let d; (d = queue.shift()); ) {
       const asset = await withRetry(path.basename(d._localFile), async () =>
         client.assets.upload('file', await fs.readFile(d._localFile), { filename: path.basename(d._localFile) }));
-      d.fil = { _type: 'file', asset: { _type: 'reference', _ref: asset._id } };
+      d[d._type === 'generalforsamling' ? 'protokoll' : 'fil'] = { _type: 'file', asset: { _type: 'reference', _ref: asset._id } };
       process.stdout.write(`\rUploaded ${++done}/${dokumenter.length}`);
     }
   }));

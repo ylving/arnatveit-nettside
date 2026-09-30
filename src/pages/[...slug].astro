@@ -4,6 +4,7 @@ import Seksjoner from '../components/Seksjoner.astro';
 import Brodsmuler from '../components/Brodsmuler.astro';
 import Kontaktboks from '../components/Kontaktboks.astro';
 import AbcSiste from '../components/AbcSiste.astro';
+import GfSiste from '../components/GfSiste.astro';
 import { load } from '../lib/sanity';
 import Icon from '../components/Icon.astro';
 import { KONTAKT, SIDE, SIDE_PATHS } from '../lib/queries';
@@ -24,12 +25,15 @@ const k = side.kontaktboks;
 const boks = k && (k.tittel || k.epost) ? { tittel: k.tittel || undefined, epost: k.epost || kontakt?.epost } : null;
 // Pages with an ABC-nytt section show the newest issue beside the title
 const abcSiste = side.seksjoner?.find((s: any) => s._type === 'abcUtgaver')?.utgaver?.[0];
+// … and pages with a Generalforsamlinger section the newest assembly
+const gfSeksjon = side.seksjoner?.find((s: any) => s._type === 'generalforsamlinger');
+const gfSiste = gfSeksjon?.moter?.[0];
 // "Vis snarveier øverst": pill links to the sections that have an anchor (Kontakt, Området, Fakta …)
 const snarveier = side.snarveier ? (side.seksjoner ?? []).map(seksjonAnker).filter(Boolean) : [];
 ---
 <Base title={side.seo?.tittel ?? side.tittel} description={side.seo?.beskrivelse ?? side.ingress}>
   <div class="container">
-    <header class:list={['page-head', { 'med-boks': boks, 'med-abc': abcSiste }]}>
+    <header class:list={['page-head', { 'med-boks': boks, 'med-abc': abcSiste, 'med-gf': gfSiste }]}>
       <div>
         {side.forelder && <Brodsmuler forelder={{ tittel: side.forelder.tittel, href: `/${side.forelder.slug}` }} gjeldende={side.tittel} />}
         <h1>{side.tittel}</h1>
@@ -42,6 +46,7 @@ const snarveier = side.snarveier ? (side.seksjoner ?? []).map(seksjonAnker).filt
       </div>
       {boks && <Kontaktboks {...boks} />}
       {abcSiste && <AbcSiste utgave={abcSiste} />}
+      {gfSiste && <GfSiste mote={gfSiste} neste={gfSeksjon.neste} />}
     </header>
   </div>
   <Seksjoner seksjoner={side.seksjoner} kontakt={kontakt} barn={side.barn} />
