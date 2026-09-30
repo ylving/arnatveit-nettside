@@ -1,11 +1,12 @@
 # Handoff – Arnatveit Borettslag
 
-_Last updated 2026-09-28 (events). Branch `main` (github.com:ylving/arnatveit-nettside). Check `git status` and `git log origin/main..` for anything not yet committed or pushed._
+_Last updated 2026-09-30 (deployed to workers.dev; rebuild button; nightly Worker). Branch `main` (github.com:ylving/arnatveit-nettside). Check `git status` and `git log origin/main..` for anything not yet committed or pushed._
 
 ## State
-The site is built and works locally. **Not deployed yet**: the user wants more local work first.
+**Deployed to a test address, not launched.** https://arnatveit-borettslag.arnatveit-borettslag.workers.dev is now behind **Cloudflare Access** (login page), so it can't be checked with curl from here; the user checks it in their browser. The domain still points at the old (compromised) Joomla site.
 
-- **Stack:** Astro 7 (static output, no adapter) + Sanity 6, with the Studio embedded at `/admin` (hash routing). Deploys as a Cloudflare Worker serving static assets (`wrangler.jsonc`).
+- **Stack:** Astro 7 (static output, no adapter) + Sanity 6, with the Studio embedded at `/admin` (hash routing). Deploys as a Cloudflare Worker serving static assets (`wrangler.jsonc`), built by **Cloudflare Workers Builds** on every push to `main`.
+- **Cloudflare:** account "Arnatveit borettslag" (`361c9a9dd3bbb7b53cdc0224f872c2b6`). `wrangler` is logged in as the user and also sees their personal account, so always prefix commands with `CLOUDFLARE_ACCOUNT_ID=361c9a9dd3bbb7b53cdc0224f872c2b6`. Workers: `arnatveit-borettslag` (site), `arnatveit-nattlig-bygg` (cron 01:00 UTC).
 - **Sanity:** project `vx8672d7`, dataset `production`. `.env` holds `PUBLIC_*`, `SANITY_STUDIO_*` and `SANITY_WRITE_TOKEN`.
 - **Content:** migrated from the old Joomla site: 10 pages, 157 PDFs, board and committees. Later content changes made by script are in the change log in `docs/MIGRATION.md`.
 - **Docs:** `README.md` (setup and scripts), `docs/MIGRATION.md` (import + content change log), `docs/ROADMAP.md` (login, D1 booking, R2 documents: planned, not built).
@@ -65,18 +66,20 @@ The site is built and works locally. **Not deployed yet**: the user wants more l
 - **Not done from the artboards:** Miljøutvalget's new ingress (bokmål version in the design; the current text was kept as-is on purpose at import).
 
 ## Next up (after /clear)
-**Dugnad and Miljøutvalget are done** except Miljøutvalget's ingress (ask the user). Real events need entering in the Studio (one real one, "Høstdugnad" 30 Sep, was added by someone during the build session).
-- Sections now: **Dugnad** `arrangementer → nokkeltall → tekst → dokumentliste (no heading) → tekst`; **Miljøutvalget** `arrangementer → medlemsliste (visning: tun)`.
-- Approach that worked for Styret: build reusable components/fields rather than page-specific markup; follow the design's copy; keep existing text that isn't in the design and flag it; migrate content with backup + `ifRevisionId` and add it to the change log in `docs/MIGRATION.md`; update `scripts/migrate/content.mjs`; check desktop 1440 and phone 390 against the design; update the editor guide if Studio fields change.
+**Rebuild of Dokumentsenter and ABC-nytt** per the new artboards on the design canvas https://claude.ai/artifact/W8XADesGHKexHum3fQ7X6X (read with the Artifact tool, not by fetching): `project/Dokumentsenter.dc.html`, `project/DokumentsenterMobile.dc.html`, `project/AbcNytt.dc.html`, `project/AbcNyttMobile.dc.html`. The user calls it "rather large".
+- Current sections: **Dokumentsenter** (`side-dokumentsenter`, top level) `tekst → dokumentliste (HMS) → dokumentliste (Søknader og skjema, heading "Dokumenter")`; **ABC-nytt** (`side-abc-nytt`, under Praktisk info) `tekst → dokumentliste (grouped by year, heading "Utgaver") → tekst (Karneval video link)`. Both lists use the new row style (`Dokumentliste.astro`), shared with every other document list, so changes there affect Generalforsamling, Vedtekter, Dugnad and news attachments too.
+- The front page also shows the latest ABC-nytt and a Dokumentsenter box (`src/pages/index.astro`, `forside.dokumentsenter`); check them if document data changes.
+- Approach that worked (Styret, Dugnad, Miljøutvalget): build reusable components/fields rather than page-specific markup; follow the design's copy; keep existing text that isn't in the design and flag it; migrate content with a script (`--dry` first, backup, `ifRevisionId`, abort on drafts; see `scripts/migrate/dugnad.mjs`) and add it to the change log in `docs/MIGRATION.md`; update `scripts/migrate/content.mjs`; check desktop 1440 and phone 390 against the design (`npm run build`, `npx wrangler dev --port 8799`, Playwright); update the editor guide (`docs/redaktorguide.html`, republish to its artifact URL) if Studio fields change. Content goes live only when someone presses "Oppdater nettsiden" (or at the nightly build); code goes live on push.
+- Still open from earlier: Miljøutvalget's ingress (bokmål in the design; ask the user). The front page heading had a test typo "…døraaa" on 2026-09-28; the user was fixing it.
 
 ## Next steps (deploy)
-_Status 2026-09-28: steps 1–2 done. The Worker `arnatveit-borettslag` runs in the Cloudflare account "Arnatveit borettslag" (`361c9a9d…`; wrangler also sees the user's personal account, so pin `CLOUDFLARE_ACCOUNT_ID`) at https://arnatveit-borettslag.arnatveit-borettslag.workers.dev. The deploy hook and Sanity webhook exist; the webhook's filter must become `_type == "nettsidebygg"` once the Studio button is deployed. Left: nightly Worker, DNS move (Domeneshop → Cloudflare; copy MX `mx.domeneshop.no`, SPF, DMARC, MS and Google TXT records), custom domain `www` + apex→www redirect rule, production CORS origin._
-_Rendering on request was prototyped (branch `prototype-ssr`, local only): 4–11.5 ms CPU median per page on Cloudflare, p90 up to 17 ms, so it needs Workers Paid ($5). Decision: stay static for now; revisit with resident login._
-1. **Cloudflare Workers Builds:** connect the GitHub repo.
-   - Build command: `npm run build`
-   - Deploy command: `npx wrangler deploy`
-   - Build variables: `PUBLIC_SANITY_PROJECT_ID=vx8672d7`, `PUBLIC_SANITY_DATASET=production`
-2. **Deploy hook:** create one in Cloudflare and point a Sanity webhook at it, filter `_type == "nettsidebygg"` (only the Studio's "Oppdater nettsiden" button triggers builds).
-   - **Nightly rebuild:** deploy `workers/nattlig-bygg/` with the hook URL as the `DEPLOY_HOOK_URL` secret (README, Publishing).
-3. **CORS:** add the production domain as a Sanity CORS origin, with credentials.
-4. **Check** the deployed site, then switch DNS.
+Done: Workers Builds connected to GitHub (build `npm run build`, deploy `npx wrangler deploy`, variables `PUBLIC_SANITY_PROJECT_ID=vx8672d7`, `PUBLIC_SANITY_DATASET=production`, `NODE_VERSION=22`); deploy hook; Sanity webhook with filter `_type == "nettsidebygg"` (verified: publishing alone doesn't build, the button does); workers.dev CORS origin in Sanity; nightly Worker deployed.
+
+Left:
+1. **Nightly Worker secret:** the user adds `DEPLOY_HOOK_URL` (the deploy hook URL) as a Secret on `arnatveit-nattlig-bygg` in the dashboard (Settings → Variables and Secrets). Until then the cron runs and throws. Check its logs after the first night.
+2. **DNS move** (Domeneshop `hyp.net` → Cloudflare nameservers). Copy first, then compare with Domeneshop's DNS panel (a lookup can't list everything): MX `10 mx.domeneshop.no`, TXT `v=spf1 include:_spf.domeneshop.no -all`, `_dmarc` TXT `v=DMARC1; p=none`, TXT `MS=ms84266225`, TXT `google-site-verification=ryfsfRbDlZBo-_HiZCuEysFrESRyL3jvSGOathW5oDM`.
+3. **Custom domain** `www.arnatveit-borettslag.no` on the Worker (canonical, `site` in `astro.config.mjs`), plus a redirect rule apex → www.
+4. **Sanity CORS:** add `https://www.arnatveit-borettslag.no` with credentials.
+5. **Check** the live site (redirects, 404, `.ics`, `/admin`, the button), then have the old Joomla hosting shut down.
+
+**Rendering on request** was prototyped and measured (branch `prototype-ssr`, local only, not pushed; the worktree was in a session scratchpad, so it may be gone — `git worktree prune` removes the stale entry): 4–11.5 ms CPU median per page on Cloudflare, p90 up to 17 ms, bundle 497 KiB gzipped. That exceeds the free plan's 10 ms, so it needs Workers Paid ($5/month). Decision: stay static; revisit together with resident login (`docs/ROADMAP.md`).
