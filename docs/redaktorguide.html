@@ -79,6 +79,7 @@
   th, td { text-align: left; vertical-align: top; padding: 11px 16px; }
   th { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dempet); font-weight: 600; border-bottom: 1px solid var(--linje); }
   tr + tr td { border-top: 1px solid var(--linje-svak); }
+  tr.gruppe td { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dempet); background: var(--bg); padding-block: 8px; }
   td:first-child { font-weight: 600; white-space: nowrap; }
 
   .tun { display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; white-space: nowrap; }
@@ -156,7 +157,8 @@
         <p>Den store overskriften øverst er sidens <span class="felt">Tittel</span>. Skal overskriften være lengre enn navnet i menyen og brødsmulene, skriver du den i <span class="felt">Overskrift på siden</span>. Vedtekter har for eksempel tittelen «Vedtekter» og overskriften «Vedtekter og regler».</p>
         <h3>Legge til og flytte seksjoner</h3>
         <ul>
-          <li>Trykk <span class="knapp">+ Add item</span> nederst i <span class="felt">Innhold</span> og velg type. Typene er gruppert i «Tekst og bilder», «Lister» og «Kontakt og navigasjon».</li>
+          <li>Trykk <span class="knapp">+ Add item</span> nederst i <span class="felt">Innhold</span> og velg type. Typene er gruppert i «Tekst og bilder», «Lister», «Lenker og knapper» og «Faste moduler».</li>
+          <li><strong>Faste moduler</strong> viser innhold som bare finnes én gang, som kontaktinfo, protokollene eller ABC-nytt. De står allerede på sine sider og skal ikke legges til andre steder.</li>
           <li>Dra i håndtaket til venstre på et kort for å flytte seksjonen opp eller ned.</li>
           <li>Menyen <span class="knapp">···</span> på kortet har <strong>Duplicate</strong> og <strong>Remove</strong>.</li>
         </ul>
@@ -164,29 +166,29 @@
           <table>
             <thead><tr><th>Seksjon</th><th>Hva den viser</th></tr></thead>
             <tbody>
+              <tr class="gruppe"><td colspan="2">Tekst og bilder</td></tr>
               <tr><td>Tekst</td><td>Vanlig tekst med overskrifter, lister og lenker. Bilder og bokser legges som egne seksjoner.</td></tr>
               <tr><td>Bilde</td><td>Et bilde med alternativ tekst (påkrevd, for skjermlesere) og valgfri bildetekst.</td></tr>
-              <tr><td>Infoboks</td><td>En grønn boks for noe som skal skille seg ut, som satser eller frister.</td></tr>
-              <tr><td>Dokumentliste</td><td>Alle dokumentene i én kategori, for eksempel Protokoller. Oppdateres av seg selv når du laster opp nye dokumenter. La <span class="felt">Overskrift</span> stå tom når listen hører til teksten over.</td></tr>
-              <tr><td>Regelverk (kort)</td><td>Store kort for vedtektene og husordensreglene, med knappene Les og Last ned, og et kort med lenke til borettslagsloven på Lovdata. Brukes på Vedtekter (se <a href="#vedtekter">Vedtekter og husordensregler</a>).</td></tr>
-              <tr><td>Alle dokumenter (med søk)</td><td>Dokumentene i kategoriene du velger, gruppert etter kategori, med søkefelt og filterknapper. Brukes på Dokumentsenter. Dra kategoriene i den rekkefølgen de skal stå.</td></tr>
-              <tr><td>Jeg vil …</td><td>Kort for oppgaver som «Bygge ark eller tilbygg». Hvert kort åpner en steg-for-steg-veiledning (se <a href="#dokumenter">Dokumenter</a>). Dra oppgavene i den rekkefølgen de skal stå.</td></tr>
-              <tr><td>ABC-nytt-utgaver</td><td>Siste utgave ved sidetittelen, tidligere utgaver, arkiv etter år og «Har du noe til neste nummer?». Brukes på ABC-nytt (se <a href="#abc-nytt">ABC-nytt</a>).</td></tr>
-              <tr><td>Medlemsliste</td><td>Medlemmene i et utvalg fra <span class="felt">Styre og utvalg</span>. Varamedlemmer får egen liste under. Velg <span class="felt">Visning</span>: «Rader med kontaktinfo» (som Styret) eller «Navn gruppert etter tun» (som Miljøutvalget).</td></tr>
-              <tr><td>Nøkkeltall</td><td>Opptil fire store tall med en kort tekst under, som «150 kr – per time for voksne» på Dugnad.</td></tr>
-              <tr><td>Hva skjer</td><td>Kommende arrangementer fra <a href="#arrangementer">Arrangementer</a>, med valg mellom dugnad, sosialt og alle. <span class="felt">Vis først</span> bestemmer hvilken type som er valgt når siden åpnes.</td></tr>
-              <tr><td>Faktaliste</td><td>Rader med etikett og verdi, som på Om borettslaget.</td></tr>
-              <tr><td>Kontaktinfo</td><td>«Skriv til styret» med kontaktpersonen, de tre adressene og valgfrie lenker under (som «Hvem kontakter jeg?»). Alt hentes fra <a href="#om-borettslaget">Om borettslaget</a>.</td></tr>
               <tr><td>Tekst i grønt bånd</td><td>Et grønt bånd over hele bredden med liten overtittel, overskrift og tekst, som «Området».</td></tr>
               <tr><td>Punkter med ikon</td><td>Overskrift til venstre og opptil seks korte punkter med ikon, tittel og tekst, som «Slik fungerer det» på Generalforsamling.</td></tr>
+              <tr><td>Nøkkeltall</td><td>Opptil fire store tall med en kort tekst under, som «150 kr – per time for voksne» på Dugnad.</td></tr>
               <tr><td>Figur: nivåer inni hverandre</td><td>Overskrift og tekst til venstre, og fargede felt som ligger inni hverandre til høyre, som «Hvordan henger reglene sammen?» på Vedtekter. Det ytterste nivået står først i listen.</td></tr>
+              <tr class="gruppe"><td colspan="2">Lister</td></tr>
+              <tr><td>Dokumenter</td><td>Dokumentene i én eller flere kategorier. Oppdateres av seg selv når du laster opp nye dokumenter. Velg <span class="felt">Visning</span>: «Liste», «Tidslinje etter år» (som Protokoller og Årsberetninger på Generalforsamling) eller «Gruppert etter kategori, med søk og filter» (som på Dokumentsenter). Dra kategoriene i den rekkefølgen de skal stå. La <span class="felt">Overskrift</span> stå tom når listen hører til teksten over.</td></tr>
+              <tr><td>Medlemsliste</td><td>Medlemmene i et utvalg fra <span class="felt">Styre og utvalg</span>. Varamedlemmer får egen liste under. Velg <span class="felt">Visning</span>: «Rader med kontaktinfo» (som Styret) eller «Navn gruppert etter tun» (som Miljøutvalget).</td></tr>
+              <tr><td>Hva skjer</td><td>Kommende arrangementer fra <a href="#arrangementer">Arrangementer</a>, med valg mellom dugnad, sosialt og alle. <span class="felt">Vis først</span> bestemmer hvilken type som er valgt når siden åpnes.</td></tr>
+              <tr class="gruppe"><td colspan="2">Lenker og knapper</td></tr>
               <tr><td>Oppfordring med knapp</td><td>En linje over, overskrift, tekst og en mørk knapp som åpner en e-post, som «Vil du melde inn en sak?». La e-posten stå tom for å bruke styrets adresse.</td></tr>
-              <tr><td>Generalforsamlinger (protokoller)</td><td>Siste generalforsamling ved sidetittelen og alle protokoller som en tidslinje (se <a href="#generalforsamling">Generalforsamlinger</a>).</td></tr>
-              <tr><td>Fakta om borettslaget</td><td>Tre store tall (tun, andeler, stiftet) og de offisielle opplysningene fra <a href="#om-borettslaget">Om borettslaget</a>.</td></tr>
-              <tr><td>Hvem kontakter jeg?</td><td>Ett kort per ansvarsområde, med navn og telefon til den ansvarlige (se <a href="#styret">Styre og utvalg</a>).</td></tr>
-              <tr><td>Knapper</td><td>En eller to lenkeknapper.</td></tr>
               <tr><td>Relatert</td><td>Lenkerader til andre sider, med en pil. Velg siden og skriv gjerne en kort tekst under. Står teksten tom, brukes kortteksten til siden.</td></tr>
               <tr><td>Undersider</td><td>Kort for sidene som ligger under denne siden, akkurat der du plasserer seksjonen.</td></tr>
+              <tr class="gruppe"><td colspan="2">Faste moduler</td></tr>
+              <tr><td>Kontaktinfo</td><td>«Skriv til styret» med kontaktpersonen, de tre adressene og valgfrie lenker under (som «Hvem kontakter jeg?»). Alt hentes fra <a href="#om-borettslaget">Om borettslaget</a>.</td></tr>
+              <tr><td>Fakta om borettslaget</td><td>Tre store tall (tun, andeler, stiftet) og de offisielle opplysningene fra <a href="#om-borettslaget">Om borettslaget</a>.</td></tr>
+              <tr><td>Hvem kontakter jeg?</td><td>Ett kort per ansvarsområde, med navn og telefon til den ansvarlige (se <a href="#styret">Styre og utvalg</a>).</td></tr>
+              <tr><td>Jeg vil …</td><td>Kort for oppgaver som «Bygge ark eller tilbygg». Hvert kort åpner en steg-for-steg-veiledning (se <a href="#dokumenter">Dokumenter</a>). Dra oppgavene i den rekkefølgen de skal stå.</td></tr>
+              <tr><td>Regelverk (kort)</td><td>Store kort for vedtektene og husordensreglene, med knappene Les og Last ned, og et kort med lenke til borettslagsloven på Lovdata. Brukes på Vedtekter (se <a href="#vedtekter">Vedtekter og husordensregler</a>).</td></tr>
+              <tr><td>Generalforsamlinger (protokoller)</td><td>Siste generalforsamling ved sidetittelen og alle protokoller som en tidslinje (se <a href="#generalforsamling">Generalforsamlinger</a>).</td></tr>
+              <tr><td>ABC-nytt-utgaver</td><td>Siste utgave ved sidetittelen, tidligere utgaver, arkiv etter år og «Har du noe til neste nummer?». Brukes på ABC-nytt (se <a href="#abc-nytt">ABC-nytt</a>).</td></tr>
             </tbody>
           </table>
         </div>

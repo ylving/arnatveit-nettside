@@ -3,12 +3,9 @@
 // · full (edge to edge). Components don't cap their own width; the section's `bredde` does.
 import Innhold from './portable/Innhold.astro';
 import Bilde from './portable/Bilde.astro';
-import Infoboks from './portable/Infoboks.astro';
 import Dokumentliste from './portable/Dokumentliste.astro';
 import Medlemsliste from './portable/Medlemsliste.astro';
-import Faktaliste from './portable/Faktaliste.astro';
 import Kontaktinfo from './portable/Kontaktinfo.astro';
-import Knapper from './portable/Knapper.astro';
 import Ansvarsliste from './portable/Ansvarsliste.astro';
 import HvaSkjer from './portable/HvaSkjer.astro';
 import Nokkeltall from './portable/Nokkeltall.astro';
@@ -35,7 +32,7 @@ const liste: any[] = seksjoner.some((s: any) => s._type === 'undersider') || !ba
   : [...seksjoner, { _type: 'undersider', _key: 'auto-undersider' }];
 
 const bredde = (s: any): Bredde =>
-  s._type === 'tekst' || s._type === 'infoboks' ? 'tekst' : s._type === 'fargebaand' ? 'full' : (s.bredde ?? STANDARD_BREDDE[s._type as keyof typeof STANDARD_BREDDE] ?? 'tekst');
+  s._type === 'tekst' ? 'tekst' : s._type === 'fargebaand' ? 'full' : (s.bredde ?? STANDARD_BREDDE[s._type as keyof typeof STANDARD_BREDDE] ?? 'tekst');
 ---
 <div class="seksjoner">
   {liste.map((s) => {
@@ -47,13 +44,10 @@ const bredde = (s: any): Bredde =>
           <div class={b === 'tekst' ? 'smal' : b === 'breakout' ? 'breakout' : undefined}>
             {s._type === 'tekst' && <div class="prose"><Innhold value={s.innhold} /></div>}
             {s._type === 'bilde' && <Bilde node={s} bredde={b} />}
-            {s._type === 'infoboks' && <Infoboks node={s} />}
-            {s._type === 'dokumentliste' && <Dokumentliste node={s} />}
+            {s._type === 'dokumentliste' && (s.visning === 'sok' ? <Dokumentsok node={s} styretEpost={kontakt?.epost} /> : <Dokumentliste node={s} />)}
             {s._type === 'oppgaver' && <Oppgaver node={s} styretEpost={kontakt?.epost} />}
-            {s._type === 'dokumentsok' && <Dokumentsok node={s} styretEpost={kontakt?.epost} />}
             {s._type === 'abcUtgaver' && <AbcUtgaver node={s} styretEpost={kontakt?.epost} />}
             {s._type === 'medlemsliste' && (s.visning === 'tun' ? <TunListe node={s} /> : <Medlemsliste node={s} styretEpost={kontakt?.epost} />)}
-            {s._type === 'faktaliste' && <Faktaliste node={s} />}
             {s._type === 'nokkeltall' && <Nokkeltall node={s} />}
             {s._type === 'arrangementer' && <HvaSkjer node={s} />}
             {s._type === 'kontaktinfo' && <Kontaktinfo node={{ ...s, kontakt }} />}
@@ -65,7 +59,6 @@ const bredde = (s: any): Bredde =>
             {s._type === 'nivaaer' && <Nivaaer node={s} />}
             {s._type === 'relatert' && <Relatert node={s} />}
             {s._type === 'borettslagsfakta' && <Borettslagsfakta node={{ ...s, kontakt }} />}
-            {s._type === 'knapper' && <Knapper node={s} />}
             {s._type === 'ansvarsliste' && <Ansvarsliste node={s} styretEpost={kontakt?.epost} />}
             {s._type === 'undersider' && (<>{s.tittel && <h2 class="seksjon-tittel">{s.tittel}</h2>}<InfoCards sider={barn} /></>)}
           </div>

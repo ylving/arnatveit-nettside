@@ -39,36 +39,18 @@ const MARKDEFS = `markDefs[]{ ..., _type == "link" => { "href": coalesce(intern-
 export const INNHOLD = `innhold[]{
   ...,
   _type == "block" => { ..., ${MARKDEFS} },
-  _type == "infoboks" => { ..., tekst[]{ ..., ${MARKDEFS} } },
-  _type == "lenkeknapp" => { "lenke": lenke${LINK} },
-  _type == "medlemsliste" => { "utvalg": utvalg->{ navn, beskrivelse, medlemmer } },
-  _type == "dokumentliste" => {
-    ...,
-    "kategori": kategori->{ tittel, sortering },
-    "dokumenter": *[_type == "dokument" && kategori._ref == ^.kategori._ref] ${DOKUMENT}
-  },
-  _type == "bilde" => { ..., asset-> },
-  // Members with areas of responsibility (all committees, or the one chosen on the section)
-  _type == "ansvarsliste" => {
-    ...,
-    "utvalgMedAnsvar": *[_type == "utvalg" && (!defined(^.utvalg) || _id == ^.utvalg._ref)]{
-      _id,
-      "personer": medlemmer[count(ansvar) > 0]{ _key, navn, rolle, telefon, epost, "ansvar": ansvar[]{ omraade, beskrivelse, ikon } }
-    }[count(personer) > 0]
-  }
+  _type == "bilde" => { ..., asset-> }
 }`;
 
 // Page builder sections (side.seksjoner); same dereferences as INNHOLD, at section level
 export const SEKSJONER = `seksjoner[]{
   ...,
   _type == "tekst" => { ..., innhold[]{ ..., ${MARKDEFS} } },
-  _type == "infoboks" => { ..., tekst[]{ ..., ${MARKDEFS} } },
-  _type == "knapper" => { ..., "lenker": lenker[]${LINK} },
   _type == "medlemsliste" => { ..., "utvalg": utvalg->{ _id, navn, beskrivelse, medlemmer } },
+  // One group per category, in the editor's order (the search view shows them as groups, the list joins them)
   _type == "dokumentliste" => {
     ...,
-    "kategori": kategori->{ tittel, sortering },
-    "dokumenter": *[_type == "dokument" && kategori._ref == ^.kategori._ref] ${DOKUMENT}
+    "grupper": kategorier[]->{ _id, tittel, "slug": slug.current, ingress, sortering, "dokumenter": *[_type == "dokument" && kategori._ref == ^._id] ${DOKUMENT} }
   },
   _type == "bilde" => { ..., asset-> },
   // Members with areas of responsibility (all committees, or the one chosen on the section)
@@ -83,10 +65,6 @@ export const SEKSJONER = `seksjoner[]{
   _type == "oppgaver" => {
     ...,
     "oppgaver": oppgaver[]->{ _id, tittel, ikon, aksent, kontakttekst, kontaktEpost, "steg": steg[]{ _key, tekst, "dokumenter": dokumenter[]->${DOKUMENT} } }
-  },
-  _type == "dokumentsok" => {
-    ...,
-    "grupper": kategorier[]->{ _id, tittel, "slug": slug.current, ingress, sortering, "dokumenter": *[_type == "dokument" && kategori._ref == ^._id] ${DOKUMENT} }
   },
   _type == "generalforsamlinger" => {
     ...,

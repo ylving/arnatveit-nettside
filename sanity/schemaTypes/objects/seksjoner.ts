@@ -45,21 +45,6 @@ export const tekst = defineType({
   },
 });
 
-export const knapper = defineType({
-  name: 'knapper',
-  title: 'Knapper',
-  type: 'object',
-  icon: lucideIkon('MousePointerClick'),
-  fields: [
-    defineField({ name: 'lenker', title: 'Knapper', type: 'array', of: [{ type: 'lenke' }], validation: (r) => r.required().min(1).max(2) }),
-    breddeFelt('knapper'),
-  ],
-  preview: {
-    select: { a: 'lenker.0.tekst', b: 'lenker.1.tekst' },
-    prepare: ({ a, b }) => ({ title: [a, b].filter(Boolean).join(' · ') || 'Knapper', subtitle: 'Knapper' }),
-  },
-});
-
 export const undersider = defineType({
   name: 'undersider',
   title: 'Undersider',
@@ -151,30 +136,6 @@ export const oppgaver = defineType({
   preview: {
     select: { tittel: 'tittel', a: 'oppgaver.0.tittel', b: 'oppgaver.1.tittel' },
     prepare: ({ tittel, a, b }) => ({ title: tittel || 'Jeg vil …', subtitle: `Oppgaver · ${[a, b].filter(Boolean).join(', ')}…` }),
-  },
-});
-
-export const dokumentsok = defineType({
-  name: 'dokumentsok',
-  title: 'Alle dokumenter (med søk)',
-  type: 'object',
-  icon: lucideIkon('FileSearch'),
-  description: 'Dokumentene i de valgte kategoriene, gruppert etter kategori, med søkefelt og filter.',
-  fields: [
-    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Alle dokumenter' }),
-    defineField({
-      name: 'kategorier',
-      title: 'Kategorier',
-      description: 'Dra for å endre rekkefølgen. Teksten under hver gruppe og fargen settes på kategorien.',
-      type: 'array',
-      of: [defineArrayMember({ type: 'reference', to: [{ type: 'dokumentkategori' }] })],
-      validation: (r) => r.required().min(1).unique(),
-    }),
-    breddeFelt('dokumentsok'),
-  ],
-  preview: {
-    select: { tittel: 'tittel', a: 'kategorier.0.tittel', b: 'kategorier.1.tittel', c: 'kategorier.2.tittel' },
-    prepare: ({ tittel, a, b, c }) => ({ title: tittel || 'Alle dokumenter', subtitle: `Dokumenter · ${[a, b, c].filter(Boolean).join(', ')}` }),
   },
 });
 
@@ -394,46 +355,21 @@ export const relatert = defineType({
   preview: { select: { tittel: 'tittel', a: 'lenker.0.side.tittel', b: 'lenker.1.side.tittel' }, prepare: ({ tittel, a, b }) => ({ title: tittel || 'Relatert', subtitle: `Relatert · ${[a, b].filter(Boolean).join(', ')}` }) },
 });
 
+// Insert menu: everyday sections first; "Faste moduler" show data that exists once (ABC-nytt, protocols, contact
+// details …) and belong on one page each.
+const GRUPPER = [
+  { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'bilde', 'fargebaand', 'punkter', 'nokkeltall', 'nivaaer'] },
+  { name: 'lister', title: 'Lister', of: ['dokumentliste', 'medlemsliste', 'arrangementer'] },
+  { name: 'lenker', title: 'Lenker og knapper', of: ['oppfordring', 'relatert', 'undersider'] },
+  { name: 'moduler', title: 'Faste moduler', of: ['kontaktinfo', 'borettslagsfakta', 'ansvarsliste', 'oppgaver', 'regelverk', 'generalforsamlinger', 'abcUtgaver'] },
+];
+
 export const seksjoner = defineType({
   name: 'seksjoner',
   title: 'Innhold',
   type: 'array',
-  of: [
-    defineArrayMember({ type: 'tekst' }),
-    defineArrayMember({ type: 'bilde' }),
-    defineArrayMember({ type: 'infoboks' }),
-    defineArrayMember({ type: 'dokumentliste' }),
-    defineArrayMember({ type: 'dokumentsok' }),
-    defineArrayMember({ type: 'oppgaver' }),
-    defineArrayMember({ type: 'abcUtgaver' }),
-    defineArrayMember({ type: 'medlemsliste' }),
-    defineArrayMember({ type: 'faktaliste' }),
-    defineArrayMember({ type: 'nokkeltall' }),
-    defineArrayMember({ type: 'arrangementer' }),
-    defineArrayMember({ type: 'kontaktinfo' }),
-    defineArrayMember({ type: 'fargebaand' }),
-    defineArrayMember({ type: 'borettslagsfakta' }),
-    defineArrayMember({ type: 'punkter' }),
-    defineArrayMember({ type: 'oppfordring' }),
-    defineArrayMember({ type: 'generalforsamlinger' }),
-    defineArrayMember({ type: 'regelverk' }),
-    defineArrayMember({ type: 'nivaaer' }),
-    defineArrayMember({ type: 'relatert' }),
-    defineArrayMember({ type: 'ansvarsliste' }),
-    defineArrayMember({ type: 'knapper' }),
-    defineArrayMember({ type: 'undersider' }),
-  ],
-  options: {
-    insertMenu: {
-      showIcons: true,
-      views: [{ name: 'list' }],
-      groups: [
-        { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'fargebaand', 'punkter', 'nivaaer', 'bilde', 'infoboks'] },
-        { name: 'lister', title: 'Lister', of: ['dokumentliste', 'regelverk', 'dokumentsok', 'generalforsamlinger', 'oppgaver', 'abcUtgaver', 'medlemsliste', 'faktaliste', 'nokkeltall', 'arrangementer'] },
-        { name: 'annet', title: 'Kontakt og navigasjon', of: ['kontaktinfo', 'borettslagsfakta', 'oppfordring', 'ansvarsliste', 'knapper', 'relatert', 'undersider'] },
-      ],
-    },
-  },
+  of: GRUPPER.flatMap((g) => g.of).map((type) => defineArrayMember({ type })),
+  options: { insertMenu: { showIcons: true, views: [{ name: 'list' }], groups: GRUPPER } },
   validation: (r) =>
     r.custom((liste: { _type: string; _key: string }[] | undefined) => {
       const feil = (liste ?? []).flatMap((s, i, a) =>

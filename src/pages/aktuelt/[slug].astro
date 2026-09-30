@@ -23,7 +23,7 @@ const n = await load<any>(`*[_type == "nyhet" && slug.current == $slug][0]{ titt
     </header>
     <div class="prose">
       {n.innhold && <Innhold value={n.innhold} />}
-      {n.dokumenter?.length > 0 && <Dokumentliste node={{ tittel: 'Dokumenter', dokumenter: n.dokumenter, kategori: { sortering: 'tittel' } }} />}
+      {n.dokumenter?.length > 0 && <Dokumentliste node={{ tittel: 'Dokumenter', grupper: [{ sortering: 'tittel', dokumenter: n.dokumenter }] }} />}
     </div>
   </div>
 </Base>

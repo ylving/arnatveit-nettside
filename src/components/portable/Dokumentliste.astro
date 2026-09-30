@@ -1,20 +1,21 @@
 ---
-// A document list section (and news attachments): rows from DokumentRad, or, with "Grupper etter år", a timeline by
-// year like Protokoller (Tidslinje).
+// Document section, list and timeline views (the search view is Dokumentsok), and news attachments: rows from
+// DokumentRad, category by category (each sorted as its category says), or a timeline by year like Protokoller.
 import DokumentRad from '../DokumentRad.astro';
 import Tidslinje from '../Tidslinje.astro';
 import { sorter } from '../../lib/dokument';
 
 const { node } = Astro.props;
-const { tittel, kategori, grupperEtterAar } = node;
-const docs = sorter(node.dokumenter, kategori?.sortering);
-const grupper = grupperEtterAar
+const { tittel } = node;
+const tidslinje = node.visning === 'tidslinje';
+const docs = (node.grupper ?? []).filter(Boolean).flatMap((g: any) => sorter(g.dokumenter, g.sortering));
+const grupper = tidslinje
   ? (Object.entries(Object.groupBy(docs, (d: any) => d.dato?.slice(0, 4) ?? 'Uten dato')).sort(([a], [b]) => b.localeCompare(a)) as [string, any[]][])
   : [];
 ---
-<section class:list={['doclist', { tidslinjeliste: grupperEtterAar }]}>
+<section class:list={['doclist', { tidslinjeliste: tidslinje }]}>
   {tittel && <h2>{tittel}</h2>}
-  {grupperEtterAar ? <Tidslinje grupper={grupper} /> : <ul>{docs.map((d: any) => <DokumentRad dok={d} />)}</ul>}
+  {tidslinje ? <Tidslinje grupper={grupper} /> : <ul>{docs.map((d: any) => <DokumentRad dok={d} />)}</ul>}
   {docs.length === 0 && <p class="empty">Ingen dokumenter ennå.</p>}
 </section>
 <style>

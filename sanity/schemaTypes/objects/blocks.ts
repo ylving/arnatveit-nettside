@@ -1,4 +1,4 @@
-import { defineArrayMember, defineField, defineType, type Path } from 'sanity';
+import { defineArrayMember, defineField, defineType } from 'sanity';
 import { STANDARD_BREDDE } from '../../standarder';
 import { lucideIkon } from '../../components/LucideIkon';
 
@@ -47,38 +47,45 @@ export const bilde = defineType({
   preview: { select: { media: 'asset', title: 'bildetekst', subtitle: 'alt' }, prepare: ({ media, title, subtitle }) => ({ media, title: title || subtitle || 'Bilde', subtitle: 'Bilde' }) },
 });
 
-export const infoboks = defineType({
-  name: 'infoboks',
-  title: 'Infoboks',
-  type: 'object',
-  icon: lucideIkon('Info'),
-  fields: [
-    defineField({ name: 'tittel', title: 'Tittel', type: 'string' }),
-    defineField({ name: 'tekst', title: 'Tekst', type: 'array', of: [{ type: 'block' }] }),
-  ],
-  preview: { select: { title: 'tittel' }, prepare: ({ title }) => ({ title: title || 'Infoboks', subtitle: 'Infoboks' }) },
-});
-
 export const dokumentliste = defineType({
   name: 'dokumentliste',
-  title: 'Dokumentliste',
+  title: 'Dokumenter',
   type: 'object',
   icon: lucideIkon('Files'),
+  description: 'Dokumentene i én eller flere kategorier: som liste, som tidslinje etter år, eller gruppert etter kategori med søk og filter.',
   fields: [
     defineField({ name: 'tittel', title: 'Overskrift', description: 'La stå tom når listen hører til teksten over, uten egen overskrift.', type: 'string' }),
     defineField({
-      name: 'kategori',
-      title: 'Kategori',
-      type: 'reference',
-      to: [{ type: 'dokumentkategori' }],
-      validation: (r) => r.required(),
+      name: 'kategorier',
+      title: 'Kategorier',
+      description: 'Dra for å endre rekkefølgen. Med flere kategorier i en liste kommer dokumentene kategori for kategori.',
+      type: 'array',
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'dokumentkategori' }] })],
+      validation: (r) => r.required().min(1).unique(),
     }),
-    defineField({ name: 'grupperEtterAar', title: 'Vis som tidslinje etter år', description: 'Som Protokoller på Generalforsamling: årstall og en linje til venstre, dokumentene til høyre. Ser best ut med Bredde «Bred».', type: 'boolean', initialValue: false }),
+    defineField({
+      name: 'visning',
+      title: 'Visning',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Liste', value: 'liste' },
+          { title: 'Tidslinje etter år (som Protokoller)', value: 'tidslinje' },
+          { title: 'Gruppert etter kategori, med søk og filter (som Dokumentsenter)', value: 'sok' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'liste',
+      description: 'Tidslinjen og søket ser best ut med Bredde «Bred» eller «Breakout».',
+    }),
     breddeFelt('dokumentliste'),
   ],
   preview: {
-    select: { title: 'tittel', kategori: 'kategori.tittel' },
-    prepare: ({ title, kategori }) => ({ title: title || kategori, subtitle: `Dokumentliste · ${kategori ?? ''}` }),
+    select: { title: 'tittel', a: 'kategorier.0.tittel', b: 'kategorier.1.tittel', c: 'kategorier.2.tittel', visning: 'visning' },
+    prepare: ({ title, a, b, c, visning }) => ({
+      title: title || a || 'Dokumenter',
+      subtitle: `Dokumenter${visning === 'tidslinje' ? ' (tidslinje)' : visning === 'sok' ? ' (med søk)' : ''} · ${[a, b, c].filter(Boolean).join(', ')}`,
+    }),
   },
 });
 
@@ -89,7 +96,7 @@ export const medlemsliste = defineType({
   icon: lucideIkon('Users'),
   fields: [
     defineField({ name: 'tittel', title: 'Overskrift', description: 'F.eks. «Styremedlemmer». Varamedlemmer får automatisk en egen liste.', type: 'string' }),
-    defineField({ name: 'ingress', title: 'Tekst under overskriften (valgfri)', type: 'string', hidden: ({ path }) => path[0] !== 'seksjoner' }),
+    defineField({ name: 'ingress', title: 'Tekst under overskriften (valgfri)', type: 'string' }),
     defineField({ name: 'utvalg', title: 'Utvalg', type: 'reference', to: [{ type: 'utvalg' }], validation: (r) => r.required() }),
     defineField({
       name: 'visning',
@@ -103,7 +110,6 @@ export const medlemsliste = defineType({
         layout: 'radio',
       },
       initialValue: 'rader',
-      hidden: ({ path }) => path[0] !== 'seksjoner',
     }),
     breddeFelt('medlemsliste'),
   ],
@@ -111,34 +117,6 @@ export const medlemsliste = defineType({
     select: { tittel: 'tittel', utvalg: 'utvalg.navn', medlemmer: 'utvalg.medlemmer' },
     prepare: ({ tittel, utvalg, medlemmer }) => ({ title: tittel || utvalg, subtitle: `Medlemsliste · ${utvalg ?? ''}${Array.isArray(medlemmer) ? ` · ${medlemmer.length} medlemmer` : ''}` }),
   },
-});
-
-export const faktaliste = defineType({
-  name: 'faktaliste',
-  title: 'Faktaliste',
-  type: 'object',
-  icon: lucideIkon('ListTree'),
-  fields: [
-    defineField({ name: 'tittel', title: 'Overskrift', type: 'string' }),
-    defineField({
-      name: 'rader',
-      title: 'Rader',
-      type: 'array',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          name: 'rad',
-          fields: [
-            defineField({ name: 'etikett', title: 'Etikett', type: 'string', validation: (r) => r.required() }),
-            defineField({ name: 'verdi', title: 'Verdi', type: 'text', rows: 2, validation: (r) => r.required() }),
-          ],
-          preview: { select: { title: 'etikett', subtitle: 'verdi' } },
-        }),
-      ],
-    }),
-    breddeFelt('faktaliste'),
-  ],
-  preview: { select: { title: 'tittel' }, prepare: ({ title }) => ({ title: title || 'Faktaliste', subtitle: 'Faktaliste' }) },
 });
 
 export const nokkeltall = defineType({
@@ -174,8 +152,6 @@ export const nokkeltall = defineType({
   },
 });
 
-const kunSeksjon = ({ path }: { path: Path }) => path[0] !== 'seksjoner';
-
 export const kontaktinfo = defineType({
   name: 'kontaktinfo',
   title: 'Kontaktinfo',
@@ -183,13 +159,12 @@ export const kontaktinfo = defineType({
   icon: lucideIkon('Contact'),
   description: 'E-post til styret, kontaktperson og adresser fra «Om borettslaget». Kontaktpersonen er den som har «Kontaktperson for borettslaget» slått på under Styre og utvalg.',
   fields: [
-    defineField({ name: 'tittel', title: 'Overskrift', description: 'Brukes også som snarvei øverst på siden.', type: 'string', initialValue: 'Kontakt', hidden: kunSeksjon }),
+    defineField({ name: 'tittel', title: 'Overskrift', description: 'Brukes også som snarvei øverst på siden.', type: 'string', initialValue: 'Kontakt' }),
     defineField({ name: 'visKart', title: 'Vis kartlenke', type: 'boolean', initialValue: true }),
     defineField({
       name: 'lenker',
       title: 'Lenker under adressene',
       type: 'array',
-      hidden: kunSeksjon,
       of: [
         defineArrayMember({
           type: 'object',
@@ -209,14 +184,6 @@ export const kontaktinfo = defineType({
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Kontaktinfo', subtitle: 'Kontaktinfo (fra «Om borettslaget»)' }) },
 });
 
-export const lenkeknapp = defineType({
-  name: 'lenkeknapp',
-  title: 'Lenkeknapp',
-  type: 'object',
-  fields: [defineField({ name: 'lenke', title: 'Lenke', type: 'lenke' })],
-  preview: { select: { title: 'lenke.tekst' }, prepare: ({ title }) => ({ title, subtitle: 'Knapp' }) },
-});
-
 export const innhold = defineType({
   name: 'innhold',
   title: 'Innhold',
@@ -232,12 +199,7 @@ export const innhold = defineType({
       ],
       marks: { annotations: [lenkeAnnotasjon] },
     }),
+    // Add section-like blocks here when news needs them (rendered by src/components/portable/Innhold.astro)
     defineArrayMember({ type: 'bilde' }),
-    defineArrayMember({ type: 'infoboks' }),
-    defineArrayMember({ type: 'dokumentliste' }),
-    defineArrayMember({ type: 'medlemsliste' }),
-    defineArrayMember({ type: 'faktaliste' }),
-    defineArrayMember({ type: 'kontaktinfo' }),
-    defineArrayMember({ type: 'lenkeknapp' }),
   ],
 });
