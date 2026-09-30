@@ -15,6 +15,9 @@ export const pagePath = (url: URL) => url.pathname.replace(/(\/index)?\.html$/, 
 
 export const linkHref = (l: Link) => (l?.intern ? docHref(l.intern) : l?.url);
 
+/** Anchor of a "Jeg vil …" task on its page: "oppgave-bygg". Opening the page with it opens that task's steps. */
+export const oppgaveAnker = (id: string) => (id.startsWith('oppgave-') ? id : `oppgave-${id}`);
+
 const dateFmt = new Intl.DateTimeFormat('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' });
 export const formatDate = (iso?: string) => (iso ? dateFmt.format(new Date(`${iso}T12:00:00`)) : '');
 

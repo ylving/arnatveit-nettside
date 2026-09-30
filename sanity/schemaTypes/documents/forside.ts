@@ -58,7 +58,7 @@ export const forside = defineType({
     defineField({
       name: 'snarvei',
       title: 'Snarvei under Aktuelt',
-      description: 'Vises ved siden av fremhevet nyhet og siste ABC-nytt',
+      description: 'Vises under siste ABC-nytt, ved siden av den store grønne boksen. Den grønne boksen er en nyhet: rediger den under Nyheter, og velg hvilken med «Fremhev på forsiden».',
       type: 'object',
       fields: [
         defineField({ name: 'merkelapp', title: 'Merkelapp', type: 'string' }),
@@ -74,7 +74,14 @@ export const forside = defineType({
         defineField({ name: 'tittel', title: 'Tittel', type: 'string' }),
         defineField({ name: 'tekst', title: 'Tekst', type: 'text', rows: 2 }),
         defineField({ name: 'lenke', title: 'Lenke', type: 'lenke' }),
-        defineField({ name: 'dokumenter', title: 'Snarveier til dokumenter', type: 'array', of: [{ type: 'reference', to: [{ type: 'dokument' }] }], validation: (r) => r.max(4) }),
+        defineField({
+          name: 'dokumenter',
+          title: 'Snarveier',
+          description: 'En oppgave fra «Jeg vil …» åpner stegene på Dokumentsenter, og viser oppgavens tittel. Et dokument åpner PDF-en.',
+          type: 'array',
+          of: [{ type: 'reference', to: [{ type: 'oppgave' }, { type: 'dokument' }] }],
+          validation: (r) => r.max(4),
+        }),
       ],
     }),
     defineField({ name: 'seo', title: 'SEO', type: 'seo' }),

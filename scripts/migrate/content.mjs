@@ -247,7 +247,8 @@ export function buildContent({ protokoll2026, dokumentId }) {
       tittel: 'Skal du bygge ut, montere varmepumpe eller skaffe husdyr?',
       tekst: 'Dette skal styret ha søknad om. Her finner du standardsøknader og prosedyrer.',
       lenke: lenke('Gå til dokumentsenteret', '#side-dokumentsenter'),
-      dokumenter: ['dokument-dokumentsenter-rutiner-ved-bygging-av', 'dokument-dokumentsenter-soknad-varmepumpe', 'dokument-dokumentsenter-skjema-soknadomdyrehold', 'dokument-vedtekter-vedtekter-2016'].map(keyedRef),
+      // Tasks open their steps on Dokumentsenter; see forside-snarveier.mjs
+      dokumenter: ['oppgave-bygg', 'oppgave-varmepumpe', 'oppgave-husdyr', 'dokument-vedtekter-vedtekter-2016'].map(keyedRef),
     },
   };
 

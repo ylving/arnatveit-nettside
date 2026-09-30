@@ -1,13 +1,15 @@
 ---
 // "Jeg vil …": task cards that open a step-by-step guide. Without JS each task is a <details> (one open at a time,
 // all content in the HTML). The script turns them into buttons with aria-expanded; the guide then opens below the
-// row of cards on wide screens and directly below the card on phones (grid placement, see the styles).
+// row of cards on wide screens and directly below the card on phones (grid placement, see the styles). A link to
+// #oppgave-<id> opens that task (without JS the browser opens the <details> around the target itself, where supported).
 import Icon from '../Icon.astro';
 import { filInfo, lastNedUrl } from '../../lib/dokument';
+import { oppgaveAnker } from '../../lib/urls';
 
 const { node, styretEpost } = Astro.props;
 const oppgaver: any[] = (node.oppgaver ?? []).filter(Boolean);
-const id = (o: any) => `oppgave-${o._id}`;
+const id = (o: any) => oppgaveAnker(o._id);
 ---
 {oppgaver.length > 0 && (
   <section class="oppgaver">
@@ -95,6 +97,15 @@ const id = (o: any) => `oppgave-${o._id}`;
           lukk.addEventListener('click', () => { vis(null); p.knapp.focus(); });
         });
         rad.classList.add('js');
+        // A link to a task (/dokumentsenter#oppgave-bygg, e.g. from the front page) opens its steps
+        const fraAdresse = () => {
+          const p = par.find((x) => `#${x.guide.id}` === location.hash);
+          if (!p) return;
+          vis(p);
+          p.guide.scrollIntoView({ block: 'start' });
+        };
+        fraAdresse();
+        addEventListener('hashchange', fraAdresse);
       })();
     </script>
   </section>
