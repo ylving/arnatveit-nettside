@@ -22,6 +22,9 @@ export const STANDARD_BREDDE = {
   punkter: 'bred',
   oppfordring: 'bred',
   generalforsamlinger: 'bred',
+  regelverk: 'bred',
+  nivaaer: 'bred',
+  relatert: 'tekst',
 } as const;
 export type Bredde = 'tekst' | 'breakout' | 'bred' | 'full';
 // Event categories (arrangement.kategori). Colours are tokens in global.css (--dugnad*, --sosialt*).

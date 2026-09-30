@@ -1,0 +1,30 @@
+---
+// Link rows to other pages: bold title, optional line of text, arrow on the right, thin dividers.
+// Used by Kontaktinfo and Relatert.
+import Icon from './Icon.astro';
+import { docHref } from '../lib/urls';
+
+interface Props { lenker: { side: any; tittel: string; tekst?: string }[] }
+const { lenker } = Astro.props;
+---
+<ul class="lenker">
+  {lenker.map((l) => (
+    <li>
+      <a href={docHref(l.side)}>
+        <span><span class="l-tittel">{l.tittel}</span>{l.tekst && <span class="l-tekst">{l.tekst}</span>}</span>
+        <Icon name="ArrowRight" size={20} />
+      </a>
+    </li>
+  ))}
+</ul>
+<style>
+  .lenker { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line); }
+  li { border-top: 1px solid var(--line); }
+  a { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0; color: var(--ink); }
+  a > span { display: flex; flex-direction: column; gap: 2px; }
+  .l-tittel { font-size: 17px; font-weight: 600; }
+  .l-tekst { font-size: 15px; color: var(--muted); }
+  a :global(svg) { color: var(--accent); flex-shrink: 0; transition: transform 0.15s; }
+  a:hover .l-tittel { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover :global(svg) { transform: translateX(3px); }
+</style>

@@ -1,0 +1,56 @@
+---
+// "Hvordan henger reglene sammen?": heading and text on the left (5/12), and on the right tinted panels nested inside
+// each other (blue › green › ochre), drawn as nested lists so the hierarchy is in the markup. Stacked on narrow screens.
+// Renders itself for each inner level (`liste`, `dybde`).
+const { node, liste, dybde = 0 } = Astro.props;
+const FARGER = ['blaa', 'gronn', 'oker', 'sand'];
+const id = node && `nivaaer-${node._key}`;
+const [forste, ...resten] = liste ?? [];
+---
+{node ? (
+  <section class="nivaaer">
+    <div class="venstre">
+      <h2 id={id}>{node.tittel}</h2>
+      {node.tekst && <p class="tekst">{node.tekst}</p>}
+    </div>
+    {node.nivaaer?.length > 0 && <figure aria-labelledby={id}><Astro.self liste={node.nivaaer} /></figure>}
+  </section>
+) : forste && (
+  <ul>
+    <li class={`nivaa dybde-${dybde} farge-${FARGER[dybde] ?? 'sand'}`}>
+      <p class="n-tittel">{forste.tittel}</p>
+      {forste.tekst && <p class="n-tekst">{forste.tekst}</p>}
+      {resten.length > 0 && <Astro.self liste={resten} dybde={dybde + 1} />}
+    </li>
+  </ul>
+)}
+<style>
+  .nivaaer { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 56px; align-items: start; }
+  .nivaaer h2 { font-size: 40px; }
+  p { margin: 0; }
+  .tekst { margin-top: 16px; max-width: 420px; font-size: 17px; line-height: 1.6; color: #46514b; }
+  figure { margin: 0; }
+  ul { list-style: none; margin: 14px 0 0; padding: 0; }
+  figure > ul { margin: 0; }
+  .farge-blaa { background: var(--farge-blaa-bg); }
+  .farge-gronn { background: var(--farge-gronn-bg); }
+  .farge-oker { background: var(--farge-oker-bg); }
+  .farge-sand { background: var(--farge-sand-bg); }
+  .nivaa { border-radius: 18px; padding: 24px; box-shadow: 0 0 0 1px rgba(29, 36, 32, 0.06); }
+  .dybde-0 { border-radius: 28px; padding: 28px; box-shadow: none; }
+  .dybde-1 { border-radius: 22px; }
+  .dybde-3 { border-radius: 14px; padding: 20px; }
+  .n-tittel { font-family: var(--serif); font-size: 22px; line-height: 1.2; }
+  .n-tekst { margin-top: 2px; font-size: 15px; line-height: 1.5; color: #46514b; }
+  @media (max-width: 900px) { .nivaaer { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 640px) {
+    .nivaaer h2 { font-size: 26px; line-height: 1.15; }
+    .tekst { margin-top: 12px; font-size: 16px; }
+    .nivaa { border-radius: 14px; padding: 16px; }
+    .dybde-0 { border-radius: 22px; padding: 18px; }
+    .dybde-1 { border-radius: 18px; }
+    .dybde-3 { border-radius: 12px; padding: 14px; }
+    .n-tittel { font-size: 18px; }
+    .n-tekst { font-size: 14px; }
+  }
+</style>

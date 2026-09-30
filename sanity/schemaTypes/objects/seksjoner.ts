@@ -300,6 +300,100 @@ export const generalforsamlinger = defineType({
   preview: { select: { title: 'tittel', subtitle: 'neste' }, prepare: ({ title, subtitle }) => ({ title: title || 'Protokoller', subtitle: `Generalforsamlinger${subtitle ? ` · Neste: ${subtitle}` : ''}` }) },
 });
 
+export const regelverk = defineType({
+  name: 'regelverk',
+  title: 'Regelverk (kort)',
+  type: 'object',
+  icon: lucideIkon('BookOpen'),
+  description: 'Store kort for vedtektene og husordensreglene (Les / Last ned) og et kort med lenke til loven, som på Vedtekter.',
+  fields: [
+    defineField({
+      name: 'dokumenter',
+      title: 'Dokumenter',
+      description: 'Tittel, beskrivelse, PDF og «Sist endret» (datoen) hentes fra dokumentet. Det første kortet blir grønt, det andre oker.',
+      type: 'array',
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'dokument' }] })],
+      validation: (r) => r.max(2).unique(),
+    }),
+    defineField({ name: 'lovTittel', title: 'Lov – tittel', type: 'string', initialValue: 'Borettslagsloven' }),
+    defineField({ name: 'lovBeskrivelse', title: 'Lov – beskrivelse', description: 'Én setning.', type: 'text', rows: 2 }),
+    defineField({
+      name: 'lovUrl',
+      title: 'Lov – lenke',
+      description: 'Åpnes i en ny fane. La stå tomt for å skjule kortet.',
+      type: 'url',
+      initialValue: 'https://lovdata.no/dokument/NL/lov/2003-06-06-39',
+    }),
+    breddeFelt('regelverk'),
+  ],
+  preview: {
+    select: { a: 'dokumenter.0.tittel', b: 'dokumenter.1.tittel', lov: 'lovTittel', url: 'lovUrl' },
+    prepare: ({ a, b, lov, url }) => ({ title: [a, b, url && lov].filter(Boolean).join(' · ') || 'Regelverk', subtitle: 'Regelverk (kort)' }),
+  },
+});
+
+export const nivaaer = defineType({
+  name: 'nivaaer',
+  title: 'Figur: nivåer inni hverandre',
+  type: 'object',
+  icon: lucideIkon('Layers'),
+  description: 'Overskrift og tekst til venstre, og til høyre fargede felt som ligger inni hverandre, som «Hvordan henger reglene sammen?».',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', validation: (r) => r.required() }),
+    defineField({ name: 'tekst', title: 'Tekst', type: 'text', rows: 3 }),
+    defineField({
+      name: 'nivaaer',
+      title: 'Nivåer',
+      description: 'Det ytterste først. Hvert nivå ligger inni det forrige. Fargene følger kortene: blå, grønn, oker.',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'nivaa',
+          fields: [
+            defineField({ name: 'tittel', title: 'Tittel', type: 'string', validation: (r) => r.required() }),
+            defineField({ name: 'tekst', title: 'Tekst', description: 'Én linje.', type: 'string' }),
+          ],
+          preview: { select: { title: 'tittel', subtitle: 'tekst' } },
+        }),
+      ],
+      validation: (r) => r.required().min(2).max(4),
+    }),
+    breddeFelt('nivaaer'),
+  ],
+  preview: { select: { title: 'tittel', a: 'nivaaer.0.tittel', b: 'nivaaer.1.tittel' }, prepare: ({ title, a, b }) => ({ title, subtitle: `Nivåer · ${[a, b].filter(Boolean).join(' › ')} …` }) },
+});
+
+export const relatert = defineType({
+  name: 'relatert',
+  title: 'Relatert',
+  type: 'object',
+  icon: lucideIkon('Link'),
+  description: 'Lenkerader til andre sider på nettstedet, med en tynn linje mellom og en pil.',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Relatert' }),
+    defineField({
+      name: 'lenker',
+      title: 'Lenker',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'relatertLenke',
+          fields: [
+            defineField({ name: 'side', title: 'Side', type: 'reference', to: [{ type: 'side' }], validation: (r) => r.required() }),
+            defineField({ name: 'tekst', title: 'Tekst under', description: 'La stå tomt for å bruke kortteksten til siden.', type: 'string' }),
+          ],
+          preview: { select: { title: 'side.tittel', subtitle: 'tekst' } },
+        }),
+      ],
+      validation: (r) => r.required().min(1),
+    }),
+    breddeFelt('relatert'),
+  ],
+  preview: { select: { tittel: 'tittel', a: 'lenker.0.side.tittel', b: 'lenker.1.side.tittel' }, prepare: ({ tittel, a, b }) => ({ title: tittel || 'Relatert', subtitle: `Relatert · ${[a, b].filter(Boolean).join(', ')}` }) },
+});
+
 export const seksjoner = defineType({
   name: 'seksjoner',
   title: 'Innhold',
@@ -322,6 +416,9 @@ export const seksjoner = defineType({
     defineArrayMember({ type: 'punkter' }),
     defineArrayMember({ type: 'oppfordring' }),
     defineArrayMember({ type: 'generalforsamlinger' }),
+    defineArrayMember({ type: 'regelverk' }),
+    defineArrayMember({ type: 'nivaaer' }),
+    defineArrayMember({ type: 'relatert' }),
     defineArrayMember({ type: 'ansvarsliste' }),
     defineArrayMember({ type: 'knapper' }),
     defineArrayMember({ type: 'undersider' }),
@@ -331,9 +428,9 @@ export const seksjoner = defineType({
       showIcons: true,
       views: [{ name: 'list' }],
       groups: [
-        { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'fargebaand', 'punkter', 'bilde', 'infoboks'] },
-        { name: 'lister', title: 'Lister', of: ['dokumentliste', 'dokumentsok', 'generalforsamlinger', 'oppgaver', 'abcUtgaver', 'medlemsliste', 'faktaliste', 'nokkeltall', 'arrangementer'] },
-        { name: 'annet', title: 'Kontakt og navigasjon', of: ['kontaktinfo', 'borettslagsfakta', 'oppfordring', 'ansvarsliste', 'knapper', 'undersider'] },
+        { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'fargebaand', 'punkter', 'nivaaer', 'bilde', 'infoboks'] },
+        { name: 'lister', title: 'Lister', of: ['dokumentliste', 'regelverk', 'dokumentsok', 'generalforsamlinger', 'oppgaver', 'abcUtgaver', 'medlemsliste', 'faktaliste', 'nokkeltall', 'arrangementer'] },
+        { name: 'annet', title: 'Kontakt og navigasjon', of: ['kontaktinfo', 'borettslagsfakta', 'oppfordring', 'ansvarsliste', 'knapper', 'relatert', 'undersider'] },
       ],
     },
   },

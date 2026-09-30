@@ -14,6 +14,12 @@ export const side = defineType({
   fields: [
     defineField({ name: 'tittel', title: 'Tittel', type: 'string', validation: (r) => r.required() }),
     defineField({
+      name: 'overskrift',
+      title: 'Overskrift på siden (valgfri)',
+      description: 'Den store overskriften øverst på siden, f.eks. «Vedtekter og regler». La stå tomt for å bruke tittelen. Tittelen brukes i menyen, brødsmulene og på kortene.',
+      type: 'string',
+    }),
+    defineField({
       name: 'slug',
       title: 'Adresse',
       type: 'slug',

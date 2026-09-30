@@ -153,6 +153,7 @@
       <section id="sider">
         <h2>Sider og seksjoner</h2>
         <p>Under <span class="felt">Sider</span> ligger alle sidene. Innholdet på en side bygges av <strong>seksjoner</strong> som ligger under hverandre: tekst, bilder, dokumentlister og så videre. Hver seksjon vises som et kort i feltet <span class="felt">Innhold</span>.</p>
+        <p>Den store overskriften øverst er sidens <span class="felt">Tittel</span>. Skal overskriften være lengre enn navnet i menyen og brødsmulene, skriver du den i <span class="felt">Overskrift på siden</span>. Vedtekter har for eksempel tittelen «Vedtekter» og overskriften «Vedtekter og regler».</p>
         <h3>Legge til og flytte seksjoner</h3>
         <ul>
           <li>Trykk <span class="knapp">+ Add item</span> nederst i <span class="felt">Innhold</span> og velg type. Typene er gruppert i «Tekst og bilder», «Lister» og «Kontakt og navigasjon».</li>
@@ -167,6 +168,7 @@
               <tr><td>Bilde</td><td>Et bilde med alternativ tekst (påkrevd, for skjermlesere) og valgfri bildetekst.</td></tr>
               <tr><td>Infoboks</td><td>En grønn boks for noe som skal skille seg ut, som satser eller frister.</td></tr>
               <tr><td>Dokumentliste</td><td>Alle dokumentene i én kategori, for eksempel Protokoller. Oppdateres av seg selv når du laster opp nye dokumenter. La <span class="felt">Overskrift</span> stå tom når listen hører til teksten over.</td></tr>
+              <tr><td>Regelverk (kort)</td><td>Store kort for vedtektene og husordensreglene, med knappene Les og Last ned, og et kort med lenke til borettslagsloven på Lovdata. Brukes på Vedtekter (se <a href="#vedtekter">Vedtekter og husordensregler</a>).</td></tr>
               <tr><td>Alle dokumenter (med søk)</td><td>Dokumentene i kategoriene du velger, gruppert etter kategori, med søkefelt og filterknapper. Brukes på Dokumentsenter. Dra kategoriene i den rekkefølgen de skal stå.</td></tr>
               <tr><td>Jeg vil …</td><td>Kort for oppgaver som «Bygge ark eller tilbygg». Hvert kort åpner en steg-for-steg-veiledning (se <a href="#dokumenter">Dokumenter</a>). Dra oppgavene i den rekkefølgen de skal stå.</td></tr>
               <tr><td>ABC-nytt-utgaver</td><td>Siste utgave ved sidetittelen, tidligere utgaver, arkiv etter år og «Har du noe til neste nummer?». Brukes på ABC-nytt (se <a href="#abc-nytt">ABC-nytt</a>).</td></tr>
@@ -177,11 +179,13 @@
               <tr><td>Kontaktinfo</td><td>«Skriv til styret» med kontaktpersonen, de tre adressene og valgfrie lenker under (som «Hvem kontakter jeg?»). Alt hentes fra <a href="#om-borettslaget">Om borettslaget</a>.</td></tr>
               <tr><td>Tekst i grønt bånd</td><td>Et grønt bånd over hele bredden med liten overtittel, overskrift og tekst, som «Området».</td></tr>
               <tr><td>Punkter med ikon</td><td>Overskrift til venstre og opptil seks korte punkter med ikon, tittel og tekst, som «Slik fungerer det» på Generalforsamling.</td></tr>
+              <tr><td>Figur: nivåer inni hverandre</td><td>Overskrift og tekst til venstre, og fargede felt som ligger inni hverandre til høyre, som «Hvordan henger reglene sammen?» på Vedtekter. Det ytterste nivået står først i listen.</td></tr>
               <tr><td>Oppfordring med knapp</td><td>En linje over, overskrift, tekst og en mørk knapp som åpner en e-post, som «Vil du melde inn en sak?». La e-posten stå tom for å bruke styrets adresse.</td></tr>
               <tr><td>Generalforsamlinger (protokoller)</td><td>Siste generalforsamling ved sidetittelen og alle protokoller som en tidslinje (se <a href="#generalforsamling">Generalforsamlinger</a>).</td></tr>
               <tr><td>Fakta om borettslaget</td><td>Tre store tall (tun, andeler, stiftet) og de offisielle opplysningene fra <a href="#om-borettslaget">Om borettslaget</a>.</td></tr>
               <tr><td>Hvem kontakter jeg?</td><td>Ett kort per ansvarsområde, med navn og telefon til den ansvarlige (se <a href="#styret">Styre og utvalg</a>).</td></tr>
               <tr><td>Knapper</td><td>En eller to lenkeknapper.</td></tr>
+              <tr><td>Relatert</td><td>Lenkerader til andre sider, med en pil. Velg siden og skriv gjerne en kort tekst under. Står teksten tom, brukes kortteksten til siden.</td></tr>
               <tr><td>Undersider</td><td>Kort for sidene som ligger under denne siden, akkurat der du plasserer seksjonen.</td></tr>
             </tbody>
           </table>
@@ -258,6 +262,14 @@
           <li><span class="felt">Farge</span> og <span class="felt">Ikon</span>: ikonet ved hvert dokument i kategorien.</li>
           <li><span class="felt">Sortering</span>: nyeste først, alfabetisk, eller «Egen rekkefølge». Da bruker du feltet <span class="felt">Rekkefølge</span> på dokumentene (1, 2, 3 …, lavest først).</li>
         </ul>
+        <h3 id="vedtekter">Vedtekter og husordensregler</h3>
+        <p>Vedtektene og husordensreglene er vanlige dokumenter i kategorien «Vedtekter og regler». De vises som store kort på Vedtekter-siden, med tittel, <span class="felt">Beskrivelse</span>, filstørrelse og «Sist endret» (året fra <span class="felt">Dato</span>). Når generalforsamlingen endrer dem:</p>
+        <ol>
+          <li>Åpne dokumentet som finnes (ikke lag et nytt), og last opp den nye PDF-en i <span class="felt">Fil</span>.</li>
+          <li>Sett <span class="felt">Dato</span> til datoen for generalforsamlingen som vedtok endringen.</li>
+          <li>Publiser og trykk <span class="knapp">Oppdater nettsiden</span>.</li>
+        </ol>
+        <p>Teksten og lenken på kortet for borettslagsloven skriver du i seksjonen «Regelverk (kort)» på Vedtekter-siden (<span class="felt">Lov – lenke</span>).</p>
         <h3>Oppgaver («Jeg vil …»)</h3>
         <p>Kortene øverst i Dokumentsenteret ligger under <span class="felt">Dokumenter → Oppgaver</span>. En oppgave har tittel, ikon, farge og en liste med <span class="felt">Steg</span>. Hvert steg har en tekst og kan ha ett eller flere <span class="felt">Dokumenter</span>, som vises som bokser: trykk på boksen for å åpne dokumentet, eller på pilen for å laste det ned. Under <span class="felt">Spørsmål?</span> skriver du hvem man kan spørre. La e-posten stå tom for å bruke styrets adresse. En ny oppgave må også legges til i seksjonen «Jeg vil …» på Dokumentsenter-siden.</p>
       </section>

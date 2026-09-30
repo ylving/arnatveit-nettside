@@ -3,6 +3,7 @@
 import { tilSeksjoner } from './seksjoner-lib.mjs';
 import * as dokumentsenter from './dokumentsenter-data.mjs';
 import * as generalforsamling from './generalforsamling-data.mjs';
+import * as vedtekter from './vedtekter-data.mjs';
 
 let n = 0;
 const key = () => `k${(n++).toString(36)}`;
@@ -44,8 +45,8 @@ export const KATEGORIER = [
 ];
 
 // `forelder` = parent page id suffix; null for a top-level page. Most migrated pages live under Praktisk info.
-const side = (id, tittel, { forelder = 'praktisk-info', ikon, kort, rekkefolge = 100, ingress, kontaktboks, innhold = [], gamleUrler = [] }) => ({
-  _id: `side-${id}`, _type: 'side', tittel, slug: slug(id), ...(forelder && { forelder: ref(`side-${forelder}`) }), ikon, kort, rekkefolge, ingress, ...(kontaktboks && { kontaktboks }), innhold, gamleUrler,
+const side = (id, tittel, { forelder = 'praktisk-info', ikon, kort, rekkefolge = 100, overskrift, ingress, kontaktboks, innhold = [], gamleUrler = [] }) => ({
+  _id: `side-${id}`, _type: 'side', tittel, ...(overskrift && { overskrift }), slug: slug(id), ...(forelder && { forelder: ref(`side-${forelder}`) }), ikon, kort, rekkefolge, ingress, ...(kontaktboks && { kontaktboks }), innhold, gamleUrler,
 });
 
 // Pages are stored as sections; the content above is authored as one rich text list per page
@@ -106,14 +107,10 @@ export function buildContent({ protokoll2026, dokumentId }) {
     }),
     side('vedtekter', 'Vedtekter', {
       ikon: 'Book', kort: 'Reglene borettslaget drives etter, vedtatt av generalforsamlingen.', rekkefolge: 20, gamleUrler: ['/praktiskinfo/vedtekter'],
-      ingress: 'Arnatveit Borettslag drives etter vedtekter som er vedtatt av generalforsamlingen, og i henhold til lov om borettslag.',
-      innhold: [
-        p('Arnatveit Borettslag drives etter vedtekter som er vedtatt av generalforsamlingen, og i henhold til lov om borettslag. I tillegg til vedtektene har borettslaget også utarbeidet egne husordensregler.'),
-        p('Det er generalforsamlingen som gjør vedtektsendringer i henhold til borettslagsloven. Nedenfor finner du lenker til vedtekter, husordensregler og borettslagsloven.'),
-        dokumentliste('vedtekter', 'Vedtekter og husordensregler'),
-        h2('Borettslagsloven'),
-        p(['Lov om borettslag, Lovdata', 'https://lovdata.no/dokument/NL/lov/2003-06-06-39']),
-      ],
+      overskrift: vedtekter.OVERSKRIFT,
+      ingress: vedtekter.INGRESS,
+      // Statutes and house rules stay `dokument`s (description and date from vedtekter-data.mjs, set in run.mjs)
+      innhold: vedtekter.SEKSJONER,
     }),
     side('styret', 'Styret', {
       ikon: 'Shield', kort: 'Andelseiere fra hvert av lagets tre tun. Se hvem som sitter og hvordan du når dem.', rekkefolge: 30, gamleUrler: ['/praktiskinfo/styret'],

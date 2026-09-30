@@ -31,12 +31,12 @@ const gfSiste = gfSeksjon?.moter?.[0];
 // "Vis snarveier øverst": pill links to the sections that have an anchor (Kontakt, Området, Fakta …)
 const snarveier = side.snarveier ? (side.seksjoner ?? []).map(seksjonAnker).filter(Boolean) : [];
 ---
-<Base title={side.seo?.tittel ?? side.tittel} description={side.seo?.beskrivelse ?? side.ingress}>
+<Base title={side.seo?.tittel ?? side.overskrift ?? side.tittel} description={side.seo?.beskrivelse ?? side.ingress}>
   <div class="container">
     <header class:list={['page-head', { 'med-boks': boks, 'med-abc': abcSiste, 'med-gf': gfSiste }]}>
       <div>
         {side.forelder && <Brodsmuler forelder={{ tittel: side.forelder.tittel, href: `/${side.forelder.slug}` }} gjeldende={side.tittel} />}
-        <h1>{side.tittel}</h1>
+        <h1>{side.overskrift ?? side.tittel}</h1>
         {side.ingress && <p class="ingress">{side.ingress}</p>}
         {snarveier.length > 0 && (
           <nav class="snarveier" aria-label="På denne siden">

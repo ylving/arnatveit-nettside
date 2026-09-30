@@ -93,6 +93,8 @@ export const SEKSJONER = `seksjoner[]{
     // Same date (only the year known): the extraordinary one first, as in the design
     "moter": *[_type == "generalforsamling" && defined(protokoll.asset) && !(_id in path("drafts.**"))] | order(dato desc, type asc) ${GENERALFORSAMLING}
   },
+  _type == "regelverk" => { ..., "dokumenter": dokumenter[]->${DOKUMENT} },
+  _type == "relatert" => { ..., "lenker": lenker[]{ _key, tekst, "side": side->${SIDE_KORT} } },
   _type == "abcUtgaver" => {
     ...,
     "utgaver": *[_type == "abcUtgave" && defined(fil.asset)] | order(aar desc, maaned desc) ${ABC_UTGAVE},
@@ -122,7 +124,7 @@ export const INNSTILLINGER = `*[_id == "innstillinger"][0]{
 
 export const SIDE_PATHS = `*[_type == "side" && defined(slug.current)]{ "slug": slug.current, "forelder": forelder->slug.current }`;
 export const SIDE = `*[_type == "side" && slug.current == $slug][0]{
-  _id, tittel, ingress, kontaktboks, snarveier, "slug": slug.current, seo, ${SEKSJONER},
+  _id, tittel, overskrift, ingress, kontaktboks, snarveier, "slug": slug.current, seo, ${SEKSJONER},
   "forelder": forelder->{ tittel, "slug": slug.current },
   "barn": *[_type == "side" && forelder._ref == ^._id] | order(rekkefolge asc)${SIDE_KORT}
 }`;

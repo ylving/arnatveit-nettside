@@ -1,7 +1,7 @@
 import { lenke } from './objects/lenke';
 import { seo } from './objects/seo';
 import { bilde, dokumentliste, faktaliste, infoboks, innhold, kontaktinfo, lenkeknapp, medlemsliste, nokkeltall } from './objects/blocks';
-import { abcUtgaver, ansvarsliste, arrangementer, borettslagsfakta, dokumentsok, fargebaand, generalforsamlinger, knapper, oppfordring, oppgaver, punkter, seksjoner, tekst, undersider } from './objects/seksjoner';
+import { abcUtgaver, ansvarsliste, arrangementer, borettslagsfakta, dokumentsok, fargebaand, generalforsamlinger, knapper, nivaaer, oppfordring, oppgaver, punkter, regelverk, relatert, seksjoner, tekst, undersider } from './objects/seksjoner';
 import { innstillinger } from './documents/innstillinger';
 import { forside } from './documents/forside';
 import { side } from './documents/side';
@@ -18,6 +18,6 @@ import { generalforsamling } from './documents/generalforsamling';
 
 export const schemaTypes = [
   lenke, seo, bilde, infoboks, dokumentliste, medlemsliste, faktaliste, nokkeltall, kontaktinfo, lenkeknapp, innhold,
-  tekst, knapper, undersider, ansvarsliste, arrangementer, oppgaver, dokumentsok, abcUtgaver, fargebaand, borettslagsfakta, punkter, oppfordring, generalforsamlinger, seksjoner,
+  tekst, knapper, undersider, ansvarsliste, arrangementer, oppgaver, dokumentsok, abcUtgaver, fargebaand, borettslagsfakta, punkter, oppfordring, generalforsamlinger, regelverk, nivaaer, relatert, seksjoner,
   innstillinger, forside, side, nyhet, dokument, dokumentkategori, utvalg, arrangement, nettsidebygg, oppgave, abcUtgave, omBorettslaget, generalforsamling,
 ];

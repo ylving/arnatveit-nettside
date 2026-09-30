@@ -1,0 +1,17 @@
+---
+// "Relatert": small uppercase heading and link rows to other pages (text under the title: its own, or the page's card text)
+import Lenkerader from '../Lenkerader.astro';
+
+const { node } = Astro.props;
+const lenker = (node.lenker ?? []).filter((l: any) => l.side).map((l: any) => ({ side: l.side, tittel: l.side.tittel, tekst: l.tekst || l.side.kort }));
+---
+{lenker.length > 0 && (
+  <section class="relatert">
+    {node.tittel && <h2>{node.tittel}</h2>}
+    <Lenkerader lenker={lenker} />
+  </section>
+)}
+<style>
+  .relatert h2 { padding-bottom: 10px; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.4; color: var(--muted); }
+  @media (max-width: 640px) { .relatert h2 { padding-bottom: 8px; font-size: 12px; } }
+</style>

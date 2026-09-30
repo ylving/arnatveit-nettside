@@ -97,6 +97,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015
 /* Key figures introduce the text below them, and a document list without a heading belongs to the text above it */
 .seksjon--nokkeltall + .seksjon--tekst, .seksjon--tekst + .seksjon--dokumentliste:not(:has(h2)) { margin-top: 28px; }
 .seksjon--fargebaand, .seksjon--fargebaand + .seksjon { margin-top: clamp(48px, 7vw, 96px); }
+/* Vedtekter: more air after the rule cards and the nested figure */
+.seksjon--regelverk + .seksjon, .seksjon--nivaaer + .seksjon { margin-top: clamp(44px, 6.7vw, 96px); }
 .smal { max-width: 72ch; }
 .breakout { max-width: var(--breakout); }
 .seksjon .prose { max-width: none; padding-bottom: 0; }

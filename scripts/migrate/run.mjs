@@ -7,6 +7,7 @@ import { createClient } from '@sanity/client';
 import { inventory, download } from './inventory.mjs';
 import { buildContent } from './content.mjs';
 import { dokumentFelter } from './dokumentsenter-data.mjs';
+import { DOKUMENTER as VEDTEKTER } from './vedtekter-data.mjs';
 import { tilGeneralforsamling } from './generalforsamling-data.mjs';
 
 const DRY = process.argv.includes('--dry');
@@ -49,7 +50,7 @@ async function main() {
   if (failed.length) throw new Error(`Download failed:\n${failed.join('\n')}`);
 
   // ABC-nytt issues are `abcUtgave` (month + year); Dokumentsenter's documents get their category, title,
-  // description, tun and order from dokumentsenter-data.mjs
+  // description, tun and order from dokumentsenter-data.mjs; the statutes and house rules from vedtekter-data.mjs
   const dokumenter = pdfs.map((d) => {
     const _localFile = path.join(CACHE, d.localFile);
     // Protocols are `generalforsamling` documents (date, ordinary/extraordinary)
@@ -61,13 +62,16 @@ async function main() {
     const tittel = title(d);
     const felter = ['soknader-og-skjema', 'hms'].includes(d.kategori) ? dokumentFelter(tittel) : undefined;
     if (felter === null) throw new Error(`Dokumentsenter document not in dokumentsenter-data.mjs: ${tittel}`);
+    const _id = `dokument-${slugify(d.oldPath.replace(/^\/images\/pdf\//, '').replace(/\.pdf$/i, ''))}`;
     return {
-      _id: `dokument-${slugify(d.oldPath.replace(/^\/images\/pdf\//, '').replace(/\.pdf$/i, ''))}`,
+      _id,
       _type: 'dokument',
       tittel,
       kategori: { _type: 'reference', _ref: `kategori-${d.kategori}` },
       ...(d.dato && { dato: d.dato }),
       ...felter,
+      // Statutes and house rules: description and "Sist endret" date (vedtekter-data.mjs)
+      ...(d.kategori === 'vedtekter' && VEDTEKTER[_id]),
       gamleUrler: [d.oldPath],
       _gammelTittel: tittel,
       _localFile,

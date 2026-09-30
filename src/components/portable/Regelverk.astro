@@ -1,0 +1,93 @@
+---
+// Regelverk (Vedtekter): one card per document (tilted paper sheet on a green / ochre tile, Les + Last ned) and a card
+// for the law (§ on a blue tile, link out). Three in a row, stacked on narrow screens. The illustrations are decorative.
+import Icon from '../Icon.astro';
+import { filInfo, lastNedUrl } from '../../lib/dokument';
+
+const { node } = Astro.props;
+const dokumenter: any[] = (node.dokumenter ?? []).filter((d: any) => d?.url);
+const FARGER = ['gronn', 'oker'];
+const lov = node.lovUrl ? new URL(node.lovUrl) : null;
+// "Lovdata", or the host name for another site
+const lovSted = lov && (/(^|\.)lovdata\.no$/.test(lov.hostname) ? 'Lovdata' : lov.hostname.replace(/^www\./, ''));
+---
+<div class="regelverk">
+  {dokumenter.map((d, i) => (
+    <article class={`kort farge-${FARGER[i] ?? 'gronn'}`}>
+      <div class="flis" aria-hidden="true">
+        <div class="ark" style={`--vinkel: ${i % 2 ? 2 : -2}deg`}>
+          <span class="ark-avsender">Arnatveit Borettslag</span>
+          <span class="ark-tittel">{d.tittel}</span>
+          <span class="ark-strek"></span>
+          <span class="ark-paragraf">§ 1</span>
+          <span class="ark-linjer"><i style="width: 100%"></i><i style="width: 92%"></i><i style="width: 100%"></i><i style="width: 78%"></i></span>
+          <span class="ark-paragraf">§ 2</span>
+          <span class="ark-linjer"><i style="width: 100%"></i><i style="width: 85%"></i><i style="width: 94%"></i></span>
+        </div>
+      </div>
+      <h2>{d.tittel}</h2>
+      {d.beskrivelse && <p class="beskrivelse">{d.beskrivelse}</p>}
+      <p class="meta">{[filInfo(d), d.dato && `Sist endret ${d.dato.slice(0, 4)}`].filter(Boolean).join(' · ')}</p>
+      <div class="knapper">
+        <a class="btn btn--primary" href={d.url} target="_blank" rel="noopener"><Icon name="Eye" size={16} />Les<span class="visually-hidden"> {d.tittel}</span></a>
+        <a class="btn" href={lastNedUrl(d)} download={d.filnavn ?? ''}><Icon name="Download" size={16} />Last ned<span class="visually-hidden"> {d.tittel}</span></a>
+      </div>
+    </article>
+  ))}
+  {lov && (
+    <article class="kort farge-blaa">
+      <div class="flis" aria-hidden="true"><div class="skjold">§</div></div>
+      <h2>{node.lovTittel || 'Loven'}</h2>
+      {node.lovBeskrivelse && <p class="beskrivelse">{node.lovBeskrivelse}</p>}
+      <p class="meta">{lovSted} · ekstern lenke</p>
+      <div class="knapper">
+        <a class="btn" href={node.lovUrl} target="_blank" rel="noopener"><Icon name="ExternalLink" size={16} />Les på {lovSted}<span class="visually-hidden"> (åpnes i ny fane)</span></a>
+      </div>
+    </article>
+  )}
+</div>
+<style>
+  .regelverk { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .kort { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .farge-gronn { --tint: var(--farge-gronn-bg); --merke: var(--farge-gronn); }
+  .farge-oker { --tint: var(--farge-oker-bg); --merke: var(--farge-oker); }
+  .farge-blaa { --tint: var(--farge-blaa-bg); --merke: var(--farge-blaa); }
+  .flis { align-self: stretch; height: 270px; border-radius: 24px; background: var(--tint); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .kort h2 { font-size: 30px; margin-top: 8px; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
+  p { margin: 0; }
+  /* Grows so the meta lines and buttons line up across the row */
+  .beskrivelse { flex-grow: 1; font-size: 16px; line-height: 1.55; color: #46514b; }
+  .meta { font-size: 14px; color: var(--faint); }
+  .knapper { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
+  .knapper .btn { min-height: 44px; padding: 0 18px; gap: 8px; font-size: 15px; }
+  .knapper .btn:not(.btn--primary) { border-color: var(--kant); }
+  .knapper .btn:not(.btn--primary):hover { border-color: var(--ink); }
+
+  /* The paper sheet (documents) */
+  .ark {
+    width: 150px; height: 195px; padding: 15px; border-radius: 5px; background: #fffdf8;
+    box-shadow: 0 1px 2px rgba(29, 36, 32, 0.08), 0 10px 26px rgba(29, 36, 32, 0.12);
+    display: flex; flex-direction: column; gap: 8px; transform: rotate(var(--vinkel)); line-height: 1.05;
+  }
+  .ark-avsender { font-size: 7px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+  .ark-tittel { font-family: var(--serif); font-weight: 600; font-size: 15px; color: var(--merke); hyphens: auto; overflow-wrap: break-word; }
+  .ark-strek { height: 2px; width: 30%; background: var(--merke); flex-shrink: 0; }
+  .ark-paragraf { font-family: var(--serif); font-size: 9px; color: var(--ink-2); }
+  .ark-linjer { display: flex; flex-direction: column; gap: 4px; }
+  .ark-linjer i { display: block; height: 3px; border-radius: 1px; background: #ddd7cb; }
+  /* The § "shield" (the law) */
+  .skjold {
+    width: 150px; height: 195px; border-radius: 999px 999px 12px 12px; background: #fff; box-shadow: 0 10px 26px rgba(29, 36, 32, 0.1);
+    display: grid; place-items: center; font-family: var(--serif); font-size: 93px; line-height: 1; color: var(--merke);
+  }
+
+  /* Stacked: lower tiles, illustrations at the mobile artboard's size (86 × 112) */
+  @media (max-width: 900px) {
+    .regelverk { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+    .kort { gap: 14px; }
+    .flis { height: 150px; border-radius: 20px; }
+    .ark, .skjold { scale: 0.574; }
+    .kort h2 { font-size: 26px; }
+    .beskrivelse { font-size: 15px; }
+  }
+</style>
