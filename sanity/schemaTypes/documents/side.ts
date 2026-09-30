@@ -31,7 +31,7 @@ export const side = defineType({
           const forelderSlug = forelderRef ? await client.fetch<string | null>('*[_id == $ref][0].slug.current', { ref: forelderRef }) : null;
           const adresse = sti({ slug }, forelderSlug);
           const annen = await client.fetch<string | null>(
-            '*[_type == "side" && !(_id in [$id, $draftId]) && !(_id in path("drafts.**")) && $adresse in gamleUrler][0].tittel',
+            '*[_type == "side" && !(_id in [$id, $draftId]) && !(_id in path("drafts.**")) && count(gamleUrler[@ == $adresse || string::startsWith(@, $adresse + "#")]) > 0][0].tittel',
             { id, draftId: `drafts.${id}`, adresse },
           );
           return annen
@@ -96,8 +96,15 @@ export const side = defineType({
       options: { collapsible: true, collapsed: true },
       fields: [
         defineField({ name: 'tittel', title: 'Tittel', type: 'string', placeholder: 'Skriv til hele styret' }),
-        defineField({ name: 'epost', title: 'E-post', description: 'La stå tomt for å bruke styrets e-post fra Innstillinger.', type: 'email' }),
+        defineField({ name: 'epost', title: 'E-post', description: 'La stå tomt for å bruke styrets e-post fra «Om borettslaget».', type: 'email' }),
       ],
+    }),
+    defineField({
+      name: 'snarveier',
+      title: 'Vis snarveier øverst',
+      description: 'Knapper under ingressen som hopper til seksjonene «Kontaktinfo», «Tekst i grønt bånd» og «Fakta om borettslaget» på siden.',
+      type: 'boolean',
+      initialValue: false,
     }),
     defineField({ name: 'seksjoner', title: 'Innhold', type: 'seksjoner' }),
     defineField({ name: 'seo', title: 'SEO', type: 'seo' }),

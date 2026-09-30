@@ -1,0 +1,28 @@
+---
+// Full-width soft green band: eyebrow + heading on the left (5/12), text on the right (7/12). Stacked on narrow screens.
+import Innhold from './Innhold.astro';
+import { seksjonAnker } from '../../lib/urls';
+
+const { node } = Astro.props;
+const anker = seksjonAnker(node);
+---
+<section class="baand" id={anker?.id}>
+  <div class="container">
+    <div class="kolonner">
+      <div>
+        {node.overtittel && <p class="overtittel">{node.overtittel}</p>}
+        <h2>{node.tittel}</h2>
+      </div>
+      {node.tekst?.length > 0 && <div class="prose"><Innhold value={node.tekst} /></div>}
+    </div>
+  </div>
+</section>
+<style>
+  .baand { background: var(--accent-soft); padding-block: clamp(40px, 6vw, 80px); }
+  .kolonner { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 7fr); gap: 20px 56px; }
+  .overtittel { margin: 0 0 12px; font-size: 14px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+  .baand h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.1; }
+  .prose { font-size: 18px; line-height: 1.65; color: #2e3632; }
+  @media (max-width: 900px) { .kolonner { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 640px) { .overtittel { font-size: 13px; } .prose { font-size: 16px; } }
+</style>

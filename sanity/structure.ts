@@ -1,6 +1,6 @@
 import type { StructureResolver } from 'sanity/structure';
 
-export const singletonTypes = new Set(['innstillinger', 'forside', 'nettsidebygg']);
+export const singletonTypes = new Set(['innstillinger', 'forside', 'nettsidebygg', 'omBorettslaget']);
 
 const singleton = (S: Parameters<StructureResolver>[0], type: string, title: string) =>
   S.listItem().title(title).id(type).child(S.document().schemaType(type).documentId(type).title(title));
@@ -51,6 +51,7 @@ export const structure: StructureResolver = (S) =>
         .schemaType('abcUtgave')
         .child(S.documentTypeList('abcUtgave').title('ABC-nytt').defaultOrdering([{ field: 'aar', direction: 'desc' }, { field: 'maaned', direction: 'desc' }])),
       S.documentTypeListItem('utvalg').title('Styre og utvalg'),
+      singleton(S, 'omBorettslaget', 'Om borettslaget'),
       S.divider(),
       singleton(S, 'innstillinger', 'Innstillinger'),
     ]);

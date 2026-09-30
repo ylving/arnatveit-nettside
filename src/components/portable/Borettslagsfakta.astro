@@ -1,0 +1,77 @@
+---
+// "Fakta": three figures (tun, andeler, year founded) and the official details as a <dl>, from «Om borettslaget»
+import Icon from '../Icon.astro';
+import { seksjonAnker } from '../../lib/urls';
+
+const { node } = Astro.props;
+const k = node.kontakt ?? {};
+const anker = seksjonAnker(node);
+const stiftet = k.stiftet ? new Date(`${k.stiftet}T12:00:00`) : null;
+const tall = [
+  k.tun && [String(k.tun), 'tun med rekkehus'],
+  k.andeler && [String(k.andeler), 'andeler'],
+  stiftet && [String(stiftet.getFullYear()), `stiftet ${new Intl.DateTimeFormat('nb-NO', { day: 'numeric', month: 'long' }).format(stiftet)}`],
+].filter(Boolean) as [string, string][];
+const orgnrSiffer = k.orgnr?.replace(/\s/g, '');
+const rader = [
+  ['Juridisk navn', k.juridiskNavn],
+  ['Organisasjonsnummer', k.orgnr],
+  ['Selskapsform', k.selskapsform],
+  ['Forretningsfører', k.forretningsforer],
+  ['Revisor', k.revisor],
+].filter(([, v]) => v);
+---
+<section class="fakta" id={anker?.id}>
+  <div class="topp">
+    {node.tittel && <h2>{node.tittel}</h2>}
+    {node.ingress && <p class="ingress">{node.ingress}</p>}
+  </div>
+  <div class="innhold">
+    {tall.length > 0 && (
+      <ul class="tall">
+        {tall.map(([verdi, tekst]) => <li><span class="verdi">{verdi}</span><span class="tekst">{tekst}</span></li>)}
+      </ul>
+    )}
+    {rader.length > 0 && (
+      <dl>
+        {rader.map(([etikett, verdi]) => (
+          <div>
+            <dt>{etikett}</dt>
+            <dd>
+              {verdi}
+              {etikett === 'Organisasjonsnummer' && orgnrSiffer && (
+                <a href={`https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnrSiffer}`} rel="noopener">Se i Brønnøysundregistrene<Icon name="ExternalLink" size={14} /></a>
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    )}
+  </div>
+</section>
+<style>
+  .fakta { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px 56px; }
+  .fakta h2 { font-size: 40px; }
+  .ingress { margin: 12px 0 0; font-size: 16px; color: var(--muted); max-width: 360px; }
+  .tall { list-style: none; margin: 0 0 40px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .tall li { border-top: 2px solid var(--accent); padding-top: 16px; display: flex; flex-direction: column; gap: 4px; }
+  .verdi { font-family: var(--serif); font-size: 48px; line-height: 1; }
+  .tekst { font-size: 16px; color: #46514b; }
+  dl { margin: 0; border-bottom: 1px solid var(--line); }
+  dl > div { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 4px 24px; padding: 16px 0; border-top: 1px solid var(--line); font-size: 17px; }
+  dt { color: var(--muted); }
+  dd { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+  dd a { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  dd a :global(svg) { flex-shrink: 0; }
+  @media (max-width: 900px) { .fakta { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 640px) {
+    .fakta h2 { font-size: 30px; }
+    .tall { gap: 14px; margin-bottom: 28px; }
+    .tall li { padding-top: 12px; }
+    .verdi { font-size: 30px; }
+    .tekst { font-size: 13px; line-height: 1.35; }
+    dl > div { grid-template-columns: minmax(0, 1fr); padding: 14px 0; }
+    dt { font-size: 14px; }
+    dd { font-size: 16px; }
+  }
+</style>

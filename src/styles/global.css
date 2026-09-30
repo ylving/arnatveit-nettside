@@ -95,6 +95,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015
 .seksjon--tekst:has(.prose > :last-child:is(h2, h3)) + .seksjon { margin-top: 16px; }
 /* Key figures introduce the text below them, and a document list without a heading belongs to the text above it */
 .seksjon--nokkeltall + .seksjon--tekst, .seksjon--tekst + .seksjon--dokumentliste:not(:has(h2)) { margin-top: 28px; }
+.seksjon--fargebaand, .seksjon--fargebaand + .seksjon { margin-top: clamp(48px, 7vw, 96px); }
 .smal { max-width: 72ch; }
 .seksjon .prose { max-width: none; padding-bottom: 0; }
 .seksjon .prose > :first-child { margin-top: 0; }
@@ -110,6 +111,17 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015
 .page-head.med-boks { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); gap: 24px 56px; align-items: end; }
 .page-head.med-boks .ingress { max-width: 52ch; }
 @media (max-width: 760px) { .page-head.med-boks { grid-template-columns: 1fr; } }
+/* Jump links to sections on the same page (side.snarveier) */
+.snarveier { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.snarveier a {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px;
+  border: 1px solid var(--kant); background: var(--surface); font-size: 15px; font-weight: 600; color: var(--ink);
+}
+.snarveier a:hover { border-color: var(--ink); color: var(--ink); }
+.snarveier svg { color: var(--accent); }
+/* Jump targets: keep a little space above the heading */
+.seksjon [id] { scroll-margin-top: 24px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 /* Page head with the newest ABC-nytt issue on the right */
 .page-head.med-abc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px 72px; align-items: center; }
 .page-head.med-abc .ingress { max-width: 500px; }

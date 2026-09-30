@@ -124,6 +124,7 @@
         <li><a href="#nyheter">Nyheter</a></li>
         <li><a href="#arrangementer">Arrangementer</a></li>
         <li><a href="#forsiden">Forsiden</a></li>
+        <li><a href="#om-borettslaget">Om borettslaget (kontakt og fakta)</a></li>
         <li><a href="#innstillinger">Innstillinger</a></li>
         <li><a href="#ikoner">Ikoner</a></li>
         <li><a href="#hjelp">Hvis noe går galt</a></li>
@@ -172,13 +173,17 @@
               <tr><td>Nøkkeltall</td><td>Opptil fire store tall med en kort tekst under, som «150 kr – per time for voksne» på Dugnad.</td></tr>
               <tr><td>Hva skjer</td><td>Kommende arrangementer fra <a href="#arrangementer">Arrangementer</a>, med valg mellom dugnad, sosialt og alle. <span class="felt">Vis først</span> bestemmer hvilken type som er valgt når siden åpnes.</td></tr>
               <tr><td>Faktaliste</td><td>Rader med etikett og verdi, som på Om borettslaget.</td></tr>
-              <tr><td>Kontaktinfo</td><td>Adresser, e-post og kontaktperson fra <span class="felt">Innstillinger</span>.</td></tr>
+              <tr><td>Kontaktinfo</td><td>«Skriv til styret» med kontaktpersonen, de tre adressene og valgfrie lenker under (som «Hvem kontakter jeg?»). Alt hentes fra <a href="#om-borettslaget">Om borettslaget</a>.</td></tr>
+              <tr><td>Tekst i grønt bånd</td><td>Et grønt bånd over hele bredden med liten overtittel, overskrift og tekst, som «Området».</td></tr>
+              <tr><td>Fakta om borettslaget</td><td>Tre store tall (tun, andeler, stiftet) og de offisielle opplysningene fra <a href="#om-borettslaget">Om borettslaget</a>.</td></tr>
               <tr><td>Hvem kontakter jeg?</td><td>Ett kort per ansvarsområde, med navn og telefon til den ansvarlige (se <a href="#styret">Styre og utvalg</a>).</td></tr>
               <tr><td>Knapper</td><td>En eller to lenkeknapper.</td></tr>
               <tr><td>Undersider</td><td>Kort for sidene som ligger under denne siden, akkurat der du plasserer seksjonen.</td></tr>
             </tbody>
           </table>
         </div>
+        <h3>Snarveier øverst</h3>
+        <p>Slår du på <span class="felt">Vis snarveier øverst</span> på en side, får den knapper under ingressen som hopper ned til seksjonene «Kontaktinfo», «Tekst i grønt bånd» og «Fakta om borettslaget». Knappene får samme navn som overskriften (overtittelen i det grønne båndet). Endrer du overskriften «Kontakt», slutter gamle lenker til /om-borettslaget#kontakt å hoppe riktig.</p>
         <h3>Bredde</h3>
         <p>De fleste seksjoner har valget <span class="felt">Bredde</span>: <strong>Tekstbredde</strong> (samme bredde som vanlig tekst) eller <strong>Bred</strong> (hele innholdsbredden). Bilder kan også være <strong>Full bredde</strong>, helt ut til kantene. Lister med kort ser best ut brede, rader med tekst best i tekstbredde.</p>
       </section>
@@ -217,7 +222,7 @@
               <tr><td>Ansvarsområder</td><td>Område, valgfri tekst og ikon. Vises i seksjonen «Hvem kontakter jeg?». Når ansvaret skifter, flytter du området til den nye personen.</td></tr>
               <tr><td>Varamedlem</td><td>Personen vises i en egen liste, «Varamedlemmer», under de faste medlemmene.</td></tr>
               <tr><td>Utvidet beplantingsutvalg</td><td>Bare i Miljøutvalget. Personen får et lite blad ved navnet i medlemslisten.</td></tr>
-              <tr><td>Kontaktperson for borettslaget</td><td>Vises som kontaktperson i kontaktinfoen på Kontakt og Om borettslaget. Bare én person kan ha dette slått på.</td></tr>
+              <tr><td>Kontaktperson for borettslaget</td><td>Vises som kontaktperson i «Skriv til styret» på Om oss og kontakt. Bare én person kan ha dette slått på.</td></tr>
               <tr><td>Ansvarlig for ABC-nytt</td><td>Navnet vises på ABC-nytt-siden: «… har ansvaret for ABC-nytt». Bare én person kan ha dette slått på.</td></tr>
             </tbody>
           </table>
@@ -299,12 +304,21 @@
         </ul>
       </section>
 
+      <section id="om-borettslaget">
+        <h2>Om borettslaget (kontakt og fakta)</h2>
+        <p>Under <span class="felt">Om borettslaget</span> i menyen til venstre ligger kontaktinformasjonen og fakta om borettslaget. De vises på siden Om oss og kontakt, i bunnteksten og i boksen «Skriv til styret» på Styret. Du oppdaterer dem bare her.</p>
+        <ul>
+          <li><span class="felt">Kontakt og adresser</span>: styrets e-post med teksten under, besøks-, post- og fakturaadressen med merknader, kartlenken og e-post for faktura. Styrets e-post brukes også i «Nås via styret@» og som standard der en seksjon har et e-postfelt som står tomt.</li>
+          <li><span class="felt">Fakta</span>: juridisk navn, organisasjonsnummer (lenken til Brønnøysundregistrene lages av seg selv), selskapsform, forretningsfører, revisor, stiftelsesdato, antall andeler og antall tun. De tre store tallene lages av de tre siste.</li>
+          <li><strong>Kontaktpersonen</strong> legges ikke her, men under <a href="#styret">Styre og utvalg</a>: slå på <span class="felt">Kontaktperson for borettslaget</span> på riktig person.</li>
+        </ul>
+      </section>
+
       <section id="innstillinger">
         <h2>Innstillinger</h2>
         <ul>
           <li><span class="felt">Banner øverst</span>: den grønne stripen med en kort beskjed. Slå av <span class="felt">Vis banner</span> når beskjeden er gammel.</li>
           <li><span class="felt">Hovedmeny</span>: menypunktene øverst, i den rekkefølgen de står. Logoen lenker alltid til forsiden, så Forside trenger ikke eget menypunkt.</li>
-          <li><span class="felt">Kontakt</span>: styrets e-post, adresser og organisasjonsnummer. Styrets e-post brukes også i «Skriv til hele styret» og «Nås via styret@».</li>
           <li><span class="felt">Brytepunkt for mobilmeny (px)</span>: skjermbredden der menyen blir til en menyknapp. Trengs bare hvis menypunktene ikke får plass på én linje.</li>
         </ul>
       </section>

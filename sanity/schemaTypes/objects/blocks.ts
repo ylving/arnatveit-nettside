@@ -1,4 +1,4 @@
-import { defineArrayMember, defineField, defineType } from 'sanity';
+import { defineArrayMember, defineField, defineType, type Path } from 'sanity';
 import { STANDARD_BREDDE } from '../../standarder';
 import { lucideIkon } from '../../components/LucideIkon';
 
@@ -173,14 +173,39 @@ export const nokkeltall = defineType({
   },
 });
 
+const kunSeksjon = ({ path }: { path: Path }) => path[0] !== 'seksjoner';
+
 export const kontaktinfo = defineType({
   name: 'kontaktinfo',
   title: 'Kontaktinfo',
   type: 'object',
   icon: lucideIkon('Contact'),
-  description: 'Viser adresser og e-post fra Innstillinger',
-  fields: [defineField({ name: 'visKart', title: 'Vis kartlenke', type: 'boolean', initialValue: true }), breddeFelt('kontaktinfo')],
-  preview: { prepare: () => ({ title: 'Kontaktinfo (fra Innstillinger)' }) },
+  description: 'E-post til styret, kontaktperson og adresser fra «Om borettslaget». Kontaktpersonen er den som har «Kontaktperson for borettslaget» slått på under Styre og utvalg.',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', description: 'Brukes også som snarvei øverst på siden.', type: 'string', initialValue: 'Kontakt', hidden: kunSeksjon }),
+    defineField({ name: 'visKart', title: 'Vis kartlenke', type: 'boolean', initialValue: true }),
+    defineField({
+      name: 'lenker',
+      title: 'Lenker under adressene',
+      type: 'array',
+      hidden: kunSeksjon,
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'kontaktlenke',
+          fields: [
+            defineField({ name: 'tittel', title: 'Tittel', description: 'F.eks. «Hvem kontakter jeg?»', type: 'string', validation: (r) => r.required() }),
+            defineField({ name: 'tekst', title: 'Tekst', description: 'F.eks. «Se hele styret, og hvem som har ansvar for hva»', type: 'string' }),
+            defineField({ name: 'side', title: 'Side', type: 'reference', to: [{ type: 'side' }], validation: (r) => r.required() }),
+          ],
+          preview: { select: { title: 'tittel', subtitle: 'side.tittel' } },
+        }),
+      ],
+      validation: (r) => r.max(4),
+    }),
+    breddeFelt('kontaktinfo'),
+  ],
+  preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Kontaktinfo', subtitle: 'Kontaktinfo (fra «Om borettslaget»)' }) },
 });
 
 export const lenkeknapp = defineType({

@@ -17,6 +17,7 @@ export const STANDARD_BREDDE = {
   oppgaver: 'bred',
   dokumentsok: 'bred',
   abcUtgaver: 'bred',
+  borettslagsfakta: 'bred',
 } as const;
 export type Bredde = 'tekst' | 'bred' | 'full';
 // Event categories (arrangement.kategori). Colours are tokens in global.css (--dugnad*, --sosialt*).

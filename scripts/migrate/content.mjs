@@ -173,31 +173,26 @@ export function buildContent({ protokoll2026, dokumentId }) {
       ingress: dokumentsenter.INGRESS,
       innhold: dokumentsenter.seksjoner(oppgaver.map((o) => o._id)),
     }),
+    // "Om oss og kontakt": the old Kontakt page is merged in; its addresses redirect to #kontakt
     side('om-borettslaget', 'Om borettslaget', {
-      forelder: null, rekkefolge: 30, gamleUrler: [],
-      ingress: 'Arnatveit Borettslag består av hus i rekke, fordelt på tre tun, hvorav ett er bilfritt med felles parkeringsanlegg. De to andre tunene har parkeringsmuligheter ved husene.',
+      forelder: null, rekkefolge: 30, gamleUrler: ['/kontakt#kontakt', '/kontakt-oss#kontakt'],
+      ingress: 'Arnatveit Borettslag består av rekkehus fordelt på tre tun i Arna, Bergen. Her finner du kontaktinformasjon, adresser og fakta om borettslaget.',
       innhold: [
-        p('Borettslaget har gode og romslige fellesarealer med lekeplasser i hver tun, i tillegg til egen ballplass.'),
-        p('Området borettslaget ligger i har nær tilgang til et rikholdig tur- og friluftsområde, gangavstand til moderne barneskole, buss og butikk. Det er kort vei til Øyrane Torg og togstasjon. Det går tog fra Arna til Bergen sentrum hver halvtime. Borettslaget er veldrevet med sunn økonomi.'),
-        faktaliste('Fakta', [
-          ['Juridisk navn', 'Arnatveit Borettslag'],
-          ['Organisasjonsnummer', '946 024 627'],
-          ['Selskapsform', 'Borettslag'],
-          ['Stiftelsesdato', '06.11.1984'],
-          ['Antall andeler', '79'],
-          ['Forretningsfører', 'Bergen og omegn Boligbyggerlag (BOB)'],
-          ['Revisor', 'KPMG AS'],
-        ]),
-        { _type: 'kontaktinfo', _key: key(), visKart: false },
-      ],
-    }),
-    side('kontakt', 'Kontakt', {
-      forelder: null, rekkefolge: 40, gamleUrler: ['/kontakt-oss'],
-      ingress: 'Saker du ønsker at styret skal behandle må sendes skriftlig, minst en uke før oppsatt møte.',
-      innhold: [
-        { _type: 'kontaktinfo', _key: key(), visKart: true },
-        p('Leiter du etter skjema eller annen informasjon, ta en titt i ', ['dokumentsenteret', '#side-dokumentsenter'], '.'),
-        p(['Her finner du oversikt over hvem som sitter i styret', '#side-styret'], ' og hvordan de kan kontaktes.'),
+        {
+          _type: 'kontaktinfo', _key: 'kontakt', tittel: 'Kontakt', visKart: true, bredde: 'bred',
+          lenker: [
+            { _type: 'kontaktlenke', _key: 'styret', tittel: 'Hvem kontakter jeg?', tekst: 'Se hele styret, og hvem som har ansvar for hva', side: ref('side-styret') },
+            { _type: 'kontaktlenke', _key: 'dokumenter', tittel: 'Leter du etter et skjema?', tekst: 'Søknader, veiledninger og sjekklister', side: ref('side-dokumentsenter') },
+          ],
+        },
+        {
+          _type: 'fargebaand', _key: 'omradet', overtittel: 'Området', tittel: 'Grønt, rolig og kort vei til alt',
+          tekst: [
+            p('Borettslaget har gode og romslige fellesarealer, med lekeplass i hvert tun og egen ballplass. Ett av tunene er bilfritt med felles parkeringsanlegg; de to andre har parkering ved husene.'),
+            p('Området har nær tilgang til et rikholdig tur- og friluftsområde, og det er gangavstand til barneskole, buss og butikk. Det er kort vei til Øyrane Torg og togstasjonen, med tog til Bergen sentrum hver halvtime.'),
+          ],
+        },
+        { _type: 'borettslagsfakta', _key: 'fakta', tittel: 'Fakta', ingress: 'Offisielle opplysninger om borettslaget, blant annet til bruk ved kjøp og salg.', bredde: 'bred' },
       ],
     }),
   ]);
@@ -218,20 +213,26 @@ export function buildContent({ protokoll2026, dokumentId }) {
     hovedmeny: [
       lenke('Praktisk info', '#side-praktisk-info'),
       lenke('Dokumentsenter', '#side-dokumentsenter'),
-      lenke('Om borettslaget', '#side-om-borettslaget'),
-      lenke('Kontakt', '#side-kontakt'),
+      lenke('Om oss og kontakt', '#side-om-borettslaget'),
       lenke('Nytt', '/aktuelt'),
     ].map((l) => ({ ...l, _key: key() })),
     banner: { aktiv: true, tekst: 'Generalforsamlingen 2026 ble avholdt 28. mai.', lenke: lenke('Les protokollen', `#${protokoll2026}`) },
-    kontakt: {
-      epost: 'styret@arnatveit-borettslag.no',
-      postadresse: 'Arnatveit Borettslag\nc/o BOB\nPostboks 7280\n5020 Bergen',
-      besoksadresse: 'Stuajordet 11-185\n5262 Arnatveit',
-      fakturaadresse: 'Arnatveit Borettslag\norg.nr.: 946024627\nPostboks 2715\n7439 Trondheim',
-      fakturaEpost: 'fakturamottak@bob.no',
-      orgnr: '946 024 627',
-      kartlenke: 'https://www.google.com/maps/search/?api=1&query=Stuajordet+11,+5262+Arnatveit',
-    },
+  };
+
+  // Contact details and facts (the contact person is the member with `kontaktperson` on)
+  const omBorettslaget = {
+    _id: 'omBorettslaget', _type: 'omBorettslaget',
+    epost: 'styret@arnatveit-borettslag.no',
+    styreNotat: 'Saker du ønsker at styret skal behandle, må sendes skriftlig minst én uke før oppsatt styremøte.',
+    besoksadresse: 'Stuajordet 11–185\n5262 Arnatveit',
+    kartlenke: 'https://www.google.com/maps/search/?api=1&query=Stuajordet+11,+5262+Arnatveit',
+    postadresse: 'Arnatveit Borettslag\nc/o BOB\nPostboks 7280\n5020 Bergen',
+    postNotat: 'Post til styret går via forretningsfører.',
+    fakturaadresse: 'Arnatveit Borettslag\nOrg.nr. 946 024 627\nPostboks 2715\n7439 Trondheim',
+    fakturaNotat: 'For leverandører.',
+    fakturaEpost: 'fakturamottak@bob.no',
+    juridiskNavn: 'Arnatveit Borettslag', orgnr: '946 024 627', selskapsform: 'Borettslag',
+    forretningsforer: 'Bergen og omegn Boligbyggerlag (BOB)', revisor: 'KPMG AS', stiftet: '1984-11-06', andeler: 79, tun: 3,
   };
 
   const forside = {
@@ -261,5 +262,5 @@ export function buildContent({ protokoll2026, dokumentId }) {
     },
   };
 
-  return [innstillinger, forside, ...kategorier, ...oppgaver, ...utvalg, ...sider, ...nyheter];
+  return [innstillinger, omBorettslaget, forside, ...kategorier, ...oppgaver, ...utvalg, ...sider, ...nyheter];
 }

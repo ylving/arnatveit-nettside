@@ -15,6 +15,8 @@ import TunListe from './portable/TunListe.astro';
 import Oppgaver from './portable/Oppgaver.astro';
 import Dokumentsok from './portable/Dokumentsok.astro';
 import AbcUtgaver from './portable/AbcUtgaver.astro';
+import Fargebaand from './portable/Fargebaand.astro';
+import Borettslagsfakta from './portable/Borettslagsfakta.astro';
 import InfoCards from './InfoCards.astro';
 import { STANDARD_BREDDE, type Bredde } from '../../sanity/standarder';
 
@@ -26,7 +28,7 @@ const liste: any[] = seksjoner.some((s: any) => s._type === 'undersider') || !ba
   : [...seksjoner, { _type: 'undersider', _key: 'auto-undersider' }];
 
 const bredde = (s: any): Bredde =>
-  s._type === 'tekst' || s._type === 'infoboks' ? 'tekst' : (s.bredde ?? STANDARD_BREDDE[s._type as keyof typeof STANDARD_BREDDE] ?? 'tekst');
+  s._type === 'tekst' || s._type === 'infoboks' ? 'tekst' : s._type === 'fargebaand' ? 'full' : (s.bredde ?? STANDARD_BREDDE[s._type as keyof typeof STANDARD_BREDDE] ?? 'tekst');
 ---
 <div class="seksjoner">
   {liste.map((s) => {
@@ -48,6 +50,8 @@ const bredde = (s: any): Bredde =>
             {s._type === 'nokkeltall' && <Nokkeltall node={s} />}
             {s._type === 'arrangementer' && <HvaSkjer node={s} />}
             {s._type === 'kontaktinfo' && <Kontaktinfo node={{ ...s, kontakt }} />}
+            {s._type === 'fargebaand' && <Fargebaand node={s} />}
+            {s._type === 'borettslagsfakta' && <Borettslagsfakta node={{ ...s, kontakt }} />}
             {s._type === 'knapper' && <Knapper node={s} />}
             {s._type === 'ansvarsliste' && <Ansvarsliste node={s} styretEpost={kontakt?.epost} />}
             {s._type === 'undersider' && (<>{s.tittel && <h2 class="seksjon-tittel">{s.tittel}</h2>}<InfoCards sider={barn} /></>)}

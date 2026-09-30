@@ -5,7 +5,9 @@ import Brodsmuler from '../components/Brodsmuler.astro';
 import Kontaktboks from '../components/Kontaktboks.astro';
 import AbcSiste from '../components/AbcSiste.astro';
 import { load } from '../lib/sanity';
+import Icon from '../components/Icon.astro';
 import { KONTAKT, SIDE, SIDE_PATHS } from '../lib/queries';
+import { seksjonAnker } from '../lib/urls';
 
 export async function getStaticPaths() {
   const sider = await load<{ slug: string; forelder: string | null }[]>(SIDE_PATHS);
@@ -17,11 +19,13 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.props;
 const [side, kontakt] = await Promise.all([load<any>(SIDE, { slug }), load<any>(KONTAKT)]);
-// Contact box beside the title: its own email, or the board's from Innstillinger
+// Contact box beside the title: its own email, or the board's from «Om borettslaget»
 const k = side.kontaktboks;
 const boks = k && (k.tittel || k.epost) ? { tittel: k.tittel || undefined, epost: k.epost || kontakt?.epost } : null;
 // Pages with an ABC-nytt section show the newest issue beside the title
 const abcSiste = side.seksjoner?.find((s: any) => s._type === 'abcUtgaver')?.utgaver?.[0];
+// "Vis snarveier øverst": pill links to the sections that have an anchor (Kontakt, Området, Fakta …)
+const snarveier = side.snarveier ? (side.seksjoner ?? []).map(seksjonAnker).filter(Boolean) : [];
 ---
 <Base title={side.seo?.tittel ?? side.tittel} description={side.seo?.beskrivelse ?? side.ingress}>
   <div class="container">
@@ -30,6 +34,11 @@ const abcSiste = side.seksjoner?.find((s: any) => s._type === 'abcUtgaver')?.utg
         {side.forelder && <Brodsmuler forelder={{ tittel: side.forelder.tittel, href: `/${side.forelder.slug}` }} gjeldende={side.tittel} />}
         <h1>{side.tittel}</h1>
         {side.ingress && <p class="ingress">{side.ingress}</p>}
+        {snarveier.length > 0 && (
+          <nav class="snarveier" aria-label="På denne siden">
+            {snarveier.map((a: any) => <a href={`#${a.id}`}>{a.tekst}<Icon name="ArrowDown" size={16} /></a>)}
+          </nav>
+        )}
       </div>
       {boks && <Kontaktboks {...boks} />}
       {abcSiste && <AbcSiste utgave={abcSiste} />}

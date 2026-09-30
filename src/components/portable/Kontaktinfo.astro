@@ -1,50 +1,121 @@
 ---
+// Contact section (data from «Om borettslaget»): the green "Skriv til styret" panel with the contact person on the
+// left (5/12), the three addresses and optional link rows on the right (7/12). Stacked on narrow screens.
 import Icon from '../Icon.astro';
 import Epost from '../Epost.astro';
+import { docHref, seksjonAnker } from '../../lib/urls';
+import { telLenke } from '../../lib/medlem';
+
 const { node } = Astro.props;
 const k = node.kontakt ?? {};
 const kp = k.kontaktperson; // member toggled under Styre og utvalg
-const tel = (t: string) => `tel:+47${t.replace(/\s/g, '')}`;
-const rows = [
-  ['Postadresse', k.postadresse],
-  ['Besøksadresse', k.besoksadresse],
-  ['Fakturaadresse', k.fakturaadresse && `${k.fakturaadresse}${k.fakturaEpost ? `\n${k.fakturaEpost}` : ''}`],
-].filter(([, v]) => v);
+const anker = seksjonAnker(node);
+const adresser = [
+  { tittel: 'Besøksadresse', tekst: k.besoksadresse, lenke: node.visKart !== false && k.kartlenke ? { href: k.kartlenke, tekst: 'Vis i kart', ikon: 'ExternalLink' } : null },
+  { tittel: 'Postadresse', tekst: k.postadresse, notat: k.postNotat },
+  { tittel: 'Fakturaadresse', tekst: k.fakturaadresse, notat: k.fakturaNotat, lenke: k.fakturaEpost ? { href: `mailto:${k.fakturaEpost}`, tekst: k.fakturaEpost, ikon: 'Mail' } : null },
+].filter((a) => a.tekst);
+const lenker = (node.lenker ?? []).filter((l: any) => l.side);
 ---
-<section class="contact">
-  {k.epost && (
-    <a class="mail" href={`mailto:${k.epost}`}>
-      <span class="ic"><Icon name="Mail" size={22} /></span>
-      <span><span class="label">E-post styret</span><span class="val">{k.epost}</span></span>
-    </a>
-  )}
-  <div class="grid">
-    {kp && (
-      <div class="card">
-        <span class="label">Kontaktperson</span>
-        <span class="val"><strong>{kp.navn}</strong>{kp.rolle && <span class="rolle">{kp.rolle}</span>}</span>
-        {kp.telefon && <a class="lenke" href={tel(kp.telefon)}><Icon name="Phone" size={16} />{kp.telefon}</a>}
-        {kp.epost && <a class="lenke" href={`mailto:${kp.epost}`}><Icon name="Mail" size={16} /><Epost adresse={kp.epost} /></a>}
+<section class="kontakt" id={anker?.id}>
+  {node.tittel && <h2>{node.tittel}</h2>}
+  <div class="kolonner">
+    {k.epost && (
+      <div class="panel">
+        <p class="overtittel">Skriv til styret</p>
+        <a class="adresse" href={`mailto:${k.epost}`}><Epost adresse={k.epost} /></a>
+        {k.styreNotat && <p class="notat">{k.styreNotat}</p>}
+        {kp && (
+          <div class="person">
+            <p class="overtittel">Kontaktperson</p>
+            <p class="navn">{kp.navn}{kp.rolle && <span class="rolle"> · {kp.rolle.toLowerCase()}</span>}</p>
+            {kp.telefon && <a href={telLenke(kp.telefon)}><Icon name="Phone" size={16} /><span class="tlf">{kp.telefon}</span></a>}
+            {kp.epost && <a href={`mailto:${kp.epost}`}><Icon name="Mail" size={16} /><Epost adresse={kp.epost} /></a>}
+          </div>
+        )}
       </div>
     )}
-    {rows.map(([label, val]) => <div class="card"><span class="label">{label}</span><span class="val">{val}</span></div>)}
+    <div class="hoyre">
+      {adresser.length > 0 && (
+        <div class="adresser">
+          {adresser.map((a) => (
+            <div class="adr">
+              <p class="etikett">{a.tittel}</p>
+              <p class="tekst">{a.tekst}</p>
+              {a.notat && <p class="adr-notat">{a.notat}</p>}
+              {a.lenke && <a class="adr-lenke" href={a.lenke.href} rel={a.lenke.href.startsWith('http') ? 'noopener' : undefined}><Icon name={a.lenke.ikon} size={15} /><Epost adresse={a.lenke.tekst} /></a>}
+            </div>
+          ))}
+        </div>
+      )}
+      {lenker.length > 0 && (
+        <ul class="lenker">
+          {lenker.map((l: any) => (
+            <li>
+              <a href={docHref(l.side)}>
+                <span><span class="l-tittel">{l.tittel}</span>{l.tekst && <span class="l-tekst">{l.tekst}</span>}</span>
+                <Icon name="ArrowRight" size={20} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   </div>
-  {node.visKart && k.kartlenke && <a class="btn" href={k.kartlenke} rel="noopener"><Icon name="MapPin" size={18} />Vis kart</a>}
 </section>
 <style>
-  .contact { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
-  .mail { display: flex; gap: 16px; align-items: center; background: var(--accent); color: #fff !important; text-decoration: none !important; border-radius: var(--radius-lg); padding: 22px 26px; width: 100%; }
-  .mail .ic { width: 48px; height: 48px; border-radius: 14px; background: rgba(255, 255, 255, 0.14); display: grid; place-items: center; flex-shrink: 0; }
-  .mail .label { color: var(--accent-on); }
-  .mail .val { font-family: var(--serif); font-size: clamp(19px, 2.4vw, 24px); word-break: break-word; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; width: 100%; }
-  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
-  .label { display: block; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-  .val { display: block; white-space: pre-line; }
-  .val strong { font-weight: 600; }
-  .rolle { display: block; font-size: 14px; color: var(--muted); }
-  .lenke { display: flex; align-items: center; gap: 8px; min-width: 0; margin-top: 8px; font-size: 14px; color: var(--ink) !important; text-decoration: none !important; }
-  .lenke:hover { color: var(--accent) !important; }
-  .lenke :global(svg) { color: var(--accent); flex-shrink: 0; }
-  .btn { text-decoration: none !important; color: var(--ink) !important; }
+  .kontakt h2 { font-size: 40px; margin-bottom: 28px; }
+  .kolonner { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 7fr); gap: 56px; align-items: start; }
+  p { margin: 0; }
+
+  .panel { background: var(--accent); color: #fff; border-radius: 28px; padding: 36px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .overtittel { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #cfe0d4; }
+  .adresse {
+    font-family: var(--serif); font-size: clamp(22px, 2.2vw, 30px); line-height: 1.2; margin-top: -6px; color: #fff;
+    text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.45); text-decoration-thickness: 1px; text-underline-offset: 5px;
+  }
+  .adresse:hover { color: #fff; text-decoration-color: #fff; }
+  .adresse:focus-visible { outline-color: #fff; }
+  .notat { font-size: 15px; line-height: 1.55; color: var(--accent-on); }
+  .person { align-self: stretch; display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding-top: 20px; margin-top: 4px; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+  .person .overtittel { margin-bottom: 6px; }
+  .person .navn { margin-bottom: 2px; }
+  .navn { font-size: 18px; font-weight: 600; }
+  .rolle { font-weight: 400; color: #cfe0d4; }
+  .person a { display: inline-flex; align-items: center; gap: 10px; padding-block: 1px; font-size: 16px; line-height: 1.4; color: #fff; overflow-wrap: anywhere; }
+  .person a:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+  .person a :global(svg) { color: #cfe0d4; flex-shrink: 0; }
+  .tlf { white-space: nowrap; }
+
+  .adresser { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .adr { border-top: 1px solid #cfc8ba; padding-top: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .etikett { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .tekst { font-size: 17px; line-height: 1.5; white-space: pre-line; }
+  .adr-notat { font-size: 14px; line-height: 1.45; color: var(--faint); }
+  .adr-lenke { display: inline-flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 600; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+  .adr-lenke :global(svg) { flex-shrink: 0; }
+
+  .lenker { list-style: none; margin: 40px 0 0; padding: 0; border-bottom: 1px solid var(--line); }
+  .lenker li { border-top: 1px solid var(--line); }
+  .lenker a { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0; color: var(--ink); }
+  .lenker a > span { display: flex; flex-direction: column; gap: 2px; }
+  .l-tittel { font-size: 17px; font-weight: 600; }
+  .l-tekst { font-size: 15px; color: var(--muted); }
+  .lenker a :global(svg) { color: var(--accent); flex-shrink: 0; transition: transform 0.15s; }
+  .lenker a:hover .l-tittel { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .lenker a:hover :global(svg) { transform: translateX(3px); }
+
+  /* Below 1240px the right column is too narrow for three addresses: stack panel and addresses */
+  @media (max-width: 1240px) {
+    .kolonner { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  }
+  @media (max-width: 640px) {
+    .kontakt h2 { font-size: 30px; margin-bottom: 20px; }
+    .panel { border-radius: 22px; padding: 24px; }
+    /* Phones: phone and email lines a little taller, easier to tap */
+    .person a { padding-block: 7px; }
+    .adresser { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+    .tekst { font-size: 16px; }
+    .lenker { margin-top: 28px; }
+  }
 </style>

@@ -61,6 +61,7 @@ export const SEKSJONER = `seksjoner[]{
       "personer": medlemmer[count(ansvar) > 0]{ _key, navn, rolle, telefon, epost, "ansvar": ansvar[]{ omraade, beskrivelse, ikon } }
     }[count(personer) > 0]
   },
+  _type == "kontaktinfo" => { ..., "lenker": lenker[]{ _key, tittel, tekst, "side": side->${DOC_REF} } },
   _type == "oppgaver" => {
     ...,
     "oppgaver": oppgaver[]->{ _id, tittel, ikon, aksent, kontakttekst, kontaktEpost, "steg": steg[]{ _key, tekst, "dokumenter": dokumenter[]->${DOKUMENT} } }
@@ -76,24 +77,25 @@ export const SEKSJONER = `seksjoner[]{
   }
 }`;
 
-// Contact details from Innstillinger + the member toggled as "Kontaktperson" under Styre og utvalg
-export const KONTAKT = `*[_id == "innstillinger"][0]{
-  ...kontakt,
+// Contact details and facts from «Om borettslaget» + the member toggled as "Kontaktperson" under Styre og utvalg
+export const KONTAKT = `*[_id == "omBorettslaget"][0]{
+  ...,
   "kontaktperson": array::compact(*[_type == "utvalg"].medlemmer[kontaktperson == true][0])[0]{ navn, rolle, telefon, epost }
 }`;
 
 export const INNSTILLINGER = `*[_id == "innstillinger"][0]{
-  navn, beskrivelse, kontakt, menyBrytepunkt,
+  navn, beskrivelse, menyBrytepunkt,
+  "kontakt": *[_id == "omBorettslaget"][0]{ epost },
   "hovedmeny": hovedmeny[]${LINK},
   banner{ aktiv, tekst, "lenke": lenke${LINK} },
   "praktiskInfo": *[_type == "side" && forelder._ref == "side-praktisk-info"] | order(rekkefolge asc)${SIDE_KORT},
   "dokumentsenter": *[_id == "side-dokumentsenter"][0]${DOC_REF},
-  "kontaktside": *[_id == "side-kontakt"][0]${DOC_REF}
+  "omside": *[_id == "side-om-borettslaget"][0]${DOC_REF}
 }`;
 
 export const SIDE_PATHS = `*[_type == "side" && defined(slug.current)]{ "slug": slug.current, "forelder": forelder->slug.current }`;
 export const SIDE = `*[_type == "side" && slug.current == $slug][0]{
-  _id, tittel, ingress, kontaktboks, "slug": slug.current, seo, ${SEKSJONER},
+  _id, tittel, ingress, kontaktboks, snarveier, "slug": slug.current, seo, ${SEKSJONER},
   "forelder": forelder->{ tittel, "slug": slug.current },
   "barn": *[_type == "side" && forelder._ref == ^._id] | order(rekkefolge asc)${SIDE_KORT}
 }`;

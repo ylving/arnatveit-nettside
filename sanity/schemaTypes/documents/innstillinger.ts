@@ -8,7 +8,6 @@ export const innstillinger = defineType({
   groups: [
     { name: 'generelt', title: 'Generelt', default: true },
     { name: 'banner', title: 'Banner' },
-    { name: 'kontakt', title: 'Kontakt' },
   ],
   fields: [
     defineField({ name: 'navn', title: 'Navn', type: 'string', group: 'generelt', validation: (r) => r.required() }),
@@ -32,21 +31,6 @@ export const innstillinger = defineType({
         defineField({ name: 'aktiv', title: 'Vis banner', type: 'boolean', initialValue: false }),
         defineField({ name: 'tekst', title: 'Tekst', type: 'string' }),
         defineField({ name: 'lenke', title: 'Lenke', type: 'lenke' }),
-      ],
-    }),
-    defineField({
-      name: 'kontakt',
-      title: 'Kontakt',
-      type: 'object',
-      group: 'kontakt',
-      fields: [
-        defineField({ name: 'epost', title: 'E-post styret', type: 'email' }),
-        defineField({ name: 'postadresse', title: 'Postadresse', type: 'text', rows: 3 }),
-        defineField({ name: 'besoksadresse', title: 'Besøksadresse', type: 'text', rows: 2 }),
-        defineField({ name: 'fakturaadresse', title: 'Fakturaadresse', type: 'text', rows: 4 }),
-        defineField({ name: 'fakturaEpost', title: 'E-post faktura', type: 'email' }),
-        defineField({ name: 'orgnr', title: 'Organisasjonsnummer', type: 'string' }),
-        defineField({ name: 'kartlenke', title: 'Kartlenke', type: 'url' }),
       ],
     }),
   ],

@@ -52,7 +52,7 @@ export const oppgave = defineType({
       validation: (r) => r.required().min(1),
     }),
     defineField({ name: 'kontakttekst', title: 'Spørsmål? – tekst', description: 'F.eks. «Send søknaden til styret.»', type: 'string' }),
-    defineField({ name: 'kontaktEpost', title: 'Spørsmål? – e-post', description: 'La stå tomt for å bruke styrets e-post fra Innstillinger.', type: 'email' }),
+    defineField({ name: 'kontaktEpost', title: 'Spørsmål? – e-post', description: 'La stå tomt for å bruke styrets e-post fra «Om borettslaget».', type: 'email' }),
   ],
   preview: {
     select: { title: 'tittel', steg: 'steg' },

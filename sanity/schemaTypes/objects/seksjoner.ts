@@ -85,7 +85,7 @@ export const ansvarsliste = defineType({
   fields: [
     defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Hvem kontakter jeg?' }),
     defineField({ name: 'utvalg', title: 'Bare fra', description: 'La stå tomt for å vise ansvarsområder fra alle utvalg.', type: 'reference', to: [{ type: 'utvalg' }] }),
-    defineField({ name: 'visAnnet', title: 'Vis «Gjelder det noe annet?»', description: 'En linje under kortene med styrets e-post fra Innstillinger.', type: 'boolean', initialValue: true }),
+    defineField({ name: 'visAnnet', title: 'Vis «Gjelder det noe annet?»', description: 'En linje under kortene med styrets e-post fra «Om borettslaget».', type: 'boolean', initialValue: true }),
     breddeFelt('ansvarsliste'),
   ],
   validation: (r) =>
@@ -192,10 +192,43 @@ export const abcUtgaver = defineType({
       type: 'string',
       initialValue: 'Tips, bilder og beskjeder til naboene er velkomne.',
     }),
-    defineField({ name: 'innspillEpost', title: 'Innspill – e-post', description: 'La stå tomt for å bruke styrets e-post fra Innstillinger.', type: 'email' }),
+    defineField({ name: 'innspillEpost', title: 'Innspill – e-post', description: 'La stå tomt for å bruke styrets e-post fra «Om borettslaget».', type: 'email' }),
     breddeFelt('abcUtgaver'),
   ],
   preview: { prepare: () => ({ title: 'ABC-nytt-utgaver', subtitle: 'Siste utgave, tidligere utgaver og arkiv' }) },
+});
+
+export const fargebaand = defineType({
+  name: 'fargebaand',
+  title: 'Tekst i grønt bånd',
+  type: 'object',
+  icon: lucideIkon('PanelTop'),
+  description: 'Et grønt bånd over hele bredden med liten overtittel, overskrift og tekst, som «Området» på Om borettslaget.',
+  fields: [
+    defineField({ name: 'overtittel', title: 'Overtittel', description: 'F.eks. «Området». Brukes også som snarvei øverst på siden.', type: 'string' }),
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', validation: (r) => r.required() }),
+    defineField({
+      name: 'tekst',
+      title: 'Tekst',
+      type: 'array',
+      of: [defineArrayMember({ type: 'block', styles: [{ title: 'Normal', value: 'normal' }], lists: [], marks: { annotations: [lenkeAnnotasjon] } })],
+    }),
+  ],
+  preview: { select: { title: 'tittel', subtitle: 'overtittel' }, prepare: ({ title, subtitle }) => ({ title, subtitle: `Grønt bånd${subtitle ? ` · ${subtitle}` : ''}` }) },
+});
+
+export const borettslagsfakta = defineType({
+  name: 'borettslagsfakta',
+  title: 'Fakta om borettslaget',
+  type: 'object',
+  icon: lucideIkon('ListChecks'),
+  description: 'Tre nøkkeltall (tun, andeler, stiftet) og opplysningene fra «Om borettslaget» (juridisk navn, organisasjonsnummer …).',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', description: 'Brukes også som snarvei øverst på siden.', type: 'string', initialValue: 'Fakta' }),
+    defineField({ name: 'ingress', title: 'Tekst ved overskriften', type: 'string', initialValue: 'Offisielle opplysninger om borettslaget, blant annet til bruk ved kjøp og salg.' }),
+    breddeFelt('borettslagsfakta'),
+  ],
+  preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Fakta', subtitle: 'Fakta om borettslaget (fra «Om borettslaget»)' }) },
 });
 
 export const seksjoner = defineType({
@@ -215,6 +248,8 @@ export const seksjoner = defineType({
     defineArrayMember({ type: 'nokkeltall' }),
     defineArrayMember({ type: 'arrangementer' }),
     defineArrayMember({ type: 'kontaktinfo' }),
+    defineArrayMember({ type: 'fargebaand' }),
+    defineArrayMember({ type: 'borettslagsfakta' }),
     defineArrayMember({ type: 'ansvarsliste' }),
     defineArrayMember({ type: 'knapper' }),
     defineArrayMember({ type: 'undersider' }),
@@ -224,9 +259,9 @@ export const seksjoner = defineType({
       showIcons: true,
       views: [{ name: 'list' }],
       groups: [
-        { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'bilde', 'infoboks'] },
+        { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'fargebaand', 'bilde', 'infoboks'] },
         { name: 'lister', title: 'Lister', of: ['dokumentliste', 'dokumentsok', 'oppgaver', 'abcUtgaver', 'medlemsliste', 'faktaliste', 'nokkeltall', 'arrangementer'] },
-        { name: 'annet', title: 'Kontakt og navigasjon', of: ['kontaktinfo', 'ansvarsliste', 'knapper', 'undersider'] },
+        { name: 'annet', title: 'Kontakt og navigasjon', of: ['kontaktinfo', 'borettslagsfakta', 'ansvarsliste', 'knapper', 'undersider'] },
       ],
     },
   },

@@ -20,3 +20,13 @@ export const formatDate = (iso?: string) => (iso ? dateFmt.format(new Date(`${is
 
 export const formatSize = (bytes?: number) =>
   !bytes ? '' : bytes < 950_000 ? `${Math.max(1, Math.round(bytes / 1e3))} kB` : `${(bytes / 1e6).toLocaleString('nb-NO', { maximumFractionDigits: 1 })} MB`;
+
+/** Section id from its heading, for jump links: "Området" → "omradet", "Kontakt" → "kontakt" */
+export const ankerId = (tekst = '') =>
+  tekst.toLowerCase().replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/å/g, 'a').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+/** Sections that can be jumped to from the page head ("Vis snarveier øverst"): their label and id */
+export function seksjonAnker(s: { _type: string; tittel?: string; overtittel?: string }): { tekst: string; id: string } | null {
+  const tekst = s._type === 'fargebaand' ? s.overtittel || s.tittel : s._type === 'kontaktinfo' || s._type === 'borettslagsfakta' ? s.tittel : undefined;
+  return tekst ? { tekst, id: ankerId(tekst) } : null;
+}
