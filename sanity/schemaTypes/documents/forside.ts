@@ -58,7 +58,7 @@ export const forside = defineType({
     defineField({
       name: 'snarvei',
       title: 'Snarvei under Aktuelt',
-      description: 'Vises under siste ABC-nytt, ved siden av den store grønne boksen. Den grønne boksen er en nyhet: rediger den under Nyheter, og velg hvilken med «Fremhev på forsiden».',
+      description: 'Vises under siste ABC-nytt, ved siden av den store grønne boksen. Den grønne boksen er den nyeste nyheten: rediger den under Nyheter.',
       type: 'object',
       fields: [
         defineField({ name: 'merkelapp', title: 'Merkelapp', type: 'string' }),

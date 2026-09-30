@@ -1,0 +1,29 @@
+---
+// A news item's image (editor's crop, hotspot as the focal point when the box crops it further), or the fallback
+// illustration. The box size comes from the parent (class); `bredde` = the widest it is shown, for srcset.
+import NyhetIllustrasjon from './NyhetIllustrasjon.astro';
+import { urlFor } from '../lib/sanity';
+
+interface Props { nyhet: any; bredde: number; sizes: string; class?: string; eager?: boolean }
+const { nyhet, bredde, sizes, class: klasse, eager = false } = Astro.props;
+const b = nyhet.bilde?.asset ? nyhet.bilde : null;
+const src = (w: number) => urlFor(b).width(w).url();
+const fokus = b?.hotspot ? `${Math.round(b.hotspot.x * 100)}% ${Math.round(b.hotspot.y * 100)}%` : '50% 50%';
+---
+{b ? (
+  <img
+    class:list={['nyhet-bilde', klasse]}
+    src={src(bredde * 2)}
+    srcset={[1, 1.5, 2, 3].map((x) => `${src(Math.round(bredde * x))} ${Math.round(bredde * x)}w`).join(', ')}
+    sizes={sizes}
+    alt={b.alt ?? ''}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+    style={`object-position: ${fokus}`}
+  />
+) : (
+  <NyhetIllustrasjon kategori={nyhet.kategori} class={klasse} />
+)}
+<style>
+  .nyhet-bilde { display: block; width: 100%; object-fit: cover; background: var(--accent-soft); }
+</style>

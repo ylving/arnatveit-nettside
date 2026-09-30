@@ -1,0 +1,13 @@
+---
+// A news item's category as a small tinted pill ("Dugnad"). `stor` = the featured post and the article.
+import { nyhetKategori } from '../../sanity/standarder';
+
+interface Props { kategori?: string; stor?: boolean }
+const { kategori, stor = false } = Astro.props;
+const k = nyhetKategori(kategori);
+---
+<span class:list={['merke', { stor }]} style={`--bg: var(--farge-${k.farge}-bg); --fg: var(--farge-${k.farge})`}>{k.navn}</span>
+<style>
+  .merke { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; background: var(--bg); color: var(--fg); font-size: 12px; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+  .stor { padding: 4px 11px; font-size: 13px; }
+</style>

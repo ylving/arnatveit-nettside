@@ -29,7 +29,13 @@ export const innstillinger = defineType({
       group: 'banner',
       fields: [
         defineField({ name: 'aktiv', title: 'Vis banner', type: 'boolean', initialValue: false }),
-        defineField({ name: 'tekst', title: 'Tekst', type: 'string' }),
+        defineField({ name: 'tekst', title: 'Tekst', description: 'Kort, én linje. Lenken kan gå til en nyhet (Intern side).', type: 'string' }),
+        defineField({
+          name: 'utloper',
+          title: 'Vis til og med',
+          description: 'Valgfritt. Banneret forsvinner av seg selv natten etter denne datoen.',
+          type: 'date',
+        }),
         defineField({
           name: 'sisteProtokoll',
           title: 'Lenk til protokollen fra siste generalforsamling',

@@ -4,6 +4,7 @@ import { tilSeksjoner } from './seksjoner-lib.mjs';
 import * as dokumentsenter from './dokumentsenter-data.mjs';
 import * as generalforsamling from './generalforsamling-data.mjs';
 import * as vedtekter from './vedtekter-data.mjs';
+import * as aktuelt from './aktuelt-data.mjs';
 
 let n = 0;
 const key = () => `k${(n++).toString(36)}`;
@@ -189,7 +190,7 @@ export function buildContent({ protokoll2026, dokumentId }) {
   const nyheter = [
     {
       _id: 'nyhet-generalforsamling-2026', _type: 'nyhet', tittel: 'Årets generalforsamling er avholdt', slug: slug('generalforsamling-2026'),
-      dato: '2026-05-28', merkelapp: 'Generalforsamling 2026', fremhevet: true,
+      dato: '2026-05-28', ...aktuelt.GF_2026,
       ingress: 'Møtet for 2026 ble gjennomført torsdag 28. mai i lokalene til Arna Misjonsmenighet.',
       innhold: [p('Du finner både årets og tidligere referater samlet på ', ['en egen side', '#side-generalforsamling'], '.')],
       dokumenter: [keyedRef(protokoll2026)],
@@ -203,7 +204,7 @@ export function buildContent({ protokoll2026, dokumentId }) {
       lenke('Praktisk info', '#side-praktisk-info'),
       lenke('Dokumentsenter', '#side-dokumentsenter'),
       lenke('Om oss og kontakt', '#side-om-borettslaget'),
-      lenke('Nytt', '/aktuelt'),
+      lenke(aktuelt.MENY.til, '/aktuelt'),
     ].map((l) => ({ ...l, _key: key() })),
     banner: { aktiv: true, tekst: 'Generalforsamlingen 2026 ble avholdt 28. mai.', sisteProtokoll: true, lenke: { _type: 'lenke', tekst: 'Les protokollen' } },
   };

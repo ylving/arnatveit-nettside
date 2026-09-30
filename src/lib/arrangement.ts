@@ -25,7 +25,7 @@ const klokkeFmt = new Intl.DateTimeFormat('nb-NO', { timeZone: SONE, hour: '2-di
 const ukedagFmt = new Intl.DateTimeFormat('en-US', { timeZone: SONE, weekday: 'short' });
 
 /** "2026-10-10" in Norwegian time */
-const osloDato = (d: Date) => datoFmt.format(d);
+export const osloDato = (d: Date) => datoFmt.format(d);
 
 /** Events from today on (Norwegian date): today's event stays up all day, until the nightly rebuild. */
 export const kommende = (liste: Arrangement[], naa = new Date()) => {

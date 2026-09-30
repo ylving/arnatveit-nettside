@@ -302,13 +302,16 @@
 
       <section id="nyheter">
         <h2>Nyheter</h2>
-        <p>Nyheter skrives under <span class="felt">Nyheter</span>, og vises på siden Aktuelt og på forsiden.</p>
-        <ul>
-          <li><span class="felt">Merkelapp</span> er den lille teksten over tittelen, for eksempel «Generalforsamling 2027».</li>
-          <li><span class="felt">Ingress</span> er den korte teksten som vises i listen og på forsiden.</li>
-          <li><span class="felt">Vedlagte dokumenter</span> kobler nyheten til PDF-er, for eksempel årets protokoll.</li>
-          <li><span class="felt">Fremhev på forsiden</span> gjør nyheten til den store grønne boksen under «Aktuelt», også når det kommer nyere saker. Står den av på alle nyheter, vises den nyeste. Boksen får knappen «Les saken», og det første vedlagte dokumentet blir en egen knapp med dokumentets navn, for eksempel «Generalforsamling 2026 (PDF)». Husk å slå den av når saken ikke lenger er aktuell.</li>
-        </ul>
+        <p>Nyheter skrives under <span class="felt">Nyheter</span>. De vises på siden Aktuelt (nyeste øverst, 20 per side) og den nyeste i den store grønne boksen på forsiden.</p>
+        <ol>
+          <li>Skriv <span class="felt">Tittel</span>, velg <span class="felt">Dato</span> og <span class="felt">Kategori</span>: Generalforsamling, Dugnad, Styret eller Informasjon. Kategorien vises som et lite farget merke.</li>
+          <li>Skriv en <span class="felt">Ingress</span> på et par setninger. Den vises i listen, øverst i saken og når noen deler lenken.</li>
+          <li>Last gjerne opp et <span class="felt">Bilde</span> og skriv hva det viser i <span class="felt">Alternativ tekst</span> (påkrevd). Uten bilde brukes en tegning i kategoriens farge.</li>
+          <li>Skriv selve saken i <span class="felt">Innhold</span>: tekst med overskrifter, lister og lenker, og bilder.</li>
+          <li>Under fanen <span class="felt">Fakta, vedlegg og lenke</span> kan du legge til <span class="felt">Fakta</span> (dato og sted, vises i en grønn boks, for eksempel for et møte), <span class="felt">Vedlagte dokumenter</span> (PDF-er, for eksempel årets protokoll) og <span class="felt">Lenke til en side</span> (en lenkerad under saken, for eksempel «Alle protokoller»).</li>
+          <li>Publiser og trykk <span class="knapp">Oppdater nettsiden</span>.</li>
+        </ol>
+        <p>På forsiden får boksen knappen «Les saken», og det første vedlagte dokumentet blir en egen knapp med dokumentets navn. Vil du løfte fram noe viktig i en periode, bruk banneret (se <a href="#innstillinger">Innstillinger</a>).</p>
       </section>
 
       <section id="arrangementer">
@@ -348,7 +351,7 @@
       <section id="innstillinger">
         <h2>Innstillinger</h2>
         <ul>
-          <li><span class="felt">Banner øverst</span>: den grønne stripen med en kort beskjed. Slå av <span class="felt">Vis banner</span> når beskjeden er gammel. Med <span class="felt">Lenk til protokollen fra siste generalforsamling</span> går lenken alltid til den nyeste protokollen, så du slipper å bytte den etter hvert møte.</li>
+          <li><span class="felt">Banner øverst</span>: den grønne stripen med en kort beskjed. Slå av <span class="felt">Vis banner</span> når beskjeden er gammel. Med <span class="felt">Lenk til protokollen fra siste generalforsamling</span> går lenken alltid til den nyeste protokollen, så du slipper å bytte den etter hvert møte. Lenken kan også gå til en nyhet (velg den under <span class="felt">Intern side</span>). Setter du <span class="felt">Vis til og med</span>, forsvinner banneret av seg selv natten etter den datoen.</li>
           <li><span class="felt">Hovedmeny</span>: menypunktene øverst, i den rekkefølgen de står. Logoen lenker alltid til forsiden, så Forside trenger ikke eget menypunkt.</li>
           <li><span class="felt">Brytepunkt for mobilmeny (px)</span>: skjermbredden der menyen blir til en menyknapp. Trengs bare hvis menypunktene ikke får plass på én linje.</li>
         </ul>

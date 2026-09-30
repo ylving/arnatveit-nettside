@@ -91,7 +91,7 @@ export const INNSTILLINGER = `*[_id == "innstillinger"][0]{
   "kontakt": *[_id == "omBorettslaget"][0]{ epost },
   "hovedmeny": hovedmeny[]${LINK},
   banner{
-    aktiv, tekst, "lenke": lenke${LINK},
+    aktiv, tekst, utloper, "lenke": lenke${LINK},
     // "Lenk til protokollen fra siste generalforsamling"
     sisteProtokoll == true => { "protokoll": *[_type == "generalforsamling" && defined(protokoll.asset) && !(_id in path("drafts.**"))] | order(dato desc, type asc)[0].protokoll.asset->url }
   },
@@ -99,6 +99,10 @@ export const INNSTILLINGER = `*[_id == "innstillinger"][0]{
   "dokumentsenter": *[_id == "side-dokumentsenter"][0]${DOC_REF},
   "omside": *[_id == "side-om-borettslaget"][0]${DOC_REF}
 }`;
+
+// A news item in lists (Aktuelt, "Flere saker", front page): image with its hotspot crop, category, date, lead
+export const NYHET_FELT = `_id, _type, tittel, dato, kategori, ingress, "slug": slug.current, bilde{ ..., "url": asset->url }`;
+export const NYHET_KORT = `{ ${NYHET_FELT} }`;
 
 export const SIDE_PATHS = `*[_type == "side" && defined(slug.current)]{ "slug": slug.current, "forelder": forelder->slug.current }`;
 export const SIDE = `*[_type == "side" && slug.current == $slug][0]{
