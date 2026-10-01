@@ -1,7 +1,7 @@
 import { lenke } from './objects/lenke';
 import { seo } from './objects/seo';
-import { bilde, dokumentliste, innhold, kontaktinfo, medlemsliste, nokkeltall } from './objects/blocks';
-import { abcUtgaver, ansvarsliste, arrangementer, borettslagsfakta, fargebaand, generalforsamlinger, nivaaer, oppfordring, oppgaver, punkter, regelverk, relatert, seksjoner, tekst, undersider } from './objects/seksjoner';
+import { bilde, dokumentliste, kontaktinfo, medlemsliste, nokkeltall } from './objects/blocks';
+import { abcUtgaver, ansvarsliste, arrangementer, borettslagsfakta, faktaboks, fargebaand, generalforsamlinger, nivaaer, oppfordring, oppgaver, punkter, regelverk, relatert, seksjoner, tekst, undersider } from './objects/seksjoner';
 import { innstillinger } from './documents/innstillinger';
 import { forside } from './documents/forside';
 import { side } from './documents/side';
@@ -15,9 +15,10 @@ import { oppgave } from './documents/oppgave';
 import { abcUtgave } from './documents/abcUtgave';
 import { omBorettslaget } from './documents/omBorettslaget';
 import { generalforsamling } from './documents/generalforsamling';
+import { nyhetskategori } from './documents/nyhetskategori';
 
 export const schemaTypes = [
-  lenke, seo, bilde, dokumentliste, medlemsliste, nokkeltall, kontaktinfo, innhold,
-  tekst, undersider, ansvarsliste, arrangementer, oppgaver, abcUtgaver, fargebaand, borettslagsfakta, punkter, oppfordring, generalforsamlinger, regelverk, nivaaer, relatert, seksjoner,
-  innstillinger, forside, side, nyhet, dokument, dokumentkategori, utvalg, arrangement, nettsidebygg, oppgave, abcUtgave, omBorettslaget, generalforsamling,
+  lenke, seo, bilde, dokumentliste, medlemsliste, nokkeltall, kontaktinfo,
+  tekst, undersider, ansvarsliste, arrangementer, oppgaver, abcUtgaver, fargebaand, borettslagsfakta, punkter, oppfordring, generalforsamlinger, regelverk, nivaaer, relatert, faktaboks, seksjoner,
+  innstillinger, forside, side, nyhet, dokument, dokumentkategori, utvalg, arrangement, nettsidebygg, oppgave, abcUtgave, omBorettslaget, generalforsamling, nyhetskategori,
 ];

@@ -36,13 +36,15 @@ export const ABC_UTGAVE = `{
 
 const MARKDEFS = `markDefs[]{ ..., _type == "link" => { "href": coalesce(intern->${DOC_REF}, href) } }`;
 
-export const INNHOLD = `innhold[]{
+// A news item's blocks (nyhet.seksjoner)
+export const NYHET_SEKSJONER = `seksjoner[]{
   ...,
-  _type == "block" => { ..., ${MARKDEFS} },
-  _type == "bilde" => { ..., asset-> }
+  _type == "tekst" => { ..., innhold[]{ ..., ${MARKDEFS} } },
+  _type == "bilde" => { ..., asset-> },
+  _type == "relatert" => { ..., "lenker": lenker[]{ _key, tittel, tekst, "side": side->${SIDE_KORT} } }
 }`;
 
-// Page builder sections (side.seksjoner); same dereferences as INNHOLD, at section level
+// Page builder sections (side.seksjoner)
 export const SEKSJONER = `seksjoner[]{
   ...,
   _type == "tekst" => { ..., innhold[]{ ..., ${MARKDEFS} } },
@@ -72,7 +74,7 @@ export const SEKSJONER = `seksjoner[]{
     "moter": *[_type == "generalforsamling" && defined(protokoll.asset) && !(_id in path("drafts.**"))] | order(dato desc, type asc) ${GENERALFORSAMLING}
   },
   _type == "regelverk" => { ..., "dokumenter": dokumenter[]->${DOKUMENT} },
-  _type == "relatert" => { ..., "lenker": lenker[]{ _key, tekst, "side": side->${SIDE_KORT} } },
+  _type == "relatert" => { ..., "lenker": lenker[]{ _key, tittel, tekst, "side": side->${SIDE_KORT} } },
   _type == "abcUtgaver" => {
     ...,
     "utgaver": *[_type == "abcUtgave" && defined(fil.asset)] | order(aar desc, maaned desc) ${ABC_UTGAVE},
@@ -101,7 +103,7 @@ export const INNSTILLINGER = `*[_id == "innstillinger"][0]{
 }`;
 
 // A news item in lists (Aktuelt, "Flere saker", front page): image with its hotspot crop, category, date, lead
-export const NYHET_FELT = `_id, _type, tittel, dato, kategori, ingress, "slug": slug.current, bilde{ ..., "url": asset->url }`;
+export const NYHET_FELT = `_id, _type, tittel, dato, "kategori": kategori->{ tittel, farge, ikon }, ingress, "slug": slug.current, bilde{ ..., "url": asset->url }`;
 export const NYHET_KORT = `{ ${NYHET_FELT} }`;
 
 export const SIDE_PATHS = `*[_type == "side" && defined(slug.current)]{ "slug": slug.current, "forelder": forelder->slug.current }`;

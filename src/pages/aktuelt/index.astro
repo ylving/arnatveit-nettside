@@ -1,9 +1,9 @@
 ---
 import AktueltListe from '../../components/AktueltListe.astro';
 import { load } from '../../lib/sanity';
-import { NYHETER, lastAside } from '../../lib/aktuelt';
+import { NYHETER, lastModuler } from '../../lib/aktuelt';
 import { NYHETER_PER_SIDE } from '../../../sanity/standarder';
 
-const [nyheter, aside] = await Promise.all([load<any[]>(NYHETER), lastAside()]);
+const [nyheter, moduler] = await Promise.all([load<any[]>(NYHETER), lastModuler()]);
 ---
-<AktueltListe nyheter={nyheter.slice(0, NYHETER_PER_SIDE)} side={1} antallSider={Math.max(1, Math.ceil(nyheter.length / NYHETER_PER_SIDE))} aside={aside} />
+<AktueltListe nyheter={nyheter.slice(0, NYHETER_PER_SIDE)} side={1} antallSider={Math.max(1, Math.ceil(nyheter.length / NYHETER_PER_SIDE))} moduler={moduler} />

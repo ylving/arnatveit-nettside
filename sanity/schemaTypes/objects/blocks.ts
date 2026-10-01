@@ -19,7 +19,8 @@ export const breddeFelt = (type: keyof typeof STANDARD_BREDDE) =>
       direction: 'horizontal',
     },
     initialValue: STANDARD_BREDDE[type],
-    hidden: ({ path }) => path[0] !== 'seksjoner',
+    // Only on pages: news items use the article column
+    hidden: ({ path, document }) => path[0] !== 'seksjoner' || document?._type !== 'side',
   });
 
 /** Link annotation for rich text (internal document or external/mailto/tel) */
@@ -182,24 +183,4 @@ export const kontaktinfo = defineType({
     breddeFelt('kontaktinfo'),
   ],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Kontaktinfo', subtitle: 'Kontaktinfo (fra «Om borettslaget»)' }) },
-});
-
-export const innhold = defineType({
-  name: 'innhold',
-  title: 'Innhold',
-  type: 'array',
-  of: [
-    defineArrayMember({
-      type: 'block',
-      styles: [
-        { title: 'Normal', value: 'normal' },
-        { title: 'Overskrift 2', value: 'h2' },
-        { title: 'Overskrift 3', value: 'h3' },
-        { title: 'Sitat', value: 'blockquote' },
-      ],
-      marks: { annotations: [lenkeAnnotasjon] },
-    }),
-    // Add section-like blocks here when news needs them (rendered by src/components/portable/Innhold.astro)
-    defineArrayMember({ type: 'bilde' }),
-  ],
 });

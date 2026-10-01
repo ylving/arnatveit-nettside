@@ -11,7 +11,17 @@ export const structure: StructureResolver = (S) =>
     .items([
       singleton(S, 'forside', 'Forside'),
       S.documentTypeListItem('side').title('Sider'),
-      S.documentTypeListItem('nyhet').title('Nyheter'),
+      S.listItem()
+        .title('Nyheter')
+        .schemaType('nyhet')
+        .child(
+          S.list()
+            .title('Nyheter')
+            .items([
+              S.listItem().title('Alle nyheter').schemaType('nyhet').child(S.documentTypeList('nyhet').title('Alle nyheter')),
+              S.documentTypeListItem('nyhetskategori').title('Kategorier'),
+            ]),
+        ),
       S.listItem()
         .title('Arrangementer')
         .schemaType('arrangement')

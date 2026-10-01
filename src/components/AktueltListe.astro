@@ -1,70 +1,94 @@
 ---
-// Aktuelt listing (one page of it): intro, then the posts (8/12) and the aside (4/12); one column on phones with the
-// aside after the list. Page 1 features the newest post; the rest are rows with the day number, and a year heading
-// wherever the year changes. Pages of NYHETER_PER_SIDE: /aktuelt, /aktuelt/side/2 …
+// Aktuelt listing, page 1 in four levels: a pine band with the title and the newest post; "Siste saker" (the next two);
+// "I borettslaget nå" (sand band: next event, newest ABC-nytt, "Har du en sak?"); "Eldre saker" (a compact list).
+// Later pages (/aktuelt/side/2 …) are the compact list only. NYHETER_PER_SIDE posts per page.
 import Base from '../layouts/Base.astro';
-import AktueltAside from './AktueltAside.astro';
+import AktueltModuler from './AktueltModuler.astro';
 import KategoriMerke from './KategoriMerke.astro';
 import NyhetBilde from './NyhetBilde.astro';
 import Icon from './Icon.astro';
 import { docHref, formatDate } from '../lib/urls';
-import { datoDel } from '../lib/aktuelt';
+import { STANDARD_NYHETSKATEGORI } from '../../sanity/standarder';
 
-interface Props { nyheter: any[]; side: number; antallSider: number; aside: any }
-const { nyheter, side, antallSider, aside } = Astro.props;
-const [forste, ...resten] = side === 1 ? nyheter : [null, ...nyheter];
-const rader = resten.map((n, i) => {
-  const forrige = i === 0 ? forste : resten[i - 1];
-  // Year heading where the year changes, and at the top of pages after the first
-  return { n, aar: !forrige || forrige.dato.slice(0, 4) !== n.dato.slice(0, 4) ? n.dato.slice(0, 4) : null };
-});
+interface Props { nyheter: any[]; side: number; antallSider: number; moduler?: any }
+const { nyheter, side, antallSider, moduler } = Astro.props;
+const forside = side === 1;
+const [forste, ...etter] = forside ? nyheter : [];
+const siste = forside ? etter.slice(0, 2) : [];
+const eldre = forside ? etter.slice(2) : nyheter;
 const sideHref = (s: number) => (s === 1 ? '/aktuelt' : `/aktuelt/side/${s}`);
+const farge = (n: any) => n.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
 ---
-<Base title={side === 1 ? 'Aktuelt' : `Aktuelt – side ${side}`} description="Nyheter og beskjeder fra styret og miljøutvalget i Arnatveit Borettslag.">
-  <div class="container">
-    <header class="page-head">
-      <h1>Aktuelt</h1>
-      <p class="ingress">Nyheter og beskjeder fra styret og miljøutvalget.</p>
-    </header>
-    <div class="oppsett">
-      <div class="saker">
-        {nyheter.length === 0 && (
+<Base title={forside ? 'Aktuelt' : `Aktuelt – side ${side}`} description="Nyheter og beskjeder fra styret og miljøutvalget i Arnatveit Borettslag.">
+  {forside ? (
+    <section class="topp">
+      <div class="container">
+        <header class="topp-hode">
+          <h1>Aktuelt</h1>
+          <p>Nyheter og beskjeder fra styret og miljøutvalget</p>
+        </header>
+        {forste ? (
+          <a class="hoved" href={docHref(forste)}>
+            <NyhetBilde nyhet={forste} bredde={680} sizes="(max-width: 900px) calc(100vw - 2 * var(--gutter)), 680px" class="hoved-bilde" eager />
+            <span class="hoved-tekst">
+              <span class="meta"><KategoriMerke kategori={forste.kategori} stor /><time datetime={forste.dato}>{formatDate(forste.dato)}</time></span>
+              <span class="hoved-tittel">{forste.tittel}</span>
+              <span class="hoved-ingress">{forste.ingress}</span>
+              <span class="les">Les saken<Icon name="ArrowRight" size={20} /></span>
+            </span>
+          </a>
+        ) : (
           <div class="tom">
             <p class="tom-tittel">Ingen saker ennå</p>
             <p>Her kommer nyheter og beskjeder fra styret og miljøutvalget. Til da finner du det meste under Praktisk info.</p>
           </div>
         )}
-        {forste && (
-          <article class="fremhevet">
-            <NyhetBilde nyhet={forste} bredde={420} sizes="(max-width: 900px) calc(100vw - 2 * var(--gutter)), 380px" class="f-bilde" eager />
-            <div class="f-tekst">
-              <p class="topp"><KategoriMerke kategori={forste.kategori} stor /><time datetime={forste.dato}>{formatDate(forste.dato)}</time></p>
-              <h2><a href={docHref(forste)}>{forste.tittel}</a></h2>
-              <p class="f-ingress">{forste.ingress}</p>
-              <a class="les" href={docHref(forste)} aria-hidden="true" tabindex="-1">Les saken<Icon name="ArrowRight" size={18} /></a>
-            </div>
-          </article>
-        )}
-        {rader.length > 0 && (
-          <ol class="rader">
-            {rader.map(({ n, aar }) => {
-              const d = datoDel(n.dato);
-              return (
-                <>
-                  {aar && <li class="aar" aria-hidden="true">{aar}</li>}
-                  <li class="rad">
-                    <time class="dagblokk" datetime={n.dato}><span class="dag">{d.dag}</span><span class="mnd">{d.mnd}</span><span class="visually-hidden"> {d.aar}</span></time>
-                    <div class="r-tekst">
-                      <p class="topp"><KategoriMerke kategori={n.kategori} /><span class="r-dato">{formatDate(n.dato)}</span></p>
-                      <h3><a href={docHref(n)}>{n.tittel}</a></h3>
-                      <p class="r-ingress">{n.ingress}</p>
-                    </div>
-                    <Icon name="ChevronRight" size={20} />
-                  </li>
-                </>
-              );
-            })}
-          </ol>
+      </div>
+    </section>
+  ) : (
+    <div class="container">
+      <header class="page-head">
+        <h1>Aktuelt</h1>
+        <p class="ingress">Eldre saker, side {side} av {antallSider}.</p>
+      </header>
+    </div>
+  )}
+
+  {siste.length > 0 && (
+    <section class="container siste" aria-labelledby="siste-saker">
+      <h2 id="siste-saker">Siste saker</h2>
+      <div class="siste-rad">
+        {siste.map((n) => (
+          <a class="kort" href={docHref(n)}>
+            <NyhetBilde nyhet={n} bredde={560} sizes="(max-width: 900px) calc(100vw - 2 * var(--gutter)), 560px" class="kort-bilde" />
+            <span class="meta"><KategoriMerke kategori={n.kategori} /><time datetime={n.dato}>{formatDate(n.dato)}</time></span>
+            <span class="kort-tittel">{n.tittel}</span>
+            <span class="kort-ingress">{n.ingress}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {forside && moduler && <AktueltModuler {...moduler} />}
+
+  {(eldre.length > 0 || antallSider > 1) && (
+    <section class="container eldre" aria-labelledby="eldre-saker">
+      <h2 id="eldre-saker">Eldre saker</h2>
+      <div>
+        {eldre.length > 0 && (
+          <ul class="liste">
+            {eldre.map((n) => (
+              <li>
+                <a href={docHref(n)}>
+                  <time class="e-dato" datetime={n.dato}>{formatDate(n.dato)}</time>
+                  <span class="e-kategori"><span class="prikk" style={`--fg: var(--farge-${farge(n)})`}></span>{n.kategori?.tittel ?? STANDARD_NYHETSKATEGORI.tittel}</span>
+                  <span class="e-tittel">{n.tittel}</span>
+                  <Icon name="ChevronRight" size={16} />
+                </a>
+              </li>
+            ))}
+          </ul>
         )}
         {antallSider > 1 && (
           <nav class="sider" aria-label="Sider">
@@ -74,65 +98,93 @@ const sideHref = (s: number) => (s === 1 ? '/aktuelt' : `/aktuelt/side/${s}`);
           </nav>
         )}
       </div>
-      <AktueltAside {...aside} />
-    </div>
-  </div>
+    </section>
+  )}
+  <div class="slutt"></div>
 </Base>
 <style>
-  .oppsett { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 72px; align-items: start; padding-bottom: clamp(56px, 7vw, 104px); }
   p { margin: 0; }
-  .topp { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 14px; color: var(--muted); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 14px; color: var(--muted); }
 
-  .fremhevet { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px; align-items: center; padding-bottom: 40px; position: relative; }
-  .fremhevet :global(.f-bilde) { height: 300px; border-radius: 24px; }
-  .f-tekst { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
-  .fremhevet h2 { font-size: clamp(28px, 2.6vw, 36px); line-height: 1.12; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
-  .fremhevet h2 a::after { content: ''; position: absolute; inset: 0; }
-  .fremhevet h2 a:hover, .fremhevet:hover h2 a { color: var(--accent); }
-  .f-ingress { font-size: 17px; line-height: 1.6; color: #46514b; }
-  .les { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: var(--accent); }
+  /* 1. Pine band */
+  .topp { background: var(--accent); color: var(--bg); padding-block: clamp(28px, 4vw, 56px) clamp(32px, 5vw, 72px); }
+  .topp-hode { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 24px; margin-bottom: clamp(18px, 3vw, 40px); }
+  .topp h1 { font-size: clamp(40px, 5vw, 72px); line-height: 1; letter-spacing: -0.02em; color: var(--bg); }
+  .topp-hode p { font-size: 17px; color: #cfe0d4; }
+  .hoved { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 56px; align-items: center; color: var(--bg); }
+  .hoved :global(.hoved-bilde) { height: 400px; border-radius: 28px; }
+  .hoved-tekst { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+  .hoved .meta { color: #cfe0d4; font-size: 15px; }
+  .hoved-tittel { font-family: var(--serif); font-size: clamp(30px, 3.6vw, 52px); line-height: 1.05; letter-spacing: -0.015em; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
+  .hoved-ingress { font-size: 18px; line-height: 1.6; color: #dce8e0; }
+  .les { display: inline-flex; align-items: center; gap: 8px; height: 50px; padding: 0 24px; border-radius: 999px; background: var(--bg); color: var(--ink); font-size: 16px; font-weight: 600; margin-top: 6px; }
   .les :global(svg) { transition: transform 0.15s; }
-  .fremhevet:hover .les :global(svg) { transform: translateX(3px); }
+  .hoved:hover { color: var(--bg); }
+  .hoved:hover .hoved-tittel { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+  .hoved:hover .les :global(svg) { transform: translateX(3px); }
+  .hoved:focus-visible { outline-color: var(--bg); outline-offset: 6px; border-radius: 28px; }
+  .tom { padding: 24px 0 8px; max-width: 640px; }
+  .tom-tittel { font-family: var(--serif); font-size: 32px; margin-bottom: 8px !important; }
+  .tom p:not(.tom-tittel) { color: #dce8e0; }
 
-  .rader { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line); }
-  .aar { font-family: var(--serif); font-size: 26px; line-height: 1.2; color: var(--muted); padding: 28px 0 8px; }
-  .rad { position: relative; display: grid; grid-template-columns: 72px minmax(0, 1fr) 24px; gap: 24px; padding: 22px 0; border-top: 1px solid var(--line); }
-  .aar + .rad, .rader > .rad:first-child { border-top-color: var(--line); }
-  .dagblokk { display: flex; flex-direction: column; }
-  .dag { font-family: var(--serif); font-size: 34px; line-height: 1; }
-  .mnd { margin-top: 4px; font-size: 14px; color: var(--muted); }
-  .r-tekst { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
-  .r-dato { display: none; }
-  .rad h3 { font-size: 25px; line-height: 1.2; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
-  .rad h3 a::after { content: ''; position: absolute; inset: 0; }
-  .rad:hover h3 a { color: var(--accent); }
-  /* One line on wide screens */
-  .r-ingress { font-size: 16px; line-height: 1.55; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-  .rad > :global(svg) { color: var(--accent); margin-top: 34px; transition: transform 0.15s; }
-  .rad:hover > :global(svg) { transform: translateX(3px); }
+  /* 2. Siste saker */
+  .siste { padding-block: clamp(40px, 5.5vw, 80px) clamp(48px, 6vw, 88px); }
+  .siste h2 { font-size: clamp(26px, 2.6vw, 36px); margin-bottom: 32px; }
+  .siste-rad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; }
+  .kort { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; color: var(--ink); }
+  .kort :global(.kort-bilde) { align-self: stretch; height: 240px; border-radius: 24px; }
+  .kort .meta { padding-top: 4px; gap: 6px 10px; }
+  .kort-tittel { font-family: var(--serif); font-size: clamp(24px, 2.3vw, 32px); line-height: 1.12; letter-spacing: -0.01em; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
+  .kort-ingress { font-size: 17px; line-height: 1.55; color: #46514b; }
+  .kort:hover { color: var(--ink); }
+  .kort:hover .kort-tittel { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 
-  .sider { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 32px; font-size: 15px; }
+  /* 4. Eldre saker */
+  .eldre { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 48px; padding-top: clamp(40px, 6vw, 88px); }
+  .eldre h2 { font-size: clamp(24px, 2.2vw, 28px); }
+  .liste { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line); }
+  .liste li { border-top: 1px solid var(--line); }
+  .liste a { display: grid; grid-template-columns: 170px 160px minmax(0, 1fr) 20px; gap: 20px; align-items: center; padding: 16px 0; color: var(--ink); }
+  .e-dato { font-size: 15px; color: var(--muted); }
+  .e-kategori { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+  .prikk { width: 8px; height: 8px; border-radius: 50%; background: var(--fg); flex-shrink: 0; }
+  .e-tittel { font-size: 17px; font-weight: 600; line-height: 1.35; overflow-wrap: break-word; }
+  .liste a > :global(svg) { color: var(--faint); transition: transform 0.15s; }
+  .liste a:hover .e-tittel { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .liste a:hover > :global(svg) { transform: translateX(3px); }
+  .sider { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 24px; font-size: 15px; }
   .sider a { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--accent); }
   .av { color: var(--muted); }
-  .tom { padding: 32px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .tom-tittel { font-family: var(--serif); font-size: 26px; margin-bottom: 8px !important; }
-  .tom p:not(.tom-tittel) { color: var(--muted); }
+  .slutt { height: clamp(56px, 7vw, 104px); }
+  /* Page 2 …: no bands above, so the list starts right under the title */
+  .page-head + .eldre, .container:has(.page-head) + .eldre { padding-top: 0; }
 
-  @media (max-width: 1100px) { .oppsett { gap: 48px; } }
+  @media (max-width: 1100px) {
+    .liste a { grid-template-columns: 140px 150px minmax(0, 1fr) 20px; }
+  }
   @media (max-width: 900px) {
-    .oppsett { grid-template-columns: minmax(0, 1fr); gap: 56px; }
+    .hoved { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .hoved :global(.hoved-bilde) { height: 180px; border-radius: 20px; }
+    .hoved-tekst { gap: 12px; }
+    .les { align-self: stretch; justify-content: center; }
+    .siste-rad { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+    .eldre { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+    .liste a { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding: 14px 0; }
+    .e-kategori { order: 1; font-size: 13px; }
+    .e-kategori::after { content: '·'; margin-left: 2px; }
+    .e-dato { order: 2; font-size: 13px; }
+    .e-tittel { order: 3; flex-basis: 100%; font-size: 16px; }
+    .liste a > :global(svg) { display: none; }
   }
   @media (max-width: 640px) {
-    .fremhevet { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-bottom: 28px; }
-    .fremhevet :global(.f-bilde) { height: 170px; border-radius: 20px; }
-    .f-tekst { gap: 10px; }
-    .f-ingress { font-size: 16px; }
-    .topp { font-size: 13px; }
-    .aar { font-size: 22px; padding: 20px 0 6px; }
-    .rad { display: block; padding: 18px 0; }
-    .dagblokk, .rad > :global(svg) { display: none; }
-    .r-dato { display: inline; }
-    .rad h3 { font-size: 21px; }
-    .r-ingress { font-size: 15px; line-height: 1.5; -webkit-line-clamp: 3; }
+    .topp-hode { flex-direction: column; gap: 6px; }
+    .topp-hode p { font-size: 15px; }
+    .hoved .meta { font-size: 13px; }
+    .hoved-ingress { font-size: 16px; line-height: 1.55; }
+    .siste h2 { margin-bottom: 20px; }
+    .kort { gap: 12px; }
+    .kort :global(.kort-bilde) { height: 160px; border-radius: 20px; }
+    .kort .meta { font-size: 13px; }
+    .kort-ingress { font-size: 15px; }
   }
 </style>

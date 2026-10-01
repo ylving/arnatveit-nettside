@@ -62,16 +62,7 @@ export const GF_TYPER = [
 /** "Generalforsamling 2026" / "Ekstraordinær generalforsamling 2017" */
 export const gfNavn = (type?: string, dato?: string) =>
   `${type === 'ekstraordinaer' ? 'Ekstraordinær generalforsamling' : 'Generalforsamling'}${dato ? ` ${dato.slice(0, 4)}` : ''}`;
-// News categories (nyhet.kategori): pill tint from the FARGER tokens (--farge-<farge>*), icon (Lucide) for the fallback
-// illustration and the share image
-export const NYHET_KATEGORIER = [
-  { verdi: 'generalforsamling', navn: 'Generalforsamling', farge: 'gronn', ikon: 'Gavel' },
-  { verdi: 'dugnad', navn: 'Dugnad', farge: 'oker', ikon: 'Sprout' },
-  { verdi: 'styret', navn: 'Styret', farge: 'blaa', ikon: 'Users' },
-  { verdi: 'informasjon', navn: 'Informasjon', farge: 'sand', ikon: 'Info' },
-] as const;
-export type NyhetKategori = (typeof NYHET_KATEGORIER)[number];
-/** The category's settings; unknown or missing → Informasjon */
-export const nyhetKategori = (verdi?: string): NyhetKategori => NYHET_KATEGORIER.find((k) => k.verdi === verdi) ?? NYHET_KATEGORIER[3];
+// News item without a category (shouldn't happen, the field is required): pill and drawing fall back to this
+export const STANDARD_NYHETSKATEGORI = { tittel: 'Informasjon', farge: 'sand', ikon: 'Info' } as const;
 // News per listing page (/aktuelt, /aktuelt/side/2 …)
 export const NYHETER_PER_SIDE = 20;

@@ -190,9 +190,14 @@ export function buildContent({ protokoll2026, dokumentId }) {
   const nyheter = [
     {
       _id: 'nyhet-generalforsamling-2026', _type: 'nyhet', tittel: 'Årets generalforsamling er avholdt', slug: slug('generalforsamling-2026'),
-      dato: '2026-05-28', ...aktuelt.GF_2026,
+      dato: '2026-05-28', kategori: aktuelt.kategoriRef(aktuelt.GF_2026.kategori),
       ingress: 'Møtet for 2026 ble gjennomført torsdag 28. mai i lokalene til Arna Misjonsmenighet.',
-      innhold: [p('Du finner både årets og tidligere referater samlet på ', ['en egen side', '#side-generalforsamling'], '.')],
+      fakta: aktuelt.GF_2026.fakta,
+      // Blocks like on pages: text, link row (date/place are fields, shown in the header; attachments their own field)
+      seksjoner: [
+        ...tilSeksjoner([p('Du finner både årets og tidligere referater samlet på ', ['en egen side', '#side-generalforsamling'], '.')]),
+        aktuelt.relatert(aktuelt.GF_2026.relatert),
+      ],
       dokumenter: [keyedRef(protokoll2026)],
     },
   ];
@@ -253,5 +258,5 @@ export function buildContent({ protokoll2026, dokumentId }) {
     },
   };
 
-  return [innstillinger, omBorettslaget, forside, ...kategorier, ...oppgaver, ...utvalg, ...sider, ...nyheter];
+  return [innstillinger, omBorettslaget, forside, ...kategorier, ...aktuelt.KATEGORIER, ...oppgaver, ...utvalg, ...sider, ...nyheter];
 }

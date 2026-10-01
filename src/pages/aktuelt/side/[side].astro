@@ -2,7 +2,7 @@
 // /aktuelt/side/2 …: older news, NYHETER_PER_SIDE per page (page 1 is /aktuelt)
 import AktueltListe from '../../../components/AktueltListe.astro';
 import { load } from '../../../lib/sanity';
-import { NYHETER, lastAside } from '../../../lib/aktuelt';
+import { NYHETER } from '../../../lib/aktuelt';
 import { NYHETER_PER_SIDE } from '../../../../sanity/standarder';
 
 export async function getStaticPaths() {
@@ -14,6 +14,5 @@ export async function getStaticPaths() {
   }));
 }
 const { nyheter, side, antallSider } = Astro.props;
-const aside = await lastAside();
 ---
-<AktueltListe nyheter={nyheter} side={side} antallSider={antallSider} aside={aside} />
+<AktueltListe nyheter={nyheter} side={side} antallSider={antallSider} />

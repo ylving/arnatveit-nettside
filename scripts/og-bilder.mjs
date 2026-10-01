@@ -1,18 +1,19 @@
-// Share images (Open Graph, 1200 × 630) in public/og/: one per news category, used when a post has no image of its
-// own, and standard.png for every other page. Same look as the fallback illustration (NyhetIllustrasjon.astro):
-// category tint, white circle with the category icon, the three-house mark at 16% cropped at the bottom right,
-// plus the site name. Run again after changing categories, colours or the name, and commit the files:
+// Share images (Open Graph, 1200 × 630) in public/og/: one per colour (a news item without an image uses its
+// category's colour; categories are editable, colours are the four fixed tints), and standard.png for every other
+// page. Same look as the fallback illustration (NyhetIllustrasjon.astro): tint, white circle with an icon, the
+// three-house mark at 16% cropped at the bottom right, plus the site name. Run again after changing the colours or
+// the name, and commit the files:
 //   node scripts/og-bilder.mjs
 import fs from 'node:fs';
 import { createCanvas, GlobalFonts, loadImage, Path2D } from '@napi-rs/canvas';
 import { icons } from 'lucide';
 
-const KATEGORIER = [
-  // verdi, navn, [tint, colour] (the --farge-* tokens in global.css), Lucide icon (NYHET_KATEGORIER in sanity/standarder.ts)
-  ['generalforsamling', 'Generalforsamling', ['#E4ECE6', '#2F5D4E'], 'Gavel'],
-  ['dugnad', 'Dugnad', ['#F3E6D6', '#8A4E1F'], 'Sprout'],
-  ['styret', 'Styret', ['#E1E8EE', '#35556E'], 'Users'],
-  ['informasjon', 'Informasjon', ['#ECE6DA', '#5E5446'], 'Info'],
+// FARGER in sanity/standarder.ts: [verdi, tint, colour] (the --farge-* tokens in global.css)
+const FARGER = [
+  ['gronn', '#E4ECE6', '#2F5D4E'],
+  ['oker', '#F3E6D6', '#8A4E1F'],
+  ['blaa', '#E1E8EE', '#35556E'],
+  ['sand', '#ECE6DA', '#5E5446'],
 ];
 const HUS = [
   'M6 49V32L10 28V21H14V24L18 20L20.232 22.232L16.232 26.232A2.5 2.5 0 0 0 15.5 28V49Z',
@@ -69,5 +70,5 @@ async function tegn(fil, { tint, farge, ikonNavn, overtittel }) {
 }
 
 fs.mkdirSync('public/og', { recursive: true });
-for (const [verdi, navn, [tint, farge], ikonNavn] of KATEGORIER) await tegn(`public/og/${verdi}.png`, { tint, farge, ikonNavn, overtittel: `Aktuelt · ${navn}` });
+for (const [verdi, tint, farge] of FARGER) await tegn(`public/og/${verdi}.png`, { tint, farge, ikonNavn: 'Newspaper', overtittel: 'Aktuelt' });
 await tegn('public/og/standard.png', { tint: '#E4ECE6', farge: '#2F5D4E', ikonNavn: 'House', overtittel: 'Rekkehus i tre tun i Arna' });

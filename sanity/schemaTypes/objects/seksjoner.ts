@@ -343,9 +343,10 @@ export const relatert = defineType({
           name: 'relatertLenke',
           fields: [
             defineField({ name: 'side', title: 'Side', type: 'reference', to: [{ type: 'side' }], validation: (r) => r.required() }),
+            defineField({ name: 'tittel', title: 'Tekst', description: 'La stå tomt for å bruke sidens tittel, f.eks. «Alle protokoller» i stedet for «Generalforsamling».', type: 'string' }),
             defineField({ name: 'tekst', title: 'Tekst under', description: 'La stå tomt for å bruke kortteksten til siden.', type: 'string' }),
           ],
-          preview: { select: { title: 'side.tittel', subtitle: 'tekst' } },
+          preview: { select: { tittel: 'tittel', side: 'side.tittel', subtitle: 'tekst' }, prepare: ({ tittel, side, subtitle }) => ({ title: tittel || side, subtitle }) },
         }),
       ],
       validation: (r) => r.required().min(1),
@@ -353,6 +354,35 @@ export const relatert = defineType({
     breddeFelt('relatert'),
   ],
   preview: { select: { tittel: 'tittel', a: 'lenker.0.side.tittel', b: 'lenker.1.side.tittel' }, prepare: ({ tittel, a, b }) => ({ title: tittel || 'Relatert', subtitle: `Relatert · ${[a, b].filter(Boolean).join(', ')}` }) },
+});
+
+export const faktaboks = defineType({
+  name: 'faktaboks',
+  title: 'Faktaboks',
+  type: 'object',
+  icon: lucideIkon('ClipboardList'),
+  description: 'En grønn boks med korte fakta, f.eks. dato og sted for et møte eller en dugnad.',
+  fields: [
+    defineField({
+      name: 'rader',
+      title: 'Fakta',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'fakta',
+          fields: [
+            defineField({ name: 'ikon', title: 'Ikon', type: 'string', components: { input: IkonVelger } }),
+            defineField({ name: 'etikett', title: 'Etikett', description: 'F.eks. «Dato» eller «Sted»', type: 'string', validation: (r) => r.required() }),
+            defineField({ name: 'verdi', title: 'Verdi', description: 'F.eks. «Torsdag 28. mai 2026»', type: 'string', validation: (r) => r.required() }),
+          ],
+          preview: { select: { title: 'verdi', subtitle: 'etikett' } },
+        }),
+      ],
+      validation: (r) => r.required().min(1).max(6),
+    }),
+  ],
+  preview: { select: { a: 'rader.0.verdi', b: 'rader.1.verdi' }, prepare: ({ a, b }) => ({ title: [a, b].filter(Boolean).join(' · ') || 'Faktaboks', subtitle: 'Faktaboks' }) },
 });
 
 // Insert menu: everyday sections first; "Faste moduler" show data that exists once (ABC-nytt, protocols, contact

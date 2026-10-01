@@ -1,18 +1,23 @@
 ---
-// A news article: back link, category + date, title, lead; then a 720px body column (image or the fallback illustration,
-// facts panel, text, attachments, a link row to a page) with "Del saken" beside it on wide screens and after it on
-// phones; "Flere saker" (three other recent posts) at the bottom. Shares with its own image or the category's.
+// A news article: a header band in the category's tint (the three-house mark large at the bottom right) with the back
+// link, a white category pill with its icon, the date, the title, the lead and date/place as white pills; then a
+// 720px column with the main image (if any), the editor's blocks in order, the attachments in a white panel and
+// "Kopier lenke"; "Flere saker" (three other recent posts) in a sand band. Shares with its own image or its colour's.
 import Base from '../../layouts/Base.astro';
 import Innhold from '../../components/portable/Innhold.astro';
-import Dokumentliste from '../../components/portable/Dokumentliste.astro';
-import KategoriMerke from '../../components/KategoriMerke.astro';
+import Bilde from '../../components/portable/Bilde.astro';
+import Faktaboks from '../../components/portable/Faktaboks.astro';
+import Relatert from '../../components/portable/Relatert.astro';
+import DokumentRad from '../../components/DokumentRad.astro';
 import NyhetBilde from '../../components/NyhetBilde.astro';
-import Lenkerader from '../../components/Lenkerader.astro';
+import KategoriMerke from '../../components/KategoriMerke.astro';
+import HusMerke from '../../components/HusMerke.astro';
 import Icon from '../../components/Icon.astro';
 import { load, urlFor } from '../../lib/sanity';
-import { DOKUMENT, INNHOLD, NYHET_FELT, NYHET_KORT, SIDE_KORT } from '../../lib/queries';
+import { DOKUMENT, NYHET_FELT, NYHET_KORT, NYHET_SEKSJONER } from '../../lib/queries';
+import { sorter } from '../../lib/dokument';
 import { docHref, formatDate } from '../../lib/urls';
-import { nyhetKategori } from '../../../sanity/standarder';
+import { STANDARD_NYHETSKATEGORI } from '../../../sanity/standarder';
 
 export async function getStaticPaths() {
   const slugs = await load<string[]>(`*[_type == "nyhet" && defined(slug.current)].slug.current`);
@@ -20,146 +25,179 @@ export async function getStaticPaths() {
 }
 const n = await load<any>(
   `*[_type == "nyhet" && slug.current == $slug][0]{
-    ${NYHET_FELT}, seo, fakta, ${INNHOLD},
+    ${NYHET_FELT}, seo, fakta, ${NYHET_SEKSJONER},
     "dokumenter": dokumenter[]->${DOKUMENT},
-    relatert{ tittel, tekst, "side": side->${SIDE_KORT} },
     "flere": *[_type == "nyhet" && _id != ^._id && defined(slug.current)] | order(dato desc, _createdAt desc)[0...3]${NYHET_KORT}
   }`,
   { slug: Astro.params.slug },
 );
-const dokumenter = (n.dokumenter ?? []).filter((d: any) => d?.url);
-const relatert = n.relatert?.side ? [{ side: n.relatert.side, tittel: n.relatert.tittel || n.relatert.side.tittel, tekst: n.relatert.tekst || n.relatert.side.kort }] : [];
-const faktaDato = n.fakta?.dato && new Intl.DateTimeFormat('nb-NO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${n.fakta.dato}T12:00:00`));
+const kategori = { ...STANDARD_NYHETSKATEGORI, ...n.kategori };
+const dokumenter = sorter((n.dokumenter ?? []).filter((d: any) => d?.url), 'tittel');
+const dag = n.fakta?.dato && new Intl.DateTimeFormat('nb-NO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${n.fakta.dato}T12:00:00`));
 // "torsdag 28. mai 2026" → "Torsdag 28. mai 2026"
-const faktaDatoTekst = faktaDato && faktaDato.charAt(0).toUpperCase() + faktaDato.slice(1);
-// Share image: the post's image cropped to 1200 × 630 around its hotspot, else the category's generated image
-const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('crop').url() : `/og/${nyhetKategori(n.kategori).verdi}.png`;
+const faktaDato = dag && dag.charAt(0).toUpperCase() + dag.slice(1);
+// Share image: the post's image cropped to 1200 × 630 around its hotspot, else the generated image in the category's colour
+const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('crop').url() : `/og/${kategori.farge}.png`;
 ---
 <Base title={n.seo?.tittel ?? n.tittel} description={n.seo?.beskrivelse ?? n.ingress} bilde={ogBilde} type="article">
-  <article class="container artikkel">
-    <header class="hode">
-      <a class="tilbake" href="/aktuelt"><Icon name="ChevronLeft" size={16} />Aktuelt</a>
-      <p class="topp"><KategoriMerke kategori={n.kategori} stor /><time datetime={n.dato}>{formatDate(n.dato)}</time></p>
-      <h1>{n.tittel}</h1>
-      <p class="ingress">{n.ingress}</p>
-    </header>
-    <div class="kropp">
-      <div class="hovedspalte">
-        <NyhetBilde nyhet={n} bredde={720} sizes="(max-width: 800px) calc(100vw - 2 * var(--gutter)), 720px" class="a-bilde" eager />
-        {(faktaDatoTekst || n.fakta?.sted) && (
-          <dl class="fakta">
-            {faktaDatoTekst && <div><Icon name="CalendarDays" size={18} /><dt>Dato</dt><dd>{faktaDatoTekst}</dd></div>}
-            {n.fakta?.sted && <div><Icon name="MapPin" size={18} /><dt>Sted</dt><dd>{n.fakta.sted}</dd></div>}
-          </dl>
+  <article>
+    <header class="hode" style={`--bg: var(--farge-${kategori.farge}-bg); --fg: var(--farge-${kategori.farge})`}>
+      <HusMerke class="hode-hus" />
+      <div class="container hode-innhold">
+        <a class="tilbake" href="/aktuelt"><Icon name="ArrowLeft" size={16} />Aktuelt</a>
+        <p class="meta">
+          <span class="merke"><Icon name={kategori.ikon || STANDARD_NYHETSKATEGORI.ikon} size={14} />{kategori.tittel}</span>
+          <time datetime={n.dato}>{formatDate(n.dato)}</time>
+        </p>
+        <h1>{n.tittel}</h1>
+        <p class="ingress">{n.ingress}</p>
+        {(faktaDato || n.fakta?.sted) && (
+          <ul class="fakta">
+            {faktaDato && <li><Icon name="CalendarDays" size={16} /><time datetime={n.fakta.dato}>{faktaDato}</time></li>}
+            {n.fakta?.sted && <li><Icon name="MapPin" size={16} />{n.fakta.sted}</li>}
+          </ul>
         )}
-        {n.innhold?.length > 0 && <div class="prose brodtekst"><Innhold value={n.innhold} /></div>}
-        {dokumenter.length > 0 && <div class="vedlegg"><Dokumentliste node={{ tittel: 'Vedlegg', grupper: [{ sortering: 'tittel', dokumenter }] }} /></div>}
-        {relatert.length > 0 && <div class="relatert"><Lenkerader lenker={relatert} /></div>}
       </div>
-      <div class="del">
-        <p class="del-tittel">Del saken</p>
-        <button type="button" class="kopier" hidden>
-          <Icon name="Link" size={16} /><span class="kopier-tekst">Kopier lenke</span>
-        </button>
-        <span class="visually-hidden" role="status" aria-live="polite"></span>
-        <script is:inline>
-          (() => {
-            const del = document.currentScript.parentElement;
-            const knapp = del.querySelector('.kopier');
-            const tekst = knapp.querySelector('.kopier-tekst');
-            const status = del.querySelector('[role="status"]');
-            if (!navigator.clipboard) { del.hidden = true; return; }
-            knapp.hidden = false;
-            let tidsur;
-            knapp.addEventListener('click', async () => {
-              try {
-                await navigator.clipboard.writeText(location.href.split('#')[0]);
-                tekst.textContent = status.textContent = 'Lenke kopiert';
-              } catch {
-                tekst.textContent = status.textContent = 'Kunne ikke kopiere';
-              }
-              clearTimeout(tidsur);
-              tidsur = setTimeout(() => { tekst.textContent = 'Kopier lenke'; status.textContent = ''; }, 2500);
-            });
-          })();
-        </script>
+    </header>
+    <div class="container">
+      <div class="kropp">
+        {n.bilde?.asset && <NyhetBilde nyhet={n} bredde={720} sizes="(max-width: 800px) calc(100vw - 2 * var(--gutter)), 720px" class="a-bilde" eager />}
+        {(n.seksjoner ?? []).map((b: any) => (
+          b._type === 'tekst' ? <div class="prose brodtekst"><Innhold value={b.innhold} /></div>
+          : b._type === 'bilde' ? <Bilde node={b} />
+          : b._type === 'faktaboks' ? <Faktaboks node={b} />
+          : b._type === 'relatert' ? <Relatert node={b} />
+          : null
+        ))}
+        {dokumenter.length > 0 && (
+          <section class="vedlegg" aria-labelledby="vedlegg">
+            <h2 id="vedlegg">Vedlegg</h2>
+            <ul>{dokumenter.map((d: any) => <DokumentRad dok={d} />)}</ul>
+          </section>
+        )}
+        <div class="del">
+          <button type="button" class="kopier" hidden>
+            <Icon name="Link" size={16} /><span class="kopier-tekst">Kopier lenke</span>
+          </button>
+          <span class="visually-hidden" role="status" aria-live="polite"></span>
+          <script is:inline>
+            (() => {
+              const del = document.currentScript.parentElement;
+              const knapp = del.querySelector('.kopier');
+              const tekst = knapp.querySelector('.kopier-tekst');
+              const status = del.querySelector('[role="status"]');
+              if (!navigator.clipboard) { del.hidden = true; return; }
+              knapp.hidden = false;
+              let tidsur;
+              knapp.addEventListener('click', async () => {
+                try {
+                  await navigator.clipboard.writeText(location.href.split('#')[0]);
+                  tekst.textContent = status.textContent = 'Lenke kopiert';
+                } catch {
+                  tekst.textContent = status.textContent = 'Kunne ikke kopiere';
+                }
+                clearTimeout(tidsur);
+                tidsur = setTimeout(() => { tekst.textContent = 'Kopier lenke'; status.textContent = ''; }, 2500);
+              });
+            })();
+          </script>
+        </div>
       </div>
     </div>
   </article>
   {n.flere?.length > 0 && (
-    <section class="container flere" aria-labelledby="flere-saker">
-      <div class="flere-topp">
-        <h2 id="flere-saker">Flere saker</h2>
-        <a class="alle" href="/aktuelt">Alle saker<Icon name="ArrowRight" size={16} /></a>
+    <section class="flere" aria-labelledby="flere-saker">
+      <div class="container">
+        <div class="flere-topp">
+          <h2 id="flere-saker">Flere saker</h2>
+          <a class="alle" href="/aktuelt">Alle saker<Icon name="ArrowRight" size={16} /></a>
+        </div>
+        <ul>
+          {n.flere.map((f: any) => (
+            <li>
+              <a href={docHref(f)}>
+                <NyhetBilde nyhet={f} bredde={380} sizes="(max-width: 900px) 84px, 380px" class="f-bilde" />
+                <span class="f-tekst">
+                  <span class="f-meta"><KategoriMerke kategori={f.kategori} /><time datetime={f.dato}>{formatDate(f.dato)}</time></span>
+                  <span class="f-tittel">{f.tittel}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
-      <ul>
-        {n.flere.map((f: any) => (
-          <li>
-            <p class="topp"><KategoriMerke kategori={f.kategori} /><time datetime={f.dato}>{formatDate(f.dato)}</time></p>
-            <h3><a href={docHref(f)}>{f.tittel}</a></h3>
-            <p class="f-ingress">{f.ingress}</p>
-          </li>
-        ))}
-      </ul>
     </section>
   )}
 </Base>
 <style>
   p { margin: 0; }
-  .artikkel { padding-block: clamp(24px, 4vw, 56px) clamp(44px, 6vw, 88px); }
-  .hode { max-width: 820px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
-  .tilbake { display: inline-flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
-  .tilbake:hover { text-decoration: underline; text-underline-offset: 3px; }
-  .topp { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 15px; color: var(--muted); }
-  .artikkel h1 { font-size: clamp(34px, 4.6vw, 60px); line-height: 1.06; letter-spacing: -0.02em; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
-  .ingress { font-size: clamp(18px, 1.6vw, 22px); line-height: 1.55; color: var(--ink-2); }
+  /* Header band */
+  .hode { position: relative; overflow: hidden; background: var(--bg); padding-block: clamp(24px, 3.5vw, 48px) clamp(32px, 4.5vw, 64px); }
+  .hode :global(.hode-hus) { position: absolute; width: 620px; height: 425px; right: -80px; bottom: -70px; color: var(--fg); opacity: 0.12; }
+  .hode-innhold { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+  .tilbake { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: var(--fg); margin-bottom: 6px; }
+  .tilbake:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 15px; color: #46514b; }
+  .merke { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #fff; color: var(--fg); font-size: 13px; font-weight: 600; }
+  .hode h1 { font-size: clamp(36px, 5vw, 72px); line-height: 1.02; letter-spacing: -0.02em; max-width: 18ch; overflow-wrap: break-word; hyphens: auto; }
+  .ingress { max-width: 760px; font-size: clamp(18px, 1.7vw, 23px); line-height: 1.5; color: #2e3632; }
+  .fakta { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .fakta li { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; background: #fff; font-size: 15px; font-weight: 600; }
+  .fakta :global(svg) { color: var(--fg); flex-shrink: 0; }
 
-  .kropp { display: grid; grid-template-columns: minmax(0, 720px) minmax(0, 1fr); gap: 32px 72px; margin-top: 36px; align-items: start; }
-  .hovedspalte { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
-  .hovedspalte :global(.a-bilde) { aspect-ratio: 16 / 9; height: auto; border-radius: 24px; }
-  .fakta { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding: 20px 24px; border-radius: 18px; background: var(--farge-gronn-bg); }
-  .fakta div { display: grid; grid-template-columns: 18px minmax(0, 1fr); column-gap: 12px; align-items: start; }
-  .fakta :global(svg) { grid-row: span 2; color: var(--accent); margin-top: 2px; }
-  .fakta dt { font-size: 13px; color: var(--muted); }
-  .fakta dd { margin: 0; font-size: 16px; font-weight: 600; }
-  .brodtekst { padding-bottom: 0; max-width: none; font-size: 18px; line-height: 1.7; color: #2e3632; }
-  .vedlegg :global(h2) { font-size: clamp(24px, 2.4vw, 28px); }
-  .del { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-  .del-tittel { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  /* Body */
+  .kropp { max-width: 720px; display: flex; flex-direction: column; gap: 32px; padding-block: clamp(32px, 4.5vw, 64px) clamp(40px, 6vw, 96px); }
+  .kropp :global(.a-bilde) { aspect-ratio: 16 / 9; height: auto; border-radius: 24px; }
+  .brodtekst { padding-bottom: 0; max-width: none; font-size: 19px; line-height: 1.75; color: #2e3632; }
+  .vedlegg { background: var(--surface); border-radius: 22px; padding: 8px 24px 4px; }
+  .vedlegg h2 { padding: 16px 0 6px; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.4; color: var(--muted); }
+  .vedlegg ul { list-style: none; margin: 0; padding: 0; }
+  .del { display: flex; }
   .kopier {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0 16px; border-radius: 999px;
     border: 1px solid var(--kant); background: var(--surface); font: inherit; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer;
   }
   .kopier:hover { border-color: var(--ink); }
 
-  .flere { padding-bottom: clamp(56px, 8vw, 112px); }
-  .flere-topp { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 24px; }
-  .flere h2 { font-size: clamp(26px, 2.8vw, 36px); }
+  /* Flere saker */
+  .flere { background: var(--sand); padding-block: clamp(36px, 4.5vw, 64px) clamp(44px, 5.5vw, 80px); }
+  .flere-topp { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 32px; }
+  .flere h2 { font-size: clamp(26px, 2.6vw, 36px); }
   .alle { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: var(--accent); white-space: nowrap; }
   .alle :global(svg) { transition: transform 0.15s; }
   .alle:hover :global(svg) { transform: translateX(3px); }
-  .flere ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
-  .flere li { position: relative; border-top: 1px solid #cfc8ba; padding-top: 18px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-  .flere .topp { font-size: 14px; }
-  .flere h3 { font-size: 22px; line-height: 1.2; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
-  .flere h3 a::after { content: ''; position: absolute; inset: 0; }
-  .flere li:hover h3 a { color: var(--accent); }
-  .f-ingress { font-size: 15px; line-height: 1.5; color: var(--muted); }
+  .flere ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+  .flere li a { display: flex; flex-direction: column; gap: 14px; color: var(--ink); }
+  .flere :global(.f-bilde) { height: 180px; border-radius: 20px; }
+  .f-tekst { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
+  .f-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; color: var(--muted); }
+  .f-tittel { font-family: var(--serif); font-size: 24px; line-height: 1.15; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
+  .flere li a:hover { color: var(--ink); }
+  .flere li a:hover .f-tittel { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 
-  @media (max-width: 1000px) {
-    .kropp { grid-template-columns: minmax(0, 1fr); }
-    .hovedspalte { max-width: 720px; }
+  @media (max-width: 900px) {
+    .flere ul { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .flere li a { flex-direction: row; align-items: center; gap: 16px; }
+    .flere :global(.f-bilde) { width: 84px; height: 84px; flex-shrink: 0; border-radius: 16px; }
+    .f-tekst { gap: 6px; }
+    .f-meta { font-size: 12px; }
+    .f-tittel { font-size: 19px; line-height: 1.2; }
   }
-  @media (max-width: 900px) { .flere ul { grid-template-columns: minmax(0, 1fr); gap: 0; } .flere li { padding-block: 16px; border-top-color: var(--line); } }
   @media (max-width: 640px) {
-    .topp { font-size: 13px; }
-    .hovedspalte { gap: 24px; }
-    .hovedspalte :global(.a-bilde) { border-radius: 20px; }
-    .fakta { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 16px 18px; border-radius: 16px; }
-    .brodtekst { font-size: 16px; }
-    .del-tittel { display: none; }
+    .hode :global(.hode-hus) { width: 220px; height: 150px; right: -28px; bottom: -24px; }
+    .hode-innhold { gap: 14px; }
+    .tilbake { font-size: 14px; }
+    .meta { font-size: 13px; }
+    .merke { padding: 3px 9px; font-size: 12px; }
+    .hode h1 { line-height: 1.08; }
+    .ingress { line-height: 1.55; }
+    .fakta li { padding: 7px 12px; font-size: 14px; }
+    .kropp { gap: 24px; }
+    .kropp :global(.a-bilde) { border-radius: 20px; }
+    .brodtekst { font-size: 17px; line-height: 1.7; }
+    .vedlegg { border-radius: 18px; padding: 6px 16px; }
+    .vedlegg h2 { font-size: 12px; padding: 12px 0 4px; }
     .del, .kopier { align-self: stretch; }
-    .kopier { height: 46px; }
-    .flere h3 { font-size: 19px; }
+    .kopier { height: 46px; width: 100%; }
   }
 </style>

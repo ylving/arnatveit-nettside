@@ -3,7 +3,7 @@
 import Lenkerader from '../Lenkerader.astro';
 
 const { node } = Astro.props;
-const lenker = (node.lenker ?? []).filter((l: any) => l.side).map((l: any) => ({ side: l.side, tittel: l.side.tittel, tekst: l.tekst || l.side.kort }));
+const lenker = (node.lenker ?? []).filter((l: any) => l.side).map((l: any) => ({ side: l.side, tittel: l.tittel || l.side.tittel, tekst: l.tekst || l.side.kort }));
 ---
 {lenker.length > 0 && (
   <section class="relatert">

@@ -7,7 +7,7 @@ import Faktabaand from '../components/Faktabaand.astro';
 import { load, urlFor } from '../lib/sanity';
 import { DOC_REF, DOC_REF_FIELDS, DOKUMENT, LINK, SIDE_KORT } from '../lib/queries';
 import { docHref, linkHref, oppgaveAnker } from '../lib/urls';
-import { nyhetKategori, utgaveNavn } from '../../sanity/standarder';
+import { utgaveNavn } from '../../sanity/standarder';
 
 const data = await load<any>(`{
   "forside": *[_id == "forside"][0]{
@@ -19,7 +19,7 @@ const data = await load<any>(`{
       _type != "oppgave" => ${DOKUMENT}
     } }
   },
-  "nyhet": *[_type == "nyhet" && defined(slug.current)] | order(dato desc, _createdAt desc)[0]{ tittel, kategori, ingress, "slug": slug.current, _type, "dokumenter": dokumenter[]->${DOKUMENT} },
+  "nyhet": *[_type == "nyhet" && defined(slug.current)] | order(dato desc, _createdAt desc)[0]{ tittel, "kategori": kategori->tittel, ingress, "slug": slug.current, _type, "dokumenter": dokumenter[]->${DOKUMENT} },
   "abc": *[_type == "abcUtgave" && defined(fil.asset)] | order(aar desc, maaned desc)[0]{ maaned, aar, "url": fil.asset->url },
   "praktisk": *[_type == "side" && forelder._ref == "side-praktisk-info"] | order(rekkefolge asc)${SIDE_KORT},
   "abcSide": *[_id == "side-abc-nytt"][0]${DOC_REF},
@@ -75,7 +75,7 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
       {nyhet && (
         <article class="featured">
           <div>
-            <span class="tag">{nyhetKategori(nyhet.kategori).navn}</span>
+            {nyhet.kategori && <span class="tag">{nyhet.kategori}</span>}
             <h3><a href={docHref(nyhet)}>{nyhet.tittel}</a></h3>
             <p>{nyhet.ingress}</p>
           </div>
