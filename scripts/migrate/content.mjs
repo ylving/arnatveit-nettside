@@ -247,7 +247,6 @@ export function buildContent({ protokoll2026, dokumentId }) {
       ['Turterreng', 'Rikholdig friluftsområde rett ved husene.', 'Mountain'],
       ['Sunn økonomi', 'Et veldrevet borettslag med ryddig drift.', 'TrendingUp'],
     ].map(([tittel, tekst, ikon]) => ({ _type: 'faktakort', _key: key(), tittel, tekst, logo: !ikon, ...(ikon && { ikon }) })),
-    snarvei: { merkelapp: 'Dugnad', tittel: 'Holder kostnadene nede – og er sosialt.', lenke: lenke('Se dugnadsplan', '#side-dugnad') },
     dokumentsenter: {
       tittel: 'Skal du bygge ut, montere varmepumpe eller skaffe husdyr?',
       tekst: 'Dette skal styret ha søknad om. Her finner du standardsøknader og prosedyrer.',

@@ -175,8 +175,15 @@ export const fargebaand = defineType({
       type: 'array',
       of: [defineArrayMember({ type: 'block', styles: [{ title: 'Normal', value: 'normal' }], lists: [], marks: { annotations: [lenkeAnnotasjon] } })],
     }),
+    defineField({
+      name: 'kart',
+      title: 'Vis kart over området',
+      description: 'Et kart over hele bredden nederst i båndet, med borettslaget, Arna stasjon og Øyrane Torg.',
+      type: 'boolean',
+      initialValue: false,
+    }),
   ],
-  preview: { select: { title: 'tittel', subtitle: 'overtittel' }, prepare: ({ title, subtitle }) => ({ title, subtitle: `Grønt bånd${subtitle ? ` · ${subtitle}` : ''}` }) },
+  preview: { select: { title: 'tittel', subtitle: 'overtittel', kart: 'kart' }, prepare: ({ title, subtitle, kart }) => ({ title, subtitle: `Grønt bånd${subtitle ? ` · ${subtitle}` : ''}${kart ? ' · med kart' : ''}` }) },
 });
 
 export const borettslagsfakta = defineType({

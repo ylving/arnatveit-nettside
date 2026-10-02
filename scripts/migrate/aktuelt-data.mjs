@@ -9,6 +9,7 @@ export const KATEGORIER = [
   kategori('dugnad', 'Dugnad', 'gronn', 'Sprout'),
   kategori('styret', 'Styret', 'blaa', 'Users'),
   kategori('informasjon', 'Informasjon', 'sand', 'Info'),
+  kategori('sosialt', 'Sosialt', 'sand', 'Heart'),
 ];
 export const kategoriRef = (verdi) => ({ _type: 'reference', _ref: `nyhetskategori-${verdi}` });
 

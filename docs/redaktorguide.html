@@ -155,6 +155,7 @@
         <h2>Sider og seksjoner</h2>
         <p>Under <span class="felt">Sider</span> ligger alle sidene. Innholdet på en side bygges av <strong>seksjoner</strong> som ligger under hverandre: tekst, bilder, dokumentlister og så videre. Hver seksjon vises som et kort i feltet <span class="felt">Innhold</span>.</p>
         <p>Den store overskriften øverst er sidens <span class="felt">Tittel</span>. Skal overskriften være lengre enn navnet i menyen og brødsmulene, skriver du den i <span class="felt">Overskrift på siden</span>. Vedtekter har for eksempel tittelen «Vedtekter» og overskriften «Vedtekter og regler».</p>
+        <p>Under <span class="felt">Kontaktboks i toppen</span> kan en side få en grønn boks ved siden av overskriften, som «Kontakt styret» på Styret-siden: en <span class="felt">Tittel</span>, en <span class="felt">E-post</span> (står den tom, brukes styrets adresse) og en valgfri <span class="felt">Tekst under e-posten</span>, for eksempel når styret svarer. Linjeskift i teksten beholdes.</p>
         <h3>Legge til og flytte seksjoner</h3>
         <ul>
           <li>Trykk <span class="knapp">+ Add item</span> nederst i <span class="felt">Innhold</span> og velg type. Typene er gruppert i «Tekst og bilder», «Lister», «Lenker og knapper» og «Faste moduler».</li>
@@ -169,7 +170,7 @@
               <tr class="gruppe"><td colspan="2">Tekst og bilder</td></tr>
               <tr><td>Tekst</td><td>Vanlig tekst med overskrifter, lister og lenker. Bilder og bokser legges som egne seksjoner.</td></tr>
               <tr><td>Bilde</td><td>Et bilde med alternativ tekst (påkrevd, for skjermlesere) og valgfri bildetekst.</td></tr>
-              <tr><td>Tekst i grønt bånd</td><td>Et grønt bånd over hele bredden med liten overtittel, overskrift og tekst, som «Området».</td></tr>
+              <tr><td>Tekst i grønt bånd</td><td>Et grønt bånd over hele bredden med liten overtittel, overskrift og tekst, som «Området». Med <span class="felt">Vis kart over området</span> får båndet et kart nederst, med borettslaget, Arna stasjon og Øyrane Torg.</td></tr>
               <tr><td>Punkter med ikon</td><td>Overskrift til venstre og opptil seks korte punkter med ikon, tittel og tekst, som «Slik fungerer det» på Generalforsamling.</td></tr>
               <tr><td>Nøkkeltall</td><td>Opptil fire store tall med en kort tekst under, som «150 kr – per time for voksne» på Dugnad.</td></tr>
               <tr><td>Figur: nivåer inni hverandre</td><td>Overskrift og tekst til venstre, og fargede felt som ligger inni hverandre til høyre, som «Hvordan henger reglene sammen?» på Vedtekter. Det ytterste nivået står først i listen.</td></tr>
@@ -307,9 +308,10 @@
           <li>Skriv <span class="felt">Tittel</span>, velg <span class="felt">Dato</span> og <span class="felt">Kategori</span>. Kategorien vises som et lite farget merke.</li>
           <li>Skriv en <span class="felt">Ingress</span> på et par setninger. Den vises i listen, øverst i saken og når noen deler lenken.</li>
           <li>Last gjerne opp et <span class="felt">Hovedbilde</span> og skriv hva det viser i <span class="felt">Alternativ tekst</span> (påkrevd). Uten bilde brukes en tegning i kategoriens farge.</li>
-          <li>Gjelder saken et møte, en dugnad eller et arrangement, fyll inn <span class="felt">Dato og sted</span>. De vises som hvite merker øverst i saken.</li>
+          <li>Gjelder saken et møte, en dugnad eller et arrangement, fyll inn <span class="felt">Dato, tid og sted</span>. De vises som hvite merker øverst i saken.</li>
           <li>Bygg saken i <span class="felt">Innhold</span> med blokker, som på sidene: <strong>Tekst</strong>, <strong>Bilde</strong>, <strong>Faktaboks</strong> (en grønn boks med andre korte fakta, for eksempel pris eller påmeldingsfrist) og <strong>Relatert</strong> (lenkerader til sider, for eksempel «Alle protokoller»). Dra dem i den rekkefølgen du vil.</li>
           <li>Legg PDF-er i <span class="felt">Vedlegg</span>. De vises alltid nederst i saken.</li>
+          <li>Slå på <span class="felt">Fest øverst</span> hvis saken skal stå stort øverst på forsiden og på Aktuelt, også når det kommer nyere saker. Husk å slå den av igjen.</li>
           <li>Publiser og trykk <span class="knapp">Oppdater nettsiden</span>.</li>
         </ol>
         <h3>Kategorier</h3>
@@ -337,7 +339,8 @@
           <li>Kortet «Tog til Bergen sentrum» ved toppbildet viser de neste togene fra Arna stasjon, hentet fra Entur. Det oppdaterer seg selv, og det er ingenting å redigere.</li>
           <li><span class="felt">Toppbilde</span> erstatter tegningen øverst. Bildet beskjæres til samme form som tegningen. Trykk på beskjæringsknappen på bildet og dra sirkelen (<strong>hotspot</strong>) til det som alltid skal synes. La feltet stå tomt for å beholde tegningen.</li>
           <li><span class="felt">Faktaseksjon – tekst</span> og <span class="felt">Faktakort</span> er det grønne båndet «Å bo her». Hvert kort har tittel, tekst og ikon, eller logoen hvis <span class="felt">Bruk logoen som ikon</span> er på.</li>
-          <li><span class="felt">Snarvei under Aktuelt</span> og <span class="felt">Dokumentsenter-boks</span> er de to boksene lenger ned. Boksen for ABC-nytt ved siden av Aktuelt lages av seg selv fra den nyeste utgaven.</li>
+          <li>Under «Aktuelt» vises den nyeste nyheten stort, og de tre neste ved siden av. Har saken et hovedbilde, vises bildet; uten bilde blir det en farget boks med tittel, ingress og dato, tid og sted. Under kommer «Neste dugnad» (fra <a href="#arrangementer">Arrangementer</a>) og «Siste ABC-nytt», som lages av seg selv.</li>
+          <li><span class="felt">Dokumentsenter-boks</span> er boksen lenger ned.</li>
           <li>Under <span class="felt">Snarveier</span> i Dokumentsenter-boksen kan du velge en oppgave fra «Jeg vil …» eller et dokument. En oppgave åpner stegene på Dokumentsenter-siden, et dokument åpner PDF-en.</li>
         </ul>
       </section>

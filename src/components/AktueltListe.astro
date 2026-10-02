@@ -8,12 +8,14 @@ import KategoriMerke from './KategoriMerke.astro';
 import NyhetBilde from './NyhetBilde.astro';
 import Icon from './Icon.astro';
 import { docHref, formatDate } from '../lib/urls';
+import { fremhevet } from '../lib/aktuelt';
 import { STANDARD_NYHETSKATEGORI } from '../../sanity/standarder';
 
 interface Props { nyheter: any[]; side: number; antallSider: number; moduler?: any }
 const { nyheter, side, antallSider, moduler } = Astro.props;
 const forside = side === 1;
-const [forste, ...etter] = forside ? nyheter : [];
+// The newest pinned post, else the newest
+const [forste, etter] = forside ? fremhevet(nyheter) : [undefined, []];
 const siste = forside ? etter.slice(0, 2) : [];
 const eldre = forside ? etter.slice(2) : nyheter;
 const sideHref = (s: number) => (s === 1 ? '/aktuelt' : `/aktuelt/side/${s}`);
@@ -29,7 +31,7 @@ const farge = (n: any) => n.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
         </header>
         {forste ? (
           <a class="hoved" href={docHref(forste)}>
-            <NyhetBilde nyhet={forste} bredde={680} sizes="(max-width: 900px) calc(100vw - 2 * var(--gutter)), 680px" class="hoved-bilde" eager />
+            <NyhetBilde nyhet={forste} bredde={680} forhold={1.7} forholdMobil={16 / 9} sizes="(max-width: 900px) calc(100vw - 2 * var(--gutter)), 680px" class="hoved-bilde" eager />
             <span class="hoved-tekst">
               <span class="meta"><KategoriMerke kategori={forste.kategori} stor /><time datetime={forste.dato}>{formatDate(forste.dato)}</time></span>
               <span class="hoved-tittel">{forste.tittel}</span>
@@ -60,7 +62,7 @@ const farge = (n: any) => n.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
       <div class="siste-rad">
         {siste.map((n) => (
           <a class="kort" href={docHref(n)}>
-            <NyhetBilde nyhet={n} bredde={560} sizes="(max-width: 900px) calc(100vw - 2 * var(--gutter)), 560px" class="kort-bilde" />
+            <NyhetBilde nyhet={n} bredde={560} forhold={7 / 3} forholdMobil={2.2} sizes="(max-width: 900px) calc(100vw - 2 * var(--gutter)), 560px" class="kort-bilde" />
             <span class="meta"><KategoriMerke kategori={n.kategori} /><time datetime={n.dato}>{formatDate(n.dato)}</time></span>
             <span class="kort-tittel">{n.tittel}</span>
             <span class="kort-ingress">{n.ingress}</span>

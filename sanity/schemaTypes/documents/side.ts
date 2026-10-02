@@ -103,6 +103,13 @@ export const side = defineType({
       fields: [
         defineField({ name: 'tittel', title: 'Tittel', type: 'string', placeholder: 'Skriv til hele styret' }),
         defineField({ name: 'epost', title: 'E-post', description: 'La stå tomt for å bruke styrets e-post fra «Om borettslaget».', type: 'email' }),
+        defineField({
+          name: 'tekst',
+          title: 'Tekst under e-posten (valgfri)',
+          description: 'F.eks. når styret svarer, eller hva henvendelsen bør inneholde. Linjeskift beholdes.',
+          type: 'text',
+          rows: 3,
+        }),
       ],
     }),
     defineField({

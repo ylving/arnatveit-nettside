@@ -47,7 +47,7 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
       <div class="container hode-innhold">
         <a class="tilbake" href="/aktuelt"><Icon name="ArrowLeft" size={16} />Aktuelt</a>
         <p class="meta">
-          <span class="merke"><Icon name={kategori.ikon || STANDARD_NYHETSKATEGORI.ikon} size={14} />{kategori.tittel}</span>
+          <KategoriMerke kategori={kategori} stor hvit />
           <time datetime={n.dato}>{formatDate(n.dato)}</time>
         </p>
         <h1>{n.tittel}</h1>
@@ -62,7 +62,7 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
     </header>
     <div class="container">
       <div class="kropp">
-        {n.bilde?.asset && <NyhetBilde nyhet={n} bredde={720} sizes="(max-width: 800px) calc(100vw - 2 * var(--gutter)), 720px" class="a-bilde" eager />}
+        {n.bilde?.asset && <NyhetBilde nyhet={n} bredde={720} forhold={16 / 9} sizes="(max-width: 800px) calc(100vw - 2 * var(--gutter)), 720px" class="a-bilde" eager />}
         {(n.seksjoner ?? []).map((b: any) => (
           b._type === 'tekst' ? <div class="prose brodtekst"><Innhold value={b.innhold} /></div>
           : b._type === 'bilde' ? <Bilde node={b} />
@@ -117,7 +117,7 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
           {n.flere.map((f: any) => (
             <li>
               <a href={docHref(f)}>
-                <NyhetBilde nyhet={f} bredde={380} sizes="(max-width: 900px) 84px, 380px" class="f-bilde" />
+                <NyhetBilde nyhet={f} bredde={380} forhold={2.1} forholdMobil={1} sizes="(max-width: 900px) 84px, 380px" class="f-bilde" />
                 <span class="f-tekst">
                   <span class="f-meta"><KategoriMerke kategori={f.kategori} /><time datetime={f.dato}>{formatDate(f.dato)}</time></span>
                   <span class="f-tittel">{f.tittel}</span>
@@ -139,7 +139,6 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
   .tilbake { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: var(--fg); margin-bottom: 6px; }
   .tilbake:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
   .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 15px; color: #46514b; }
-  .merke { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #fff; color: var(--fg); font-size: 13px; font-weight: 600; }
   .hode h1 { font-size: clamp(36px, 5vw, 72px); line-height: 1.02; letter-spacing: -0.02em; max-width: 18ch; overflow-wrap: break-word; hyphens: auto; }
   .ingress { max-width: 760px; font-size: clamp(18px, 1.7vw, 23px); line-height: 1.5; color: #2e3632; }
   .fakta { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -192,7 +191,6 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
     .hode-innhold { gap: 14px; }
     .tilbake { font-size: 14px; }
     .meta { font-size: 13px; }
-    .merke { padding: 3px 9px; font-size: 12px; }
     .hode h1 { line-height: 1.08; }
     .ingress { line-height: 1.55; }
     .fakta li { padding: 7px 12px; font-size: 14px; }

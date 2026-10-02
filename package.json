@@ -22,6 +22,7 @@
     "astro": "^7.3.5",
     "astro-portabletext": "^1.0.1",
     "lucide": "^1.48.0",
+    "maplibre-gl": "^6.11.2",
     "pdfjs-dist": "^6.3.289",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

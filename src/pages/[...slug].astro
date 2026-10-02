@@ -22,7 +22,7 @@ const { slug } = Astro.props;
 const [side, kontakt] = await Promise.all([load<any>(SIDE, { slug }), load<any>(KONTAKT)]);
 // Contact box beside the title: its own email, or the board's from «Om borettslaget»
 const k = side.kontaktboks;
-const boks = k && (k.tittel || k.epost) ? { tittel: k.tittel || undefined, epost: k.epost || kontakt?.epost } : null;
+const boks = k && (k.tittel || k.epost || k.tekst) ? { tittel: k.tittel || undefined, epost: k.epost || kontakt?.epost, tekst: k.tekst } : null;
 // Pages with an ABC-nytt section show the newest issue beside the title
 const abcSiste = side.seksjoner?.find((s: any) => s._type === 'abcUtgaver')?.utgaver?.[0];
 // … and pages with a Generalforsamlinger section the newest assembly

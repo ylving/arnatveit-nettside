@@ -1,14 +1,19 @@
 ---
-// A news item's category (nyhetskategori: title, tint) as a small tinted pill ("Dugnad"). `stor` = the featured post and the article.
+// A news item's category (nyhetskategori: title, tint, icon) as a small pill with its icon ("Dugnad"): tinted, or white
+// on images and tinted panels (`hvit`). `stor` = the featured post and the article header.
+import Icon from './Icon.astro';
 import { STANDARD_NYHETSKATEGORI } from '../../sanity/standarder';
 
-interface Props { kategori?: { tittel?: string; farge?: string } | null; stor?: boolean }
-const { kategori, stor = false } = Astro.props;
+interface Props { kategori?: { tittel?: string; farge?: string; ikon?: string } | null; stor?: boolean; hvit?: boolean; class?: string }
+const { kategori, stor = false, hvit = false, class: klasse } = Astro.props;
 const tittel = kategori?.tittel ?? STANDARD_NYHETSKATEGORI.tittel;
 const farge = kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
+const ikon = kategori?.ikon || STANDARD_NYHETSKATEGORI.ikon;
 ---
-<span class:list={['merke', { stor }]} style={`--bg: var(--farge-${farge}-bg); --fg: var(--farge-${farge})`}>{tittel}</span>
+<span class:list={['merke', { stor, hvit }, klasse]} style={`--bg: var(--farge-${farge}-bg); --fg: var(--farge-${farge})`}><Icon name={ikon} size={stor ? 13 : 12} />{tittel}</span>
 <style>
-  .merke { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; background: var(--bg); color: var(--fg); font-size: 12px; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+  .merke { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: var(--bg); color: var(--fg); font-size: 12px; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+  .merke :global(svg) { flex-shrink: 0; }
   .stor { padding: 4px 11px; font-size: 13px; }
+  .hvit { background: #fff; }
 </style>

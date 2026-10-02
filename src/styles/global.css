@@ -117,7 +117,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015
 .page-head .ingress { font-size: clamp(17px, 1.6vw, 19px); color: var(--ink-2); max-width: 62ch; margin: 20px 0 0; }
 .page-meta { font-size: 14px; color: var(--muted); margin: 12px 0 0; }
 /* Page head with a contact box on the right (e.g. Styret) */
-.page-head.med-boks { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); gap: 24px 56px; align-items: end; }
+.page-head.med-boks { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); gap: 24px 56px; align-items: start; }
 .page-head.med-boks .ingress { max-width: 52ch; }
 @media (max-width: 760px) { .page-head.med-boks { grid-template-columns: minmax(0, 1fr); } }
 /* Jump links to sections on the same page (side.snarveier) */
@@ -132,12 +132,12 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015
 .seksjon [id] { scroll-margin-top: 24px; }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 /* Page head with the newest ABC-nytt issue on the right */
-.page-head.med-abc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px 72px; align-items: center; }
+.page-head.med-abc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px 72px; align-items: start; }
 .page-head.med-abc .ingress { max-width: 500px; }
 @media (max-width: 1100px) { .page-head.med-abc { gap: 32px 40px; } }
 @media (max-width: 760px) { .page-head.med-abc { grid-template-columns: minmax(0, 1fr); } }
 /* Page head with the newest general assembly on the right */
-.page-head.med-gf { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 32px 72px; align-items: center; }
+.page-head.med-gf { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 32px 72px; align-items: start; }
 .page-head.med-gf .ingress { max-width: 540px; }
 @media (max-width: 1100px) { .page-head.med-gf { gap: 32px 40px; } }
 @media (max-width: 860px) { .page-head.med-gf { grid-template-columns: minmax(0, 1fr); } }

@@ -1,0 +1,109 @@
+---
+// Full-width map of the area (MapLibre + OpenFreeMap, recoloured in the site's tones) with the borettslag, Arna stasjon
+// and Øyrane Torg. MapLibre is only loaded when the map nears the viewport. Until then, and without JavaScript, a static
+// picture of the same map shows (public/kart/: screenshots of this map at 1440/800/2400 px wide and 390 px for phones;
+// retake them if the markers or colours change). Scrolling the page never gets stuck:
+// zooming needs Ctrl/⌘ + scroll or two fingers.
+import HusMerke from './HusMerke.astro';
+import Icon from './Icon.astro';
+import { KART } from '../lib/kart';
+
+const BREDDER = [800, 1440, 2400];
+---
+<div class="kart" data-kart={JSON.stringify(KART)} role="region" aria-label="Kart over området">
+  <p class="visually-hidden">Kartet viser Arnatveit Borettslag ved Stuajordet, og Arna stasjon og Øyrane Torg om lag halvannen kilometer lenger nord.</p>
+  <picture class="reserve" aria-hidden="true">
+    <source media="(max-width: 640px)" srcset="/kart/omradet-mobil.webp" />
+    <img src="/kart/omradet-1440.webp" srcset={BREDDER.map((w) => `/kart/omradet-${w}.webp ${w}w`).join(', ')} sizes="100vw" alt="" loading="lazy" decoding="async" />
+  </picture>
+  <div class="flate" data-flate></div>
+  <template data-markor="borettslag"><span class="markor stor"><span class="prikk"><HusMerke class="hus" /></span><span class="navn">Arnatveit Borettslag</span></span></template>
+  <template data-markor="tog"><span class="markor"><span class="prikk"><Icon name="TrainFront" size={14} /></span><span class="navn">Arna stasjon</span></span></template>
+  <template data-markor="handel"><span class="markor venstre"><span class="prikk"><Icon name="ShoppingBag" size={14} /></span><span class="navn">Øyrane Torg</span></span></template>
+</div>
+
+<script>
+  type Kart = { stil: string; steder: { navn: string; type: string; lnglat: [number, number] }[]; farger: Record<string, string>; skjul: string[] };
+
+  for (const el of document.querySelectorAll<HTMLElement>('[data-kart]')) {
+    const cfg = JSON.parse(el.dataset.kart!) as Kart;
+    const flate = el.querySelector<HTMLElement>('[data-flate]')!;
+    const start = async () => {
+      // MapLibre 6 is an ES module without a default export, and looks for its worker next to its own file; after
+      // bundling it isn't there, so Vite builds the worker (with its imports) and we hand MapLibre the URL
+      const [maplibregl, { default: workerUrl }] = await Promise.all([
+        import('maplibre-gl'),
+        import('maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'),
+        import('maplibre-gl/dist/maplibre-gl.css'),
+      ]);
+      maplibregl.setWorkerUrl(workerUrl);
+      const grenser = cfg.steder.reduce((b, s) => b.extend(s.lnglat), new maplibregl.LngLatBounds(cfg.steder[0].lnglat, cfg.steder[0].lnglat));
+      const smal = el.clientWidth < 640;
+      const map = new maplibregl.Map({
+        container: flate,
+        style: cfg.stil,
+        bounds: grenser,
+        // Room for the labels (right of the dots; Øyrane Torg's to the left) and the attribution line at the bottom
+        fitBoundsOptions: { padding: smal ? { top: 50, bottom: 70, left: 110, right: 175 } : { top: 70, bottom: 80, left: 200, right: 260 } },
+        maxZoom: 17,
+        minZoom: 10,
+        cooperativeGestures: true,
+        attributionControl: { compact: true },
+        dragRotate: false,
+        pitchWithRotate: false,
+        touchPitch: false,
+        locale: {
+          'CooperativeGesturesHandler.WindowsHelpText': 'Hold inne Ctrl og rull for å zoome kartet',
+          'CooperativeGesturesHandler.MacHelpText': 'Hold inne ⌘ og rull for å zoome kartet',
+          'CooperativeGesturesHandler.MobileHelpText': 'Bruk to fingre for å flytte kartet',
+          'NavigationControl.ZoomIn': 'Zoom inn',
+          'NavigationControl.ZoomOut': 'Zoom ut',
+          'AttributionControl.ToggleAttribution': 'Vis kilder',
+          'AttributionControl.MapFeedback': 'Rett opp kartet',
+        },
+      });
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+      map.on('style.load', () => {
+        for (const lag of map.getStyle().layers) {
+          if (cfg.skjul.some((p) => lag.id.startsWith(p))) { map.setLayoutProperty(lag.id, 'visibility', 'none'); continue; }
+          const farge = Object.entries(cfg.farger).find(([p]) => lag.id === p || lag.id.startsWith(`${p}`))?.[1];
+          if (!farge) continue;
+          const egenskap = lag.type === 'background' ? 'background-color' : lag.type === 'fill' ? 'fill-color' : lag.type === 'line' ? 'line-color' : null;
+          if (egenskap) map.setPaintProperty(lag.id, egenskap, farge);
+        }
+      });
+      for (const s of cfg.steder) {
+        const mal = el.querySelector<HTMLTemplateElement>(`template[data-markor="${s.type}"]`)!;
+        const markor = (mal.content.firstElementChild as HTMLElement).cloneNode(true) as HTMLElement;
+        // The dot sits on the point; the label to its right (Øyrane Torg: to its left, clear of Arna stasjon just south of it)
+        const venstre = markor.classList.contains('venstre');
+        const halv = s.type === 'borettslag' ? 18 : 12;
+        new maplibregl.Marker({ element: markor, anchor: venstre ? 'right' : 'left', offset: [venstre ? halv : -halv, 0] }).setLngLat(s.lnglat).addTo(map);
+      }
+      map.once('idle', () => el.classList.add('lastet'));
+    };
+    // Load MapLibre (about 250 kB) only when the map is close to the viewport
+    const obs = new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) { obs.disconnect(); start().catch((e) => console.error("kart:", e)); } }, { rootMargin: '300px' });
+    obs.observe(el);
+  }
+</script>
+
+<style>
+  .kart { position: relative; height: clamp(280px, 30vw, 400px); margin-top: clamp(32px, 4vw, 56px); overflow: hidden; background: #efebe1; }
+  .reserve, .reserve img, .flate { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .reserve img { object-fit: cover; }
+  .flate { opacity: 0; transition: opacity 0.3s; }
+  .lastet .flate { opacity: 1; }
+
+  /* Markers (built by MapLibre from the templates; global, since they're cloned into the map) */
+  .kart :global(.markor) { display: inline-flex; align-items: center; gap: 6px; pointer-events: none; }
+  .kart :global(.markor.venstre) { flex-direction: row-reverse; }
+  .kart :global(.prikk) { width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%; background: #fff; color: var(--accent); display: grid; place-items: center; box-shadow: 0 0 0 2px var(--accent), 0 4px 10px rgba(29, 36, 32, 0.18); }
+  .kart :global(.stor .prikk) { width: 36px; height: 36px; background: var(--accent); color: #fff; box-shadow: 0 0 0 3px #fff, 0 6px 14px rgba(29, 36, 32, 0.25); }
+  .kart :global(.stor .hus) { width: 22px; height: 15px; }
+  .kart :global(.navn) { padding: 3px 9px; border-radius: 999px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 600; line-height: 1.4; white-space: nowrap; box-shadow: 0 2px 8px rgba(29, 36, 32, 0.14); }
+  .kart :global(.stor .navn) { padding: 5px 11px; font-size: 14px; }
+  .kart :global(.maplibregl-ctrl-group) { border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(29, 36, 32, 0.14); }
+  .kart :global(.maplibregl-ctrl-group button) { width: 36px; height: 36px; }
+  .kart :global(.maplibregl-ctrl-attrib) { font-size: 11px; }
+</style>

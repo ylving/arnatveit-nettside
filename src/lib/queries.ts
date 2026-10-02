@@ -103,7 +103,7 @@ export const INNSTILLINGER = `*[_id == "innstillinger"][0]{
 }`;
 
 // A news item in lists (Aktuelt, "Flere saker", front page): image with its hotspot crop, category, date, lead
-export const NYHET_FELT = `_id, _type, tittel, dato, "kategori": kategori->{ tittel, farge, ikon }, ingress, "slug": slug.current, bilde{ ..., "url": asset->url }`;
+export const NYHET_FELT = `_id, _type, tittel, dato, "kategori": kategori->{ tittel, farge, ikon }, ingress, fakta, festet, "slug": slug.current, bilde{ ..., "url": asset->url, "w": asset->metadata.dimensions.width, "h": asset->metadata.dimensions.height }`;
 export const NYHET_KORT = `{ ${NYHET_FELT} }`;
 
 export const SIDE_PATHS = `*[_type == "side" && defined(slug.current)]{ "slug": slug.current, "forelder": forelder->slug.current }`;

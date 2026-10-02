@@ -1,12 +1,14 @@
 ---
 // Full-width soft green band: eyebrow + heading on the left (5/12), text on the right (7/12). Stacked on narrow screens.
+// With `kart`: a full-width map of the area at the bottom of the band.
 import Innhold from './Innhold.astro';
+import Kart from '../Kart.astro';
 import { seksjonAnker } from '../../lib/urls';
 
 const { node } = Astro.props;
 const anker = seksjonAnker(node);
 ---
-<section class="baand" id={anker?.id}>
+<section class:list={['baand', { 'med-kart': node.kart }]} id={anker?.id}>
   <div class="container">
     <div class="kolonner">
       <div>
@@ -16,9 +18,11 @@ const anker = seksjonAnker(node);
       {node.tekst?.length > 0 && <div class="prose"><Innhold value={node.tekst} /></div>}
     </div>
   </div>
+  {node.kart && <Kart />}
 </section>
 <style>
   .baand { background: var(--accent-soft); padding-block: clamp(40px, 6vw, 80px); }
+  .med-kart { padding-bottom: 0; }
   .kolonner { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 7fr); gap: 20px 56px; }
   .overtittel { margin: 0 0 12px; font-size: 14px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
   .baand h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.1; }

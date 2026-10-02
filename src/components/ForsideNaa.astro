@@ -1,0 +1,97 @@
+---
+// Front page "I borettslaget nå": a sand band with two modules side by side, split by a thin line (stacked on phones):
+// the next dugnad (date block, time and place, "Se dugnadsplan", "Legg i kalender" = the event's own .ics) and the
+// newest ABC-nytt (tilted cover, "Les utgaven" opens the PDF, "Alle utgaver"). Same data as the Dugnad and ABC-nytt pages.
+import Icon from './Icon.astro';
+import AbcForside from './AbcForside.astro';
+import { docHref } from '../lib/urls';
+import { utgaveNavn } from '../../sanity/standarder';
+import { datoDeler, filnavnFor, kommende, type Arrangement } from '../lib/arrangement';
+
+interface Props { arrangementer: Arrangement[]; abc?: any; dugnadSide?: any; abcSide?: any }
+const { arrangementer, abc, dugnadSide, abcSide } = Astro.props;
+const kom = kommende(arrangementer);
+const filer = filnavnFor(kom);
+const dugnad = kom.find((a) => a.kategori === 'dugnad');
+const d = dugnad && datoDeler(dugnad);
+const sted = dugnad && (dugnad.sted || dugnad.tun);
+---
+<section class="naa" aria-label="I borettslaget nå">
+  <div class="container moduler">
+    <div class="modul">
+      <h2 class="eyebrow">Neste dugnad</h2>
+      {dugnad && d ? (
+        <div class="rad">
+          <span class="dato"><span class="ukedag">{d.ukedag}</span><span class="dag">{d.dag}</span><span class="mnd">{d.maaned.split(' ')[0]}</span></span>
+          <div class="tekst">
+            <p class="tittel">{dugnad.tittel}</p>
+            <ul class="detaljer">
+              <li><Icon name="Clock" size={16} />{d.tid}</li>
+              {sted && <li><Icon name="MapPin" size={16} />{sted}</li>}
+            </ul>
+          </div>
+        </div>
+      ) : <p class="tom">Ingen dugnad er planlagt ennå.</p>}
+      <div class="lenker">
+        {dugnadSide && <a href={docHref(dugnadSide)}>{dugnad ? 'Se dugnadsplan' : 'Om dugnad'}<Icon name="ArrowRight" size={16} /></a>}
+        {dugnad && <a href={`/kalender/${filer.get(dugnad._id)}.ics`}><Icon name="CalendarPlus" size={16} />Legg i kalender</a>}
+      </div>
+    </div>
+    <span class="skille" aria-hidden="true"></span>
+    {abc && (
+      <div class="modul">
+        <h2 class="eyebrow">Siste ABC-nytt</h2>
+        <div class="rad">
+          <span class="forside"><AbcForside utgave={abc} bredde={100} /></span>
+          <div class="tekst">
+            <p class="tittel">{utgaveNavn(abc.maaned, abc.aar)}</p>
+            <p class="beskrivelse">Borettslagets informasjonsblad, rundt seks ganger i året.</p>
+          </div>
+        </div>
+        <div class="lenker">
+          <a href={abc.url} target="_blank" rel="noopener"><Icon name="BookOpen" size={16} />Les utgaven<span class="visually-hidden"> (PDF)</span></a>
+          {abcSide && <a href={docHref(abcSide)}>Alle utgaver<Icon name="ArrowRight" size={16} /></a>}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+<style>
+  .naa { background: var(--sand); padding-block: clamp(36px, 4.5vw, 64px); margin-top: clamp(56px, 7vw, 96px); }
+  .moduler { display: grid; grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr); gap: 64px; align-items: stretch; }
+  .skille { background: #d3cab6; }
+  .modul { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+  .eyebrow { font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.4; color: var(--farge-oker); }
+  p { margin: 0; }
+  .rad { display: flex; align-items: center; gap: 28px; }
+  .dato { width: 112px; height: 128px; flex-shrink: 0; border-radius: 20px; background: var(--dugnad-bg); color: var(--dugnad); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; }
+  .ukedag { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+  .dag { font-family: var(--serif); font-size: 48px; line-height: 1; color: var(--ink); margin: 4px 0; }
+  .mnd { font-size: 14px; font-weight: 500; }
+  .tekst { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .tittel { font-family: var(--serif); font-size: clamp(24px, 2.4vw, 34px); line-height: 1.1; overflow-wrap: break-word; hyphens: auto; }
+  .detaljer { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 16px; color: #46514b; }
+  .detaljer li { display: flex; align-items: center; gap: 8px; }
+  .detaljer :global(svg) { color: var(--dugnad); flex-shrink: 0; }
+  .beskrivelse { max-width: 300px; font-size: 16px; line-height: 1.55; color: #46514b; }
+  .tom { font-size: 17px; color: #46514b; }
+  .forside { display: block; width: 100px; flex-shrink: 0; transform: rotate(-3deg); }
+  .forside :global(.forside) { display: block; width: 100px; height: auto; border-radius: 5px; box-shadow: 0 2px 4px rgba(29, 36, 32, 0.08), 0 12px 28px rgba(29, 36, 32, 0.16); }
+  .lenker { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px 20px; padding-top: 6px; }
+  .lenker a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 16px; font-weight: 600; color: var(--accent); }
+  .lenker a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .lenker a :global(svg) { flex-shrink: 0; }
+  @media (max-width: 900px) {
+    .moduler { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    .skille { height: 1px; }
+  }
+  @media (max-width: 640px) {
+    .rad { gap: 18px; }
+    .dato { width: 76px; height: 88px; border-radius: 16px; }
+    .dag { font-size: 32px; margin: 2px 0; }
+    .mnd { font-size: 13px; }
+    .forside, .forside :global(.forside) { width: 66px; }
+    .detaljer, .beskrivelse { font-size: 15px; }
+    .lenker a { font-size: 15px; }
+  }
+</style>

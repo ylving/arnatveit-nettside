@@ -1,29 +1,38 @@
 ---
-// A news item's image (editor's crop, hotspot as the focal point when the box crops it further), or the fallback
-// illustration. The box size comes from the parent (class); `bredde` = the widest it is shown, for srcset.
+// A news item's image, or the category drawing when it has none. The image is requested from Sanity as a crop at the
+// box's ratio (`forhold`, width / height; `forholdMobil` below 640 px), so the editor's crop and hotspot decide what's
+// in it. `bredde` = the widest it's shown, for srcset; width/height avoid layout shift. The box size comes from the
+// caller's class.
 import NyhetIllustrasjon from './NyhetIllustrasjon.astro';
 import { urlFor } from '../lib/sanity';
 
-interface Props { nyhet: any; bredde: number; sizes: string; class?: string; eager?: boolean }
-const { nyhet, bredde, sizes, class: klasse, eager = false } = Astro.props;
+interface Props { nyhet: any; bredde: number; sizes: string; forhold?: number; forholdMobil?: number; class?: string; eager?: boolean }
+const { nyhet, bredde, sizes, forhold = 16 / 9, forholdMobil, class: klasse, eager = false } = Astro.props;
 const b = nyhet.bilde?.asset ? nyhet.bilde : null;
-const src = (w: number) => urlFor(b).width(w).url();
-const fokus = b?.hotspot ? `${Math.round(b.hotspot.x * 100)}% ${Math.round(b.hotspot.y * 100)}%` : '50% 50%';
+const MULTIPLER = [0.5, 1, 1.5, 2, 3];
+const url = (w: number, r: number) => urlFor(b).width(w).height(Math.round(w / r)).fit('crop').url();
+const srcset = (r: number) => MULTIPLER.map((m) => Math.round(bredde * m)).map((w) => `${url(w, r)} ${w}w`).join(', ');
 ---
 {b ? (
-  <img
-    class:list={['nyhet-bilde', klasse]}
-    src={src(bredde * 2)}
-    srcset={[1, 1.5, 2, 3].map((x) => `${src(Math.round(bredde * x))} ${Math.round(bredde * x)}w`).join(', ')}
-    sizes={sizes}
-    alt={b.alt ?? ''}
-    loading={eager ? 'eager' : 'lazy'}
-    decoding="async"
-    style={`object-position: ${fokus}`}
-  />
+  <picture class:list={['nyhet-bilde', klasse]}>
+    {forholdMobil && <source media="(max-width: 640px)" srcset={srcset(forholdMobil)} sizes="calc(100vw - 2 * var(--gutter))" width={bredde} height={Math.round(bredde / forholdMobil)} />}
+    <img
+      src={url(bredde * 2, forhold)}
+      srcset={srcset(forhold)}
+      sizes={sizes}
+      width={bredde}
+      height={Math.round(bredde / forhold)}
+      alt={b.alt ?? ''}
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : undefined}
+      decoding="async"
+    />
+  </picture>
 ) : (
   <NyhetIllustrasjon kategori={nyhet.kategori} class={klasse} />
 )}
 <style>
-  .nyhet-bilde { display: block; width: 100%; object-fit: cover; background: var(--accent-soft); }
+  .nyhet-bilde { display: block; overflow: hidden; background: var(--accent-soft); }
+  /* The crop already has the box's ratio; cover only absorbs rounding and boxes with a fixed height */
+  .nyhet-bilde img { display: block; width: 100%; height: 100%; object-fit: cover; }
 </style>

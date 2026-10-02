@@ -1,12 +1,15 @@
 ---
-// Green contact box beside the page title ("Skriv til hele styret"); the address itself is the link
+// Green contact box beside the page title ("Skriv til hele styret"); the address itself is the link, with an optional
+// text under it (line breaks kept, phone numbers kept on one line)
 import Epost from './Epost.astro';
-const { tittel = 'Skriv til hele styret', epost } = Astro.props;
+import { beskyttTelefon } from '../lib/tekst';
+const { tittel = 'Skriv til hele styret', epost, tekst } = Astro.props;
 ---
 {epost && (
   <aside class="kontaktboks">
     <span class="tittel">{tittel}</span>
     <a class="adresse" href={`mailto:${epost}`}><Epost adresse={epost} /></a>
+    {tekst && <p class="tekst">{beskyttTelefon(tekst)}</p>}
   </aside>
 )}
 <style>
@@ -14,5 +17,6 @@ const { tittel = 'Skriv til hele styret', epost } = Astro.props;
   .tittel { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-on); }
   .adresse { font-family: var(--serif); font-size: clamp(19px, 1.6vw, 22px); line-height: 1.25; color: #fff; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.45); text-underline-offset: 4px; }
   .adresse:hover { color: #fff; text-decoration-color: #fff; }
+  .tekst { margin: 6px 0 0; font-size: 15px; line-height: 1.55; color: var(--accent-on); white-space: pre-line; }
   @media (max-width: 760px) { .kontaktboks { padding: 20px 22px; border-radius: 18px; } }
 </style>
