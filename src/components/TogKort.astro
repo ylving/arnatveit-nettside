@@ -1,0 +1,207 @@
+---
+// Train departures to Bergen from Arna stasjon (front page hero). Collapsed: a tag with the next departure; expanded:
+// the next three, with platform, delays and cancellations, from /api/tog (the site Worker, data from Entur).
+// Desktop: anchored at the bottom left of the hero illustration, expanding upward over it (absolute, no layout shift);
+// Escape and a click outside close it. Phones: full width below the illustration, in the flow.
+// Without JS: the tag links to Entur's departure board with a fixed text. The open state isn't remembered.
+import Icon from './Icon.astro';
+import { TOG } from '../lib/tog';
+---
+<div class="tog" data-tog data-avgangstavle={TOG.avgangstavle}>
+  <a class="tag" href={TOG.avgangstavle} data-tag>
+    <span class="ikon"><Icon name="TrainFront" size={22} /></span>
+    <span class="tag-tekst">
+      <strong><span class="bred">Tog til Bergen hvert kvarter</span><span class="smal">Tog til Bergen</span></strong>
+      <span class="neste" data-neste>Se avganger fra Arna stasjon hos Entur.</span>
+    </span>
+    <span class="chevron" hidden data-chevron><Icon name="ChevronDown" size={18} /></span>
+  </a>
+  <div class="kort" id="togavganger" hidden>
+    <button type="button" class="kort-hode" aria-expanded="true" aria-controls="togavganger" data-lukk>
+      <span class="ikon liten"><Icon name="TrainFront" size={20} /></span>
+      <span class="tag-tekst">
+        <strong>Tog til Bergen</strong>
+        <span class="neste" data-kilde>Fra Arna stasjon</span>
+      </span>
+      <span class="pille" data-pille>Rutetid</span>
+      <span class="chevron"><Icon name="ChevronUp" size={18} /></span>
+    </button>
+    <ol class="rader" aria-live="polite" data-rader>
+      <li class="fallback">Se avganger fra Arna stasjon hos Entur.</li>
+    </ol>
+    <div class="fot">
+      <a href={TOG.avgangstavle} target="_blank" rel="noopener">Flere avganger<Icon name="ExternalLink" size={14} /><span class="visually-hidden"> (åpnes i ny fane)</span></a>
+      <span>Data: Entur</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  import type { Avgang, TogSvar } from '../lib/tog';
+
+  const klokke = new Intl.DateTimeFormat('nb-NO', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Oslo' });
+  const tid = (iso: string) => klokke.format(new Date(iso));
+  const minutter = (iso: string) => Math.floor((new Date(iso).getTime() - Date.now()) / 60_000);
+  const omTekst = (iso: string) => (minutter(iso) < 1 ? 'nå' : `om ${minutter(iso)} min`);
+  const forsinket = (a: Avgang) => new Date(a.expected).getTime() - new Date(a.aimed).getTime() > 60_000;
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+
+  for (const rot of document.querySelectorAll<HTMLElement>('[data-tog]')) {
+    const lenke = rot.querySelector<HTMLAnchorElement>('[data-tag]')!;
+    const kort = rot.querySelector<HTMLElement>('#togavganger')!;
+    const lukk = rot.querySelector<HTMLButtonElement>('[data-lukk]')!;
+    const rader = rot.querySelector<HTMLElement>('[data-rader]')!;
+    const pille = rot.querySelector<HTMLElement>('[data-pille]')!;
+    const kilde = rot.querySelector<HTMLElement>('[data-kilde]')!;
+
+    // The link becomes the toggle button (same content, classes and Astro's scoping attribute)
+    const knapp = document.createElement('button');
+    for (const a of lenke.attributes) if (a.name !== 'href') knapp.setAttribute(a.name, a.value);
+    knapp.type = 'button';
+    knapp.innerHTML = lenke.innerHTML;
+    knapp.setAttribute('aria-expanded', 'false');
+    knapp.setAttribute('aria-controls', 'togavganger');
+    lenke.replaceWith(knapp);
+    knapp.querySelector<HTMLElement>('[data-chevron]')!.hidden = false;
+    const neste = knapp.querySelector<HTMLElement>('[data-neste]')!;
+
+    let avganger: Avgang[] = [];
+    let sanntid = false;
+    let signatur = '';
+
+    const kommende = () => avganger.filter((a) => new Date(a.cancelled ? a.aimed : a.expected).getTime() > Date.now() - 60_000);
+
+    // "om X min" and the collapsed line: recomputed every 30 s, outside the live region's announcements
+    const oppdaterMinutter = () => {
+      for (const el of rader.querySelectorAll<HTMLElement>('[data-om]')) el.textContent = omTekst(el.dataset.om!);
+      const n = kommende().find((a) => !a.cancelled);
+      neste.innerHTML = n
+        ? `${sanntid ? '<span class="prikk" aria-hidden="true"></span>' : ''}<span class="bred">Neste avgang</span><span class="smal">Neste</span> <b>${tid(n.expected)}</b> · ${omTekst(n.expected)}`
+        : 'Se avganger fra Arna stasjon hos Entur.';
+    };
+
+    const tegn = () => {
+      const liste = kommende();
+      pille.textContent = sanntid ? 'Sanntid' : 'Rutetid';
+      pille.classList.toggle('sanntid', sanntid);
+      if (sanntid) pille.insertAdjacentHTML('afterbegin', '<span class="prikk" aria-hidden="true"></span>');
+      kilde.textContent = sanntid ? 'Sanntid fra Arna stasjon' : 'Fra Arna stasjon';
+      // Re-render the rows (and so announce) only when the departures themselves change
+      const ny = JSON.stringify(liste.map((a) => [a.aimed, a.expected, a.cancelled, a.platform]));
+      if (ny !== signatur) {
+        signatur = ny;
+        rader.innerHTML = liste.length
+          ? liste.map((a) => {
+              const spor = a.platform ? `Spor ${esc(a.platform)}` : '';
+              if (a.cancelled) {
+                return `<li class="innstilt"><span class="visually-hidden">Avgangen ${tid(a.aimed)} er innstilt.</span>
+                  <span class="t" aria-hidden="true"><s><time datetime="${a.aimed}">${tid(a.aimed)}</time></s></span><span aria-hidden="true"></span>
+                  <span class="merke rod" aria-hidden="true">Innstilt</span></li>`;
+              }
+              const sen = forsinket(a);
+              return `<li class="${sen ? 'sen' : ''}"><span class="visually-hidden">${tid(a.expected)}${sen ? `, forsinket fra ${tid(a.aimed)}` : ''}${spor ? `, ${spor.toLowerCase()}` : ''}.</span>
+                <span class="t" aria-hidden="true">${sen ? `<s>${tid(a.aimed)}</s> ` : ''}<time datetime="${a.expected}">${tid(a.expected)}</time></span>
+                <span class="om" aria-hidden="true" data-om="${a.expected}"></span>
+                <span aria-hidden="true">${sen ? '<span class="merke lys">Forsinket</span>' : `<span class="spor">${spor}</span>`}</span></li>`;
+            }).join('')
+          : `<li class="fallback">Sanntidsdata er ikke tilgjengelig akkurat nå. <a href="${rot.dataset.avgangstavle}" target="_blank" rel="noopener">Se avganger fra Arna stasjon hos Entur.</a></li>`;
+      }
+      oppdaterMinutter();
+    };
+
+    const hent = async () => {
+      try {
+        const res = await fetch('/api/tog', { headers: { accept: 'application/json' } });
+        if (!res.ok) throw new Error(String(res.status));
+        const svar = (await res.json()) as TogSvar;
+        avganger = svar.avganger ?? [];
+        sanntid = svar.status === 'ok' && avganger.some((a) => a.realtime);
+      } catch {
+        // Keep what we have; if it's nothing, the fallback text stays
+        sanntid = false;
+      }
+      tegn();
+    };
+
+    // Fetch on load and every 60 s while the tab is visible; minutes every 30 s
+    let hentTimer: number | undefined;
+    const start = () => { hent(); clearInterval(hentTimer); hentTimer = window.setInterval(hent, 60_000); };
+    const stopp = () => clearInterval(hentTimer);
+    document.addEventListener('visibilitychange', () => (document.hidden ? stopp() : start()));
+    if (!document.hidden) start();
+    window.setInterval(() => { if (!document.hidden) { tegn(); } }, 30_000);
+
+    // Open / close
+    const desktop = matchMedia('(min-width: 641px)');
+    const settApen = (apen: boolean, fokus = false) => {
+      kort.hidden = !apen;
+      knapp.hidden = apen;
+      knapp.setAttribute('aria-expanded', String(apen));
+      if (fokus) (apen ? lukk : knapp).focus();
+    };
+    knapp.addEventListener('click', () => settApen(true, true));
+    lukk.addEventListener('click', () => settApen(false, true));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !kort.hidden && desktop.matches) settApen(false, true); });
+    document.addEventListener('click', (e) => { if (!kort.hidden && desktop.matches && !rot.contains(e.target as Node)) settApen(false); });
+  }
+</script>
+
+<style>
+  /* Desktop: anchored to the illustration's bottom left (the parent is position: relative) */
+  .tog { position: absolute; left: -32px; bottom: -28px; z-index: 2; }
+  .tag, .kort { background: #fff; color: var(--ink); box-shadow: 0 12px 32px rgba(29, 36, 32, 0.12); }
+  .tag { display: flex; align-items: center; gap: 14px; padding: 16px 18px 16px 20px; border: 0; border-radius: 18px; font: inherit; text-align: left; cursor: pointer; }
+  a.tag:hover { color: var(--ink); }
+  .ikon { width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+  .ikon.liten { width: 40px; height: 40px; }
+  .tag-tekst { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .tag-tekst strong { font-size: 16px; font-weight: 600; }
+  .neste { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0 5px; font-size: 14px; color: var(--muted); }
+  .neste :global(b) { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tag :global(.prikk), .kort :global(.prikk) { width: 7px; height: 7px; border-radius: 50%; background: #3c9a6e; box-shadow: 0 0 0 3px rgba(60, 154, 110, 0.2); margin-right: 2px; flex-shrink: 0; }
+  /* Also inside the line the script writes (no scoping attribute there) */
+  .tog :global(.smal) { display: none; }
+  .tag[hidden], .chevron[hidden] { display: none; }
+  .chevron { width: 36px; height: 36px; flex-shrink: 0; margin-left: 6px; border-radius: 50%; background: var(--bg); color: var(--accent); display: grid; place-items: center; }
+  .tag:hover .chevron, .kort-hode:hover .chevron { background: var(--accent-soft); }
+
+  /* Expanded: pinned at the same bottom left, so it grows upward over the illustration */
+  .kort { position: absolute; left: 0; bottom: 0; width: 370px; max-width: calc(100vw - 2 * var(--gutter)); padding: 18px 20px 14px; border-radius: 20px; box-shadow: 0 12px 32px rgba(29, 36, 32, 0.14); display: flex; flex-direction: column; gap: 8px; }
+  .kort[hidden] { display: none; }
+  .kort-hode { display: flex; align-items: center; gap: 12px; width: 100%; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+  .kort-hode .tag-tekst { flex: 1; }
+  .kort-hode .neste { font-size: 13px; }
+  .pille { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; background: #f0ede6; color: var(--faint); font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .pille.sanntid { background: var(--accent-soft); color: var(--accent); }
+  .kort-hode .chevron { margin-left: 0; }
+
+  .rader { list-style: none; margin: 0; padding: 0; }
+  .rader :global(li) { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
+  .rader :global(li:last-child) { border-bottom: 0; }
+  .rader :global(.t) { display: flex; align-items: baseline; gap: 6px; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .rader :global(.t s) { font-size: 14px; font-weight: 400; color: #9d988f; }
+  .rader :global(.sen time) { color: #9a3f22; }
+  .rader :global(.innstilt .t s) { font-size: 18px; font-weight: 600; }
+  .rader :global(.om) { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .rader :global(.spor) { font-size: 13px; color: var(--faint); }
+  .rader :global(.merke) { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .rader :global(.lys) { background: #f6ded3; color: #9a3f22; }
+  .rader :global(.rod) { background: #9a3f22; color: #fff; }
+  .rader :global(.fallback) { display: block; margin: 6px 0; padding: 0; border: 0; font-size: 15px; line-height: 1.5; color: #46514b; }
+  .rader :global(.fallback a) { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .fot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 2px; padding-top: 8px; border-top: 1px solid var(--line-soft); }
+  .fot a { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--accent); }
+  .fot a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .fot > span { font-size: 12px; color: #9d988f; }
+
+  /* Narrower hero (stacked) */
+  @media (max-width: 960px) { .tog { left: 16px; bottom: -24px; } }
+  /* Phones: full width below the illustration, in the flow, flat outline instead of a shadow */
+  @media (max-width: 640px) {
+    .tog { position: static; margin-top: 12px; }
+    .tag, .kort { width: 100%; box-shadow: 0 0 0 1px var(--line); }
+    .kort { position: static; max-width: none; }
+    .tog :global(.bred) { display: none; }
+    .tog :global(.smal) { display: inline; }
+  }
+</style>

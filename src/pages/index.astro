@@ -4,6 +4,7 @@ import Icon from '../components/Icon.astro';
 import InfoCards from '../components/InfoCards.astro';
 import Illustrasjon from '../components/Illustrasjon.astro';
 import Faktabaand from '../components/Faktabaand.astro';
+import TogKort from '../components/TogKort.astro';
 import { load, urlFor } from '../lib/sanity';
 import { DOC_REF, DOC_REF_FIELDS, DOKUMENT, LINK, SIDE_KORT } from '../lib/queries';
 import { docHref, linkHref, oppgaveAnker } from '../lib/urls';
@@ -58,12 +59,7 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
       ) : (
         <Illustrasjon />
       )}
-      {f.infokort?.tittel && (
-        <div class="float">
-          <span class="ic"><Icon name="TrainFront" size={22} /></span>
-          <span><strong>{f.infokort.tittel}</strong><span>{f.infokort.tekst}</span></span>
-        </div>
-      )}
+      <TogKort />
     </div>
   </section>
 
@@ -143,10 +139,6 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
   .actions { display: flex; flex-wrap: wrap; gap: 12px; }
   .hero-art { position: relative; }
   .hero-img { width: 100%; height: auto; aspect-ratio: 14 / 11; object-fit: cover; border-radius: var(--radius-lg); background: var(--accent-soft); }
-  .float { position: absolute; left: -32px; bottom: -28px; background: var(--surface); border-radius: 18px; padding: 18px 22px; display: flex; align-items: center; gap: 14px; box-shadow: 0 12px 32px rgba(29, 36, 32, 0.12); }
-  .float .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
-  .float strong { display: block; font-size: 16px; }
-  .float strong + span { font-size: 14px; color: var(--muted); }
 
 
   .block { padding-top: clamp(56px, 7vw, 96px); }
@@ -187,7 +179,6 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
   @media (max-width: 960px) {
     .hero { grid-template-columns: 1fr; }
     .hero-art { max-width: 560px; }
-    .float { left: 16px; bottom: -24px; }
     .news { grid-template-columns: 1fr; }
     .featured { grid-column: auto; min-height: 0; }
     .docs { grid-template-columns: 1fr; }
@@ -196,6 +187,5 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
   }
   @media (max-width: 640px) {
     .actions .btn { flex: 1 1 100%; }
-    .float { position: static; margin-top: 12px; box-shadow: none; border: 1px solid var(--line); }
   }
 </style>

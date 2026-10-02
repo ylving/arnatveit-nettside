@@ -1,6 +1,6 @@
 # Arnatveit Borettslag
 
-Astro (static) + Sanity, deployed as a Cloudflare Worker with static assets. Sanity Studio is embedded at `/admin` (hash routing, so it's fully static too).
+Astro (static) + Sanity, deployed as a Cloudflare Worker with static assets. Sanity Studio is embedded at `/admin` (hash routing, so it's fully static too). A small Worker (`workers/nettside/index.ts`) answers `/api/*` only: `GET /api/tog` gives the next trains to Bergen from Entur for the front page; every other request goes straight to the static assets. `npm run preview` (`wrangler dev`) runs it locally; `astro dev` doesn't, so there the train card shows its fallback text.
 
 ## Setup
 1. `cp .env.example .env` and fill in the project ID + dataset (both `PUBLIC_*` and `SANITY_STUDIO_*`).

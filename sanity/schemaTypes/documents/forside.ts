@@ -17,15 +17,6 @@ export const forside = defineType({
       type: 'bilde',
     }),
     defineField({
-      name: 'infokort',
-      title: 'Infokort i toppen',
-      type: 'object',
-      fields: [
-        defineField({ name: 'tittel', title: 'Tittel', type: 'string' }),
-        defineField({ name: 'tekst', title: 'Tekst', type: 'string' }),
-      ],
-    }),
-    defineField({
       name: 'faktaseksjon',
       title: 'Faktaseksjon – tekst',
       description: 'Venstre side av det grønne båndet med faktakortene.',

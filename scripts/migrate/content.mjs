@@ -236,7 +236,6 @@ export function buildContent({ protokoll2026, dokumentId }) {
     tittel: 'Rekkehus i tre tun, med turterrenget rett utenfor døra',
     ingress: 'Et veldrevet borettslag med romslige fellesarealer, lekeplass i hvert tun og egen ballplass. Gangavstand til skole, buss og butikk, og kort vei til Øyrane Torg og toget.',
     knapper: [lenke('Praktisk info', '#side-praktisk-info'), lenke('Kontakt styret', 'mailto:styret@arnatveit-borettslag.no')].map((l) => ({ ...l, _key: key() })),
-    infokort: { tittel: 'Tog til Bergen sentrum', tekst: 'Avgang hver halvtime fra Arna' },
     faktaseksjon: {
       overtittel: 'Å bo her',
       tittel: 'Tre tun, ett nabolag',

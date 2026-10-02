@@ -1,11 +1,16 @@
 {
   "name": "arnatveit-borettslag",
   "compatibility_date": "2026-09-25",
+  // Only /api/* runs the Worker (train departures); everything else is served straight from the assets
+  "main": "workers/nettside/index.ts",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
-  }
-  // Later (docs/ROADMAP.md): "main" worker entry + bindings
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true }
+  // Later (docs/ROADMAP.md): more bindings
   // "d1_databases": [{ "binding": "DB", "database_name": "arnatveit", "database_id": "…" }],
   // "r2_buckets": [{ "binding": "DOCS", "bucket_name": "arnatveit-dokumenter" }]
 }
