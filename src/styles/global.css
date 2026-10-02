@@ -17,20 +17,25 @@
   --faint: #7a817c;
   --line-2: #e8e2d6;
   --kant: #d5cfc2;
-  /* Document categories and task cards (dokumentkategori.farge, oppgave.aksent) */
-  --farge-oker-bg: #f3e6d6;
-  --farge-oker: #8a4e1f;
-  --farge-gronn-bg: #e4ece6;
+  /* Category colours: bg for pills, drawings and the article header, ink for text, icons and the house watermark.
+     Chosen per category (nyhetskategori.farge, dokumentkategori.farge, oppgave.aksent; FARGER in sanity/standarder.ts) */
+  --farge-gronn-bg: #e4ece6;     /* Generalforsamling, Dugnad */
   --farge-gronn: #2f5d4e;
-  --farge-blaa-bg: #e1e8ee;
+  --farge-blaa-bg: #e1e8ee;      /* Styret */
   --farge-blaa: #35556e;
-  --farge-sand-bg: #ece6da;
+  --farge-sand-bg: #ece6da;      /* Informasjon */
   --farge-sand: #5e5446;
-  /* Event categories (arrangement.kategori) */
-  --dugnad-bg: #f3e6d6;
-  --dugnad: #8a4e1f;
-  --sosialt-bg: #e4ece6;
-  --sosialt: #2f5d4e;
+  --farge-oker-bg: #f3e6d6;      /* document categories (Søknader) */
+  --farge-oker: #8a4e1f;
+  /* Event categories (arrangement.kategori): dugnad green as in the news, sosialt ochre */
+  --dugnad-bg: var(--farge-gronn-bg);
+  --dugnad: var(--farge-gronn);
+  --sosialt-bg: var(--farge-oker-bg);
+  --sosialt: var(--farge-oker);
+  /* News (Aktuelt band, front page news box): the dark blue, with cream text */
+  --nytt: var(--farge-blaa);
+  --nytt-tekst: var(--bg);
+  --nytt-dempet: rgba(246, 243, 236, 0.82);
   --footer-bg: #1d2420;
   --footer-ink: #d4cfc4;
   --footer-muted: #9d988f;

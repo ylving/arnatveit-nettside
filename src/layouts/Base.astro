@@ -14,9 +14,11 @@ const innstillinger = await load<any>(INNSTILLINGER);
 const { title, description = innstillinger?.beskrivelse, bilde, type = 'website' } = Astro.props;
 const fullTitle = title ? `${title} – ${innstillinger.navn}` : innstillinger.navn;
 const canonical = new URL(pagePath(Astro.url), Astro.site);
-// «Vis til og med»: gone from the first build after that date (Norwegian time)
+// «Vis til og med»: gone from the first build after that date (Norwegian time). Not on the news pages: the banner
+// points to news, and its green would run into their top bands.
 const banner = innstillinger.banner;
-const visBanner = banner?.aktiv && !(banner.utloper && osloDato(new Date()) > banner.utloper);
+const nyhetsside = /^\/aktuelt(\/|$)/.test(pagePath(Astro.url));
+const visBanner = banner?.aktiv && !nyhetsside && !(banner.utloper && osloDato(new Date()) > banner.utloper);
 const ogBilde = new URL(bilde ?? '/og/standard.png', Astro.site);
 ---
 <!doctype html>

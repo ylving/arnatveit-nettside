@@ -157,11 +157,11 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
   .section-head p { margin: 0; font-size: 17px; color: var(--muted); max-width: 420px; text-align: right; }
 
   .news { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
-  .featured { grid-column: span 2; background: var(--accent); color: #fff; border-radius: 28px; padding: clamp(26px, 3.5vw, 44px); display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-height: 300px; }
-  .featured .tag { font-size: 14px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-on); }
+  .featured { grid-column: span 2; background: var(--nytt); color: #fff; border-radius: 28px; padding: clamp(26px, 3.5vw, 44px); display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-height: 300px; }
+  .featured .tag { font-size: 14px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--nytt-dempet); }
   .featured h3 { font-size: clamp(26px, 3vw, 40px); margin: 14px 0; }
   .featured h3 a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
-  .featured p { margin: 0; color: #e8f0ea; max-width: 560px; }
+  .featured p { margin: 0; color: var(--nytt-tekst); max-width: 560px; }
   .featured .btn { border-color: #fff; }
   .btn--outline-light { background: transparent; border: 1.5px solid #fff; color: #fff; }
   .btn--outline-light:hover { color: #fff; background: rgba(255, 255, 255, 0.1); border-color: #fff; }

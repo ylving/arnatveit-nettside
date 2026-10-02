@@ -1,5 +1,5 @@
 ---
-// Aktuelt listing, page 1 in four levels: a pine band with the title and the newest post; "Siste saker" (the next two);
+// Aktuelt listing, page 1 in four levels: a dark blue band (--nytt) with the title and the newest post; "Siste saker" (the next two);
 // "I borettslaget nå" (sand band: next event, newest ABC-nytt, "Har du en sak?"); "Eldre saker" (a compact list).
 // Later pages (/aktuelt/side/2 …) are the compact list only. NYHETER_PER_SIDE posts per page.
 import Base from '../layouts/Base.astro';
@@ -106,26 +106,27 @@ const farge = (n: any) => n.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
   p { margin: 0; }
   .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 14px; color: var(--muted); }
 
-  /* 1. Pine band */
-  .topp { background: var(--accent); color: var(--bg); padding-block: clamp(28px, 4vw, 56px) clamp(32px, 5vw, 72px); }
-  .topp-hode { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 24px; margin-bottom: clamp(18px, 3vw, 40px); }
+  /* 1. Dark blue band */
+  .topp { background: var(--nytt); color: var(--bg); padding-block: clamp(28px, 4vw, 56px) clamp(32px, 5vw, 72px); }
+  .topp-hode { display: flex; flex-direction: column; gap: 10px; margin-bottom: clamp(20px, 3vw, 40px); }
   .topp h1 { font-size: clamp(40px, 5vw, 72px); line-height: 1; letter-spacing: -0.02em; color: var(--bg); }
-  .topp-hode p { font-size: 17px; color: #cfe0d4; }
+  .topp-hode p { font-size: clamp(15px, 1.3vw, 18px); color: var(--nytt-dempet); }
   .hoved { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 56px; align-items: center; color: var(--bg); }
   .hoved :global(.hoved-bilde) { height: 400px; border-radius: 28px; }
   .hoved-tekst { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
-  .hoved .meta { color: #cfe0d4; font-size: 15px; }
+  .hoved .meta { color: var(--nytt-dempet); font-size: 15px; }
   .hoved-tittel { font-family: var(--serif); font-size: clamp(30px, 3.6vw, 52px); line-height: 1.05; letter-spacing: -0.015em; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
-  .hoved-ingress { font-size: 18px; line-height: 1.6; color: #dce8e0; }
+  .hoved-ingress { font-size: 18px; line-height: 1.6; color: var(--nytt-tekst); }
   .les { display: inline-flex; align-items: center; gap: 8px; height: 50px; padding: 0 24px; border-radius: 999px; background: var(--bg); color: var(--ink); font-size: 16px; font-weight: 600; margin-top: 6px; }
   .les :global(svg) { transition: transform 0.15s; }
   .hoved:hover { color: var(--bg); }
   .hoved:hover .hoved-tittel { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+  .hoved:hover .les { background: #fff; }
   .hoved:hover .les :global(svg) { transform: translateX(3px); }
   .hoved:focus-visible { outline-color: var(--bg); outline-offset: 6px; border-radius: 28px; }
   .tom { padding: 24px 0 8px; max-width: 640px; }
   .tom-tittel { font-family: var(--serif); font-size: 32px; margin-bottom: 8px !important; }
-  .tom p:not(.tom-tittel) { color: #dce8e0; }
+  .tom p:not(.tom-tittel) { color: var(--nytt-tekst); }
 
   /* 2. Siste saker */
   .siste { padding-block: clamp(40px, 5.5vw, 80px) clamp(48px, 6vw, 88px); }
@@ -177,8 +178,7 @@ const farge = (n: any) => n.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
     .liste a > :global(svg) { display: none; }
   }
   @media (max-width: 640px) {
-    .topp-hode { flex-direction: column; gap: 6px; }
-    .topp-hode p { font-size: 15px; }
+    .topp-hode { gap: 6px; }
     .hoved .meta { font-size: 13px; }
     .hoved-ingress { font-size: 16px; line-height: 1.55; }
     .siste h2 { margin-bottom: 20px; }

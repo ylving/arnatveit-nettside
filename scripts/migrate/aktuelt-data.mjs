@@ -6,7 +6,7 @@ export const MENY = { fra: 'Nytt', til: 'Aktuelt' };
 const kategori = (verdi, tittel, farge, ikon) => ({ _id: `nyhetskategori-${verdi}`, _type: 'nyhetskategori', tittel, farge, ikon });
 export const KATEGORIER = [
   kategori('generalforsamling', 'Generalforsamling', 'gronn', 'Gavel'),
-  kategori('dugnad', 'Dugnad', 'oker', 'Sprout'),
+  kategori('dugnad', 'Dugnad', 'gronn', 'Sprout'),
   kategori('styret', 'Styret', 'blaa', 'Users'),
   kategori('informasjon', 'Informasjon', 'sand', 'Info'),
 ];

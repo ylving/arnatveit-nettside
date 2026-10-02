@@ -1,8 +1,9 @@
 ---
 // A news article: a header band in the category's tint (the three-house mark large at the bottom right) with the back
-// link, a white category pill with its icon, the date, the title, the lead and date/place as white pills; then a
+// link, a white pill with the category's icon, the date, the title, the lead and date/place as white boxes; then a
 // 720px column with the main image (if any), the editor's blocks in order, the attachments in a white panel and
-// "Kopier lenke"; "Flere saker" (three other recent posts) in a sand band. Shares with its own image or its colour's.
+// "Kopier lenke"; "Flere saker" (three other recent posts) in a sand band, as white cards so the tints stand out.
+// Shares with its own image or its colour's.
 import Base from '../../layouts/Base.astro';
 import Innhold from '../../components/portable/Innhold.astro';
 import Bilde from '../../components/portable/Bilde.astro';
@@ -167,7 +168,9 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
   .alle :global(svg) { transition: transform 0.15s; }
   .alle:hover :global(svg) { transform: translateX(3px); }
   .flere ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
-  .flere li a { display: flex; flex-direction: column; gap: 14px; color: var(--ink); }
+  /* White cards: the category tints are too close to the sand band on their own */
+  .flere li a { display: flex; flex-direction: column; gap: 14px; height: 100%; padding: 12px 12px 20px; border-radius: 24px; background: var(--surface); color: var(--ink); }
+  .flere .f-tekst { padding-inline: 8px; }
   .flere :global(.f-bilde) { height: 180px; border-radius: 20px; }
   .f-tekst { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
   .f-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; color: var(--muted); }
@@ -177,7 +180,8 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
 
   @media (max-width: 900px) {
     .flere ul { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-    .flere li a { flex-direction: row; align-items: center; gap: 16px; }
+    .flere li a { flex-direction: row; align-items: center; gap: 16px; padding: 10px; border-radius: 20px; }
+    .flere .f-tekst { padding-inline: 0 6px; }
     .flere :global(.f-bilde) { width: 84px; height: 84px; flex-shrink: 0; border-radius: 16px; }
     .f-tekst { gap: 6px; }
     .f-meta { font-size: 12px; }
