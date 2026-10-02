@@ -5,6 +5,7 @@ import * as dokumentsenter from './dokumentsenter-data.mjs';
 import * as generalforsamling from './generalforsamling-data.mjs';
 import * as vedtekter from './vedtekter-data.mjs';
 import * as aktuelt from './aktuelt-data.mjs';
+import * as praktisk from './praktisk-data.mjs';
 
 let n = 0;
 const key = () => `k${(n++).toString(36)}`;
@@ -94,6 +95,7 @@ export function buildContent({ protokoll2026, dokumentId }) {
     side('praktisk-info', 'Praktisk info', {
       forelder: null, rekkefolge: 10, gamleUrler: ['/praktiskinfo'],
       ingress: 'Alt du trenger å vite som andelseier, samlet på ett sted.',
+      innhold: praktisk.SEKSJONER,
     }),
     side('generalforsamling', 'Generalforsamling', {
       ikon: 'Users', kort: 'Borettslagets øverste organ, bestående av andelseierne. Innkallinger og protokoller.', rekkefolge: 10, gamleUrler: ['/praktiskinfo/generalforsamling'],
@@ -256,5 +258,5 @@ export function buildContent({ protokoll2026, dokumentId }) {
     },
   };
 
-  return [innstillinger, omBorettslaget, forside, ...kategorier, ...aktuelt.KATEGORIER, ...oppgaver, ...utvalg, ...sider, ...nyheter];
+  return [innstillinger, omBorettslaget, forside, ...kategorier, ...aktuelt.KATEGORIER, ...praktisk.SPORSMAL, ...oppgaver, ...utvalg, ...sider, ...nyheter];
 }

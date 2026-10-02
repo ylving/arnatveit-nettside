@@ -9,6 +9,7 @@ import NyhetBilde from './NyhetBilde.astro';
 import Icon from './Icon.astro';
 import { docHref, formatDate } from '../lib/urls';
 import { fremhevet } from '../lib/aktuelt';
+import { orddel } from '../lib/orddeling';
 import { STANDARD_NYHETSKATEGORI } from '../../sanity/standarder';
 
 interface Props { nyheter: any[]; side: number; antallSider: number; moduler?: any }
@@ -34,7 +35,7 @@ const farge = (n: any) => n.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
             <NyhetBilde nyhet={forste} bredde={680} forhold={1.7} forholdMobil={16 / 9} sizes="(max-width: 900px) calc(100vw - 2 * var(--gutter)), 680px" class="hoved-bilde" eager />
             <span class="hoved-tekst">
               <span class="meta"><KategoriMerke kategori={forste.kategori} stor /><time datetime={forste.dato}>{formatDate(forste.dato)}</time></span>
-              <span class="hoved-tittel">{forste.tittel}</span>
+              <span class="hoved-tittel">{orddel(forste.tittel)}</span>
               <span class="hoved-ingress">{forste.ingress}</span>
               <span class="les">Les saken<Icon name="ArrowRight" size={20} /></span>
             </span>
@@ -64,7 +65,7 @@ const farge = (n: any) => n.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
           <a class="kort" href={docHref(n)}>
             <NyhetBilde nyhet={n} bredde={560} forhold={7 / 3} forholdMobil={2.2} sizes="(max-width: 900px) calc(100vw - 2 * var(--gutter)), 560px" class="kort-bilde" />
             <span class="meta"><KategoriMerke kategori={n.kategori} /><time datetime={n.dato}>{formatDate(n.dato)}</time></span>
-            <span class="kort-tittel">{n.tittel}</span>
+            <span class="kort-tittel">{orddel(n.tittel)}</span>
             <span class="kort-ingress">{n.ingress}</span>
           </a>
         ))}
@@ -85,7 +86,7 @@ const farge = (n: any) => n.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
                 <a href={docHref(n)}>
                   <time class="e-dato" datetime={n.dato}>{formatDate(n.dato)}</time>
                   <span class="e-kategori"><span class="prikk" style={`--fg: var(--farge-${farge(n)})`}></span>{n.kategori?.tittel ?? STANDARD_NYHETSKATEGORI.tittel}</span>
-                  <span class="e-tittel">{n.tittel}</span>
+                  <span class="e-tittel">{orddel(n.tittel)}</span>
                   <Icon name="ChevronRight" size={16} />
                 </a>
               </li>
@@ -117,7 +118,7 @@ const farge = (n: any) => n.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
   .hoved :global(.hoved-bilde) { height: 400px; border-radius: 28px; }
   .hoved-tekst { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
   .hoved .meta { color: var(--nytt-dempet); font-size: 15px; }
-  .hoved-tittel { font-family: var(--serif); font-size: clamp(30px, 3.6vw, 52px); line-height: 1.05; letter-spacing: -0.015em; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
+  .hoved-tittel { font-family: var(--serif); font-size: clamp(30px, 3.6vw, 52px); line-height: 1.05; letter-spacing: -0.015em; overflow-wrap: break-word; hyphens: manual; max-width: 100%; }
   .hoved-ingress { font-size: 18px; line-height: 1.6; color: var(--nytt-tekst); }
   .les { display: inline-flex; align-items: center; gap: 8px; height: 50px; padding: 0 24px; border-radius: 999px; background: var(--bg); color: var(--ink); font-size: 16px; font-weight: 600; margin-top: 6px; }
   .les :global(svg) { transition: transform 0.15s; }
@@ -137,7 +138,7 @@ const farge = (n: any) => n.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
   .kort { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; color: var(--ink); }
   .kort :global(.kort-bilde) { align-self: stretch; height: 240px; border-radius: 24px; }
   .kort .meta { padding-top: 4px; gap: 6px 10px; }
-  .kort-tittel { font-family: var(--serif); font-size: clamp(24px, 2.3vw, 32px); line-height: 1.12; letter-spacing: -0.01em; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
+  .kort-tittel { font-family: var(--serif); font-size: clamp(24px, 2.3vw, 32px); line-height: 1.12; letter-spacing: -0.01em; overflow-wrap: break-word; hyphens: manual; max-width: 100%; }
   .kort-ingress { font-size: 17px; line-height: 1.55; color: #46514b; }
   .kort:hover { color: var(--ink); }
   .kort:hover .kort-tittel { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }

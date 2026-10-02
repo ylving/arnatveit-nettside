@@ -1,0 +1,66 @@
+---
+// Undersider with groups (Praktisk info): groups side by side (stacked on phones), each with a heading, a one-line
+// intro and link rows on the page background: round icon, title (the page's own heading if set), a line of text, a
+// live detail line with a dot in the item's category colour (src/lib/praktisk.ts) and an arrow.
+import Icon from '../Icon.astro';
+import { docHref } from '../../lib/urls';
+import { lastDetaljer } from '../../lib/praktisk';
+
+const { node } = Astro.props;
+const grupper: any[] = (node.grupper ?? []).filter((g: any) => g.sider?.some((s: any) => s.side));
+const detaljer = await lastDetaljer();
+---
+<div class="grupper">
+  {grupper.map((g) => (
+    <section class="gruppe" aria-labelledby={`gruppe-${g._key}`}>
+      <h2 id={`gruppe-${g._key}`}>{g.tittel}</h2>
+      {g.ingress && <p class="ingress">{g.ingress}</p>}
+      <ul>
+        {g.sider.filter((s: any) => s.side).map((s: any) => {
+          const detalj = detaljer[s.side._id];
+          return (
+            <li>
+              <a href={docHref(s.side)}>
+                <span class="ikon"><Icon name={s.side.ikon || 'FileText'} size={24} strokeWidth={1.8} /></span>
+                <span class="tekst">
+                  <span class="tittel">{s.side.overskrift || s.side.tittel}</span>
+                  {(s.tekst || s.side.kort) && <span class="beskrivelse">{s.tekst || s.side.kort}</span>}
+                  {detalj && <span class="detalj"><span class="prikk" style={`background: ${detalj.farge}`} aria-hidden="true"></span>{detalj.tekst}</span>}
+                </span>
+                <Icon name="ChevronRight" size={22} />
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  ))}
+</div>
+<style>
+  .grupper { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 72px; }
+  .gruppe h2 { font-size: clamp(26px, 2.6vw, 36px); letter-spacing: -0.01em; margin-bottom: 6px; }
+  .ingress { margin: 0; padding-bottom: 18px; font-size: 16px; color: var(--muted); }
+  ul { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line); }
+  li { border-top: 1px solid var(--line); }
+  a { display: grid; grid-template-columns: 56px minmax(0, 1fr) 24px; gap: 20px; align-items: start; padding: 24px 0; color: var(--ink); }
+  .ikon { width: 56px; height: 56px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+  .tekst { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .tittel { font-family: var(--serif); font-size: clamp(21px, 2vw, 28px); line-height: 1.1; overflow-wrap: break-word; }
+  .beskrivelse { font-size: 16px; line-height: 1.5; color: var(--muted); }
+  .detalj { display: inline-flex; align-items: center; gap: 8px; padding-top: 4px; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+  .prikk { width: 7px; height: 7px; flex-shrink: 0; border-radius: 50%; }
+  a > :global(svg:last-child) { margin-top: 18px; color: var(--accent); transition: transform 0.15s; }
+  a:hover { color: var(--ink); }
+  a:hover .tittel { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+  a:hover > :global(svg:last-child) { transform: translateX(3px); }
+  @media (max-width: 900px) { .grupper { grid-template-columns: minmax(0, 1fr); gap: 40px; } }
+  @media (max-width: 640px) {
+    .ingress { padding-bottom: 10px; font-size: 14px; }
+    a { grid-template-columns: 44px minmax(0, 1fr) 18px; gap: 14px; padding: 16px 0; }
+    .ikon { width: 44px; height: 44px; }
+    .ikon :global(svg) { width: 20px; height: 20px; }
+    .beskrivelse { font-size: 14px; }
+    .detalj { padding-top: 2px; font-size: 13px; }
+    a > :global(svg:last-child) { width: 18px; height: 18px; margin-top: 12px; }
+  }
+</style>

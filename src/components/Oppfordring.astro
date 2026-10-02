@@ -1,19 +1,27 @@
 ---
-// Call to action: a dark rule above, a small ochre pen icon, heading + text, and a dark button that opens an email
-// ("Vil du melde inn en sak?", "Har du noe til neste nummer?"). Stacked with a full-width button on narrow screens.
+// Call to action: a dark rule above, a small ochre pen icon (optional), heading + text, an optional light button with a
+// link, and a dark button that opens an email ("Vil du melde inn en sak?", "Fant du ikke det du lette etter?").
+// Stacked with full-width buttons on narrow screens.
 import Icon from './Icon.astro';
+import { linkHref, type Link } from '../lib/urls';
 
-type Props = { tittel: string; tekst?: string; knapp: string; epost?: string; emne?: string };
-const { tittel, tekst, knapp, epost, emne } = Astro.props;
+type Props = { tittel: string; tekst?: string; knapp: string; epost?: string; emne?: string; lenke?: Link & { tekst?: string }; ikon?: boolean };
+const { tittel, tekst, knapp, epost, emne, lenke, ikon = true } = Astro.props;
+const lenkeHref = lenke && linkHref(lenke);
 const href = epost && `mailto:${epost}${emne ? `?subject=${encodeURIComponent(emne)}` : ''}`;
 ---
 <section class="oppfordring">
-  <span class="ikon"><Icon name="PenLine" size={22} /></span>
+  {ikon && <span class="ikon"><Icon name="PenLine" size={22} /></span>}
   <div class="tekst">
     <h2>{tittel}</h2>
     {tekst && <p>{tekst}</p>}
   </div>
-  {href && <a class="btn btn--dark" href={href}>{knapp}</a>}
+  {(lenkeHref || href) && (
+    <div class="knapper">
+      {lenkeHref && lenke?.tekst && <a class="btn lys" href={lenkeHref}>{lenke.tekst}</a>}
+      {href && <a class="btn btn--dark" href={href}><Icon name="Mail" size={17} />{knapp}</a>}
+    </div>
+  )}
 </section>
 <style>
   .oppfordring { display: flex; align-items: center; gap: 24px; padding-top: 32px; border-top: 2px solid var(--ink); }
@@ -21,9 +29,13 @@ const href = epost && `mailto:${epost}${emne ? `?subject=${encodeURIComponent(em
   .tekst { flex: 1; }
   .oppfordring h2 { font-size: 26px; }
   p { margin: 6px 0 0; font-size: 16px; color: var(--muted); }
+  .knapper { display: flex; flex-wrap: wrap; gap: 10px; }
+  .knapper .btn { min-height: 50px; padding: 0 22px; gap: 8px; font-size: 15px; }
+  .lys { border-color: var(--kant); }
   @media (max-width: 760px) {
     .oppfordring { flex-direction: column; align-items: stretch; gap: 14px; }
     .ikon { width: 44px; height: 44px; }
+    .knapper { flex-direction: column; }
     .btn { width: 100%; }
   }
   @media (max-width: 640px) { .oppfordring h2 { font-size: 22px; } p { font-size: 15px; } }

@@ -21,6 +21,8 @@ import Regelverk from './portable/Regelverk.astro';
 import Nivaaer from './portable/Nivaaer.astro';
 import Relatert from './portable/Relatert.astro';
 import Oppfordring from './Oppfordring.astro';
+import UndersiderGrupper from './portable/UndersiderGrupper.astro';
+import Sporsmal from './portable/Sporsmal.astro';
 import InfoCards from './InfoCards.astro';
 import { STANDARD_BREDDE, type Bredde } from '../../sanity/standarder';
 
@@ -32,7 +34,7 @@ const liste: any[] = seksjoner.some((s: any) => s._type === 'undersider') || !ba
   : [...seksjoner, { _type: 'undersider', _key: 'auto-undersider' }];
 
 const bredde = (s: any): Bredde =>
-  s._type === 'tekst' ? 'tekst' : s._type === 'fargebaand' ? 'full' : (s.bredde ?? STANDARD_BREDDE[s._type as keyof typeof STANDARD_BREDDE] ?? 'tekst');
+  s._type === 'tekst' ? 'tekst' : s._type === 'fargebaand' || s._type === 'sporsmal' ? 'full' : (s.bredde ?? STANDARD_BREDDE[s._type as keyof typeof STANDARD_BREDDE] ?? 'tekst');
 ---
 <div class="seksjoner">
   {liste.map((s) => {
@@ -53,14 +55,15 @@ const bredde = (s: any): Bredde =>
             {s._type === 'kontaktinfo' && <Kontaktinfo node={{ ...s, kontakt }} />}
             {s._type === 'fargebaand' && <Fargebaand node={s} />}
             {s._type === 'punkter' && <Punkter node={s} />}
-            {s._type === 'oppfordring' && <Oppfordring tittel={s.tittel} tekst={s.tekst} knapp={s.knapp} epost={s.epost || kontakt?.epost} emne={s.emne} />}
+            {s._type === 'oppfordring' && <Oppfordring tittel={s.tittel} tekst={s.tekst} knapp={s.knapp} epost={s.epost || kontakt?.epost} emne={s.emne} lenke={s.lenke} ikon={!s.utenIkon} />}
+            {s._type === 'sporsmal' && <Sporsmal node={s} />}
             {s._type === 'generalforsamlinger' && <Generalforsamlinger node={s} />}
             {s._type === 'regelverk' && <Regelverk node={s} />}
             {s._type === 'nivaaer' && <Nivaaer node={s} />}
             {s._type === 'relatert' && <Relatert node={s} />}
             {s._type === 'borettslagsfakta' && <Borettslagsfakta node={{ ...s, kontakt }} />}
             {s._type === 'ansvarsliste' && <Ansvarsliste node={s} styretEpost={kontakt?.epost} />}
-            {s._type === 'undersider' && (<>{s.tittel && <h2 class="seksjon-tittel">{s.tittel}</h2>}<InfoCards sider={barn} /></>)}
+            {s._type === 'undersider' && (s.grupper?.length ? <UndersiderGrupper node={s} /> : <>{s.tittel && <h2 class="seksjon-tittel">{s.tittel}</h2>}<InfoCards sider={barn} /></>)}
           </div>
         </div>
       </div>

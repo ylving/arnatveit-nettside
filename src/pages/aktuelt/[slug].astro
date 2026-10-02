@@ -18,6 +18,7 @@ import { load, urlFor } from '../../lib/sanity';
 import { DOKUMENT, NYHET_FELT, NYHET_KORT, NYHET_SEKSJONER } from '../../lib/queries';
 import { sorter } from '../../lib/dokument';
 import { docHref, formatDate } from '../../lib/urls';
+import { orddel } from '../../lib/orddeling';
 import { STANDARD_NYHETSKATEGORI } from '../../../sanity/standarder';
 
 export async function getStaticPaths() {
@@ -50,7 +51,7 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
           <KategoriMerke kategori={kategori} stor hvit />
           <time datetime={n.dato}>{formatDate(n.dato)}</time>
         </p>
-        <h1>{n.tittel}</h1>
+        <h1>{orddel(n.tittel)}</h1>
         <p class="ingress">{n.ingress}</p>
         {(faktaDato || n.fakta?.sted) && (
           <ul class="fakta">
@@ -120,7 +121,7 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
                 <NyhetBilde nyhet={f} bredde={380} forhold={2.1} forholdMobil={1} sizes="(max-width: 900px) 84px, 380px" class="f-bilde" />
                 <span class="f-tekst">
                   <span class="f-meta"><KategoriMerke kategori={f.kategori} /><time datetime={f.dato}>{formatDate(f.dato)}</time></span>
-                  <span class="f-tittel">{f.tittel}</span>
+                  <span class="f-tittel">{orddel(f.tittel)}</span>
                 </span>
               </a>
             </li>
@@ -139,7 +140,7 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
   .tilbake { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: var(--fg); margin-bottom: 6px; }
   .tilbake:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
   .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 15px; color: #46514b; }
-  .hode h1 { font-size: clamp(36px, 5vw, 72px); line-height: 1.02; letter-spacing: -0.02em; max-width: 18ch; overflow-wrap: break-word; hyphens: auto; }
+  .hode h1 { font-size: clamp(36px, 5vw, 72px); line-height: 1.02; letter-spacing: -0.02em; max-width: 18ch; overflow-wrap: break-word; hyphens: manual; }
   .ingress { max-width: 760px; font-size: clamp(18px, 1.7vw, 23px); line-height: 1.5; color: #2e3632; }
   .fakta { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .fakta li { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; background: #fff; font-size: 15px; font-weight: 600; }
@@ -173,7 +174,7 @@ const ogBilde = n.bilde?.asset ? urlFor(n.bilde).width(1200).height(630).fit('cr
   .flere :global(.f-bilde) { height: 180px; border-radius: 20px; }
   .f-tekst { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
   .f-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; color: var(--muted); }
-  .f-tittel { font-family: var(--serif); font-size: 24px; line-height: 1.15; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
+  .f-tittel { font-family: var(--serif); font-size: 24px; line-height: 1.15; overflow-wrap: break-word; hyphens: manual; max-width: 100%; }
   .flere li a:hover { color: var(--ink); }
   .flere li a:hover .f-tittel { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 

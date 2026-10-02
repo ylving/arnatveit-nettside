@@ -4,7 +4,8 @@
 //  - every custom block → its own section, data and _key unchanged
 //  - pages with child pages get an `undersider` section first (where the cards used to render)
 export function tilSeksjoner(innhold = [], harBarn = false) {
-  const seksjoner = harBarn ? [{ _type: 'undersider', _key: 'undersider' }] : [];
+  // (not when the content already places its own Undersider section)
+  const seksjoner = harBarn && !innhold.some((b) => b._type === 'undersider') ? [{ _type: 'undersider', _key: 'undersider' }] : [];
   for (const b of innhold) {
     if (b._type === 'block') {
       const forrige = seksjoner.at(-1);

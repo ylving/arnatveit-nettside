@@ -1,4 +1,4 @@
-export type DocRef = { _type: string; slug?: string; forelder?: string | null; fil?: string } | null | undefined;
+export type DocRef = { _type: string; _id?: string; slug?: string; forelder?: string | null; fil?: string; side?: DocRef } | null | undefined;
 export type Link = { tekst?: string; url?: string; intern?: DocRef } | null | undefined;
 
 export function docHref(d: DocRef): string | undefined {
@@ -6,6 +6,8 @@ export function docHref(d: DocRef): string | undefined {
   if (d._type === 'side') return d.forelder ? `/${d.forelder}/${d.slug}` : `/${d.slug}`;
   if (d._type === 'nyhet') return `/aktuelt/${d.slug}`;
   if (d._type === 'dokument' || d._type === 'abcUtgave' || d._type === 'generalforsamling') return d.fil;
+  // A "Jeg vil …" task: its steps on the page that has it
+  if (d._type === 'oppgave' && d.side && d._id) return `${docHref(d.side)}#${oppgaveAnker(d._id)}`;
   return undefined;
 }
 

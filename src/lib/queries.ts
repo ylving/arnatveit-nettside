@@ -3,7 +3,8 @@
 export const DOC_REF_FIELDS = `_type, "slug": slug.current, "forelder": forelder->slug.current, "fil": coalesce(fil.asset->url, protokoll.asset->url)`;
 export const DOC_REF = `{ ${DOC_REF_FIELDS} }`;
 export const SIDE_KORT = `{ ${DOC_REF_FIELDS}, tittel, kort, ikon }`;
-export const LINK = `{ tekst, url, "intern": intern->${DOC_REF} }`;
+// A link; to a "Jeg vil …" task it carries the page that has the task (docHref adds the #oppgave-… anchor)
+export const LINK = `{ tekst, url, "intern": intern->{ ${DOC_REF_FIELDS}, _id, _type == "oppgave" => { "side": *[_type == "side" && ^._id in seksjoner[].oppgaver[]._ref][0]${DOC_REF} } } }`;
 // A general assembly's name, as gfNavn() in sanity/standarder.ts
 const GF_TITTEL = `select(type == "ekstraordinaer" => "Ekstraordinær generalforsamling ", "Generalforsamling ") + string::split(dato, "-")[0]`;
 
@@ -64,6 +65,9 @@ export const SEKSJONER = `seksjoner[]{
     }[count(personer) > 0]
   },
   _type == "kontaktinfo" => { ..., "lenker": lenker[]{ _key, tittel, tekst, "side": side->${DOC_REF} } },
+  _type == "undersider" => { ..., "grupper": grupper[]{ _key, tittel, ingress, "sider": sider[]{ _key, tekst, "side": side->{ _id, ${DOC_REF_FIELDS}, tittel, overskrift, kort, ikon } } } },
+  _type == "sporsmal" => { ..., "sporsmal": sporsmal[]->{ _id, sporsmal, svar, "lenke": lenke${LINK} } },
+  _type == "oppfordring" => { ..., "lenke": lenke${LINK} },
   _type == "oppgaver" => {
     ...,
     "oppgaver": oppgaver[]->{ _id, tittel, ikon, aksent, kontakttekst, kontaktEpost, "steg": steg[]{ _key, tekst, "dokumenter": dokumenter[]->${DOKUMENT} } }

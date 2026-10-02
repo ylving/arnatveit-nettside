@@ -50,8 +50,45 @@ export const undersider = defineType({
   title: 'Undersider',
   type: 'object',
   icon: lucideIkon('LayoutGrid'),
-  description: 'Viser sidene som ligger under denne siden som kort, her i innholdet.',
-  fields: [defineField({ name: 'tittel', title: 'Overskrift (valgfri)', type: 'string' }), breddeFelt('undersider')],
+  description: 'Viser sidene som ligger under denne siden som kort, her i innholdet. Med grupper vises de i stedet som lenkerader i grupper, med oppdatert informasjon fra hver side.',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift (valgfri)', type: 'string' }),
+    defineField({
+      name: 'grupper',
+      title: 'Grupper (valgfritt)',
+      description: 'Som på Praktisk info: f.eks. «Styring og regler» og «Fellesskap». Uten grupper vises alle undersidene som kort.',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'gruppe',
+          fields: [
+            defineField({ name: 'tittel', title: 'Overskrift', type: 'string', validation: (r) => r.required() }),
+            defineField({ name: 'ingress', title: 'Tekst under overskriften', description: 'Én linje.', type: 'string' }),
+            defineField({
+              name: 'sider',
+              title: 'Sider',
+              type: 'array',
+              of: [
+                defineArrayMember({
+                  type: 'object',
+                  name: 'gruppeside',
+                  fields: [
+                    defineField({ name: 'side', title: 'Side', type: 'reference', to: [{ type: 'side' }], validation: (r) => r.required() }),
+                    defineField({ name: 'tekst', title: 'Tekst (valgfri)', description: 'Én linje. La stå tom for å bruke kortteksten til siden.', type: 'string' }),
+                  ],
+                  preview: { select: { title: 'side.tittel', subtitle: 'tekst' } },
+                }),
+              ],
+              validation: (r) => r.required().min(1),
+            }),
+          ],
+          preview: { select: { title: 'tittel', a: 'sider.0.side.tittel', b: 'sider.1.side.tittel' }, prepare: ({ title, a, b }) => ({ title, subtitle: [a, b].filter(Boolean).join(', ') }) },
+        }),
+      ],
+    }),
+    breddeFelt('undersider'),
+  ],
   validation: (r) =>
     r.custom(async (_v, { document, getClient }) => {
       if (!document) return true;
@@ -59,7 +96,7 @@ export const undersider = defineType({
       const antall = await getClient({ apiVersion: '2026-09-01' }).fetch<number>('count(*[_type == "side" && forelder._ref == $id])', { id });
       return antall > 0 ? true : 'Denne siden har ingen undersider ennå, så seksjonen vises ikke.';
     }).warning(),
-  preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Undersider', subtitle: 'Kort for sidene under denne' }) },
+  preview: { select: { tittel: 'tittel', g: 'grupper.0.tittel' }, prepare: ({ tittel, g }) => ({ title: tittel || 'Undersider', subtitle: g ? 'Lenkerader i grupper' : 'Kort for sidene under denne' }) },
 });
 
 export const ansvarsliste = defineType({
@@ -236,16 +273,39 @@ export const oppfordring = defineType({
   title: 'Oppfordring med knapp',
   type: 'object',
   icon: lucideIkon('PenLine'),
-  description: 'En linje over, et lite ikon, overskrift, tekst og en mørk knapp som åpner en e-post, som «Vil du melde inn en sak?».',
+  description: 'En linje over, et lite ikon, overskrift, tekst og en mørk knapp som åpner en e-post, som «Vil du melde inn en sak?». Kan også ha en lys knapp med en lenke.',
   fields: [
     defineField({ name: 'tittel', title: 'Overskrift', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'tekst', title: 'Tekst', type: 'text', rows: 2 }),
     defineField({ name: 'knapp', title: 'Knappetekst', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'epost', title: 'E-post', description: 'La stå tomt for å bruke styrets e-post fra «Om borettslaget».', type: 'email' }),
     defineField({ name: 'emne', title: 'Emne i e-posten (valgfritt)', description: 'F.eks. «Sak til generalforsamlingen»', type: 'string' }),
+    defineField({ name: 'lenke', title: 'Ekstra knapp (valgfri)', description: 'En lys knapp foran den mørke, f.eks. «Dokumentsenter».', type: 'lenke' }),
+    defineField({ name: 'utenIkon', title: 'Uten ikon', description: 'Skjuler det lille ikonet til venstre.', type: 'boolean', initialValue: false }),
     breddeFelt('oppfordring'),
   ],
   preview: { select: { title: 'tittel', subtitle: 'knapp' }, prepare: ({ title, subtitle }) => ({ title, subtitle: `Oppfordring · ${subtitle ?? ''}` }) },
+});
+
+export const sporsmal = defineType({
+  name: 'sporsmal',
+  title: 'Vanlige spørsmål',
+  type: 'object',
+  icon: lucideIkon('MessageCircleQuestion'),
+  description: 'Spørsmål med svar som kan åpnes ett om gangen, i et sandfarget bånd. Spørsmålene lages under «Vanlige spørsmål» i menyen.',
+  fields: [
+    defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Vanlige spørsmål' }),
+    defineField({ name: 'ingress', title: 'Tekst ved overskriften', type: 'string', initialValue: 'Raske svar på det beboere oftest lurer på.' }),
+    defineField({
+      name: 'sporsmal',
+      title: 'Spørsmål',
+      description: 'Dra for å endre rekkefølgen. Det første er åpent når siden lastes.',
+      type: 'array',
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'vanligSporsmal' }] })],
+      validation: (r) => r.required().min(1).unique(),
+    }),
+  ],
+  preview: { select: { title: 'tittel', a: 'sporsmal.0.sporsmal' }, prepare: ({ title, a }) => ({ title: title || 'Vanlige spørsmål', subtitle: a ? `Spørsmål · ${a} …` : 'Spørsmål' }) },
 });
 
 export const generalforsamlinger = defineType({
@@ -398,7 +458,7 @@ const GRUPPER = [
   { name: 'tekst', title: 'Tekst og bilder', of: ['tekst', 'bilde', 'fargebaand', 'punkter', 'nokkeltall', 'nivaaer'] },
   { name: 'lister', title: 'Lister', of: ['dokumentliste', 'medlemsliste', 'arrangementer'] },
   { name: 'lenker', title: 'Lenker og knapper', of: ['oppfordring', 'relatert', 'undersider'] },
-  { name: 'moduler', title: 'Faste moduler', of: ['kontaktinfo', 'borettslagsfakta', 'ansvarsliste', 'oppgaver', 'regelverk', 'generalforsamlinger', 'abcUtgaver'] },
+  { name: 'moduler', title: 'Faste moduler', of: ['sporsmal', 'kontaktinfo', 'borettslagsfakta', 'ansvarsliste', 'oppgaver', 'regelverk', 'generalforsamlinger', 'abcUtgaver'] },
 ];
 
 export const seksjoner = defineType({

@@ -1,0 +1,69 @@
+---
+// "Vanlige spørsmål": a full-width sand band with the heading on the left (4/12) and the questions on the right (8/12).
+// Each question is a <details> with a round +/- icon, a short answer and one link. All share a `name`, so browsers keep
+// only one open at a time without any JavaScript; the first is open. FAQPage structured data (JSON-LD) for search.
+import Icon from '../Icon.astro';
+import { linkHref } from '../../lib/urls';
+import { beskyttTelefon } from '../../lib/tekst';
+
+const { node } = Astro.props;
+const liste: any[] = (node.sporsmal ?? []).filter((s: any) => s?.sporsmal && s?.svar);
+const navn = `sporsmal-${node._key}`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: liste.map((s) => ({ '@type': 'Question', name: s.sporsmal, acceptedAnswer: { '@type': 'Answer', text: s.svar } })),
+};
+---
+{liste.length > 0 && (
+  <section class="sporsmal" aria-labelledby={navn}>
+    <div class="container rutenett">
+      <div class="venstre">
+        <h2 id={navn}>{node.tittel || 'Vanlige spørsmål'}</h2>
+        {node.ingress && <p class="ingress">{node.ingress}</p>}
+      </div>
+      <div class="liste">
+        {liste.map((s, i) => {
+          const href = s.lenke && linkHref(s.lenke);
+          return (
+            <details name={navn} open={i === 0}>
+              <summary><span class="sp">{s.sporsmal}</span><span class="pluss" aria-hidden="true"></span></summary>
+              <div class="svar">
+                <p>{beskyttTelefon(s.svar)}</p>
+                {href && s.lenke.tekst && <a href={href}>{s.lenke.tekst}<Icon name="ArrowRight" size={15} /></a>}
+              </div>
+            </details>
+          );
+        })}
+      </div>
+    </div>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </section>
+)}
+<style>
+  .sporsmal { background: var(--sand); padding-block: clamp(36px, 5vw, 72px) clamp(40px, 5.5vw, 80px); }
+  .rutenett { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 56px; }
+  .venstre h2 { font-size: clamp(26px, 2.8vw, 40px); letter-spacing: -0.015em; }
+  .ingress { margin: 12px 0 0; font-size: 16px; line-height: 1.6; color: #46514b; }
+  .liste { border-bottom: 1px solid #d3cab6; }
+  details { border-top: 1px solid #d3cab6; }
+  summary { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 0; cursor: pointer; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  .sp { font-family: var(--serif); font-size: clamp(19px, 1.8vw, 24px); line-height: 1.25; }
+  summary:hover .sp { color: var(--accent); }
+  /* Round +/-: two bars, the vertical one hidden when open */
+  .pluss { position: relative; width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; background: var(--bg); }
+  .pluss::before, .pluss::after { content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 2px; border-radius: 1px; background: var(--accent); transform: translate(-50%, -50%); }
+  .pluss::after { transform: translate(-50%, -50%) rotate(90deg); transition: opacity 0.15s; }
+  details[open] .pluss::after { opacity: 0; }
+  .svar { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 0 60px 26px 0; }
+  .svar p { margin: 0; max-width: 680px; font-size: 17px; line-height: 1.65; color: #2e3632; }
+  .svar a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 15px; font-weight: 600; color: var(--accent); }
+  .svar a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 900px) { .rutenett { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
+  @media (max-width: 640px) {
+    summary { padding: 16px 0; }
+    .svar { padding: 0 0 18px; }
+    .svar p { font-size: 15px; }
+  }
+</style>

@@ -57,6 +57,7 @@ export const structure: StructureResolver = (S) =>
             ]),
         ),
       S.documentTypeListItem('generalforsamling').title('Generalforsamlinger'),
+      S.documentTypeListItem('vanligSporsmal').title('Vanlige spørsmål'),
       S.listItem()
         .title('ABC-nytt')
         .schemaType('abcUtgave')

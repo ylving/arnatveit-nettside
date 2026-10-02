@@ -9,6 +9,7 @@ import NyhetBilde from './NyhetBilde.astro';
 import HusMerke from './HusMerke.astro';
 import { docHref, formatDate } from '../lib/urls';
 import { fremhevet, kortDato } from '../lib/aktuelt';
+import { orddel } from '../lib/orddeling';
 import { STANDARD_NYHETSKATEGORI } from '../../sanity/standarder';
 
 interface Props { nyheter: any[] }
@@ -31,7 +32,7 @@ const fakta = forste?.fakta;
             <KategoriMerke kategori={forste.kategori} stor hvit class="over" />
           </span>
           <time class="dato" datetime={forste.dato}>{formatDate(forste.dato)}</time>
-          <span class="hoved-tittel">{forste.tittel}</span>
+          <span class="hoved-tittel">{orddel(forste.tittel)}</span>
           <span class="ingress">{forste.ingress}</span>
           <span class="les">Les saken<Icon name="ArrowRight" size={18} /></span>
         </a>
@@ -39,7 +40,7 @@ const fakta = forste?.fakta;
         <a class="panel" href={docHref(forste)} style={`--bg: var(--farge-${farge}-bg); --fg: var(--farge-${farge})`}>
           <HusMerke class="panel-hus" />
           <span class="panel-meta"><KategoriMerke kategori={forste.kategori} stor hvit /><time datetime={forste.dato}>{formatDate(forste.dato)}</time></span>
-          <span class="panel-tittel">{forste.tittel}</span>
+          <span class="panel-tittel">{orddel(forste.tittel)}</span>
           <span class="panel-ingress">{forste.ingress}</span>
           {(fakta?.dato || fakta?.tid || fakta?.sted) && (
             <span class="fakta">
@@ -61,7 +62,7 @@ const fakta = forste?.fakta;
                   <NyhetBilde nyhet={n} bredde={112} forhold={1} sizes="(max-width: 640px) 68px, 112px" class="tommel" />
                   <span class="r-tekst">
                     <span class="r-meta"><KategoriMerke kategori={n.kategori} /><time datetime={n.dato}>{formatDate(n.dato)}</time></span>
-                    <span class="r-tittel">{n.tittel}</span>
+                    <span class="r-tittel">{orddel(n.tittel)}</span>
                     <span class="r-ingress">{n.ingress}</span>
                   </span>
                 </a>
@@ -82,15 +83,17 @@ const fakta = forste?.fakta;
   .alle :global(svg) { transition: transform 0.15s; }
   .alle:hover :global(svg) { transform: translateX(3px); }
   .alle.bunn { display: none; }
-  .rutenett { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 56px; align-items: start; }
+  /* Both columns as tall as the taller one: the featured post fills the height of the three rows when its content allows */
+  .rutenett { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 56px; align-items: stretch; }
 
   /* Featured, with an image */
   .hoved { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; color: var(--ink); }
-  .hoved-ramme { position: relative; align-self: stretch; margin-bottom: 6px; }
-  .hoved :global(.hoved-bilde) { height: 420px; border-radius: 28px; }
+  /* The image takes the height the text leaves (at least 260 px) */
+  .hoved-ramme { position: relative; align-self: stretch; flex: 1 1 auto; min-height: 260px; margin-bottom: 6px; }
+  .hoved :global(.hoved-bilde) { position: absolute; inset: 0; border-radius: 28px; }
   .hoved :global(.over) { position: absolute; left: 20px; top: 20px; }
   .dato { font-size: 14px; color: var(--muted); }
-  .hoved-tittel { font-family: var(--serif); font-size: clamp(26px, 2.8vw, 40px); line-height: 1.08; letter-spacing: -0.015em; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
+  .hoved-tittel { font-family: var(--serif); font-size: clamp(26px, 2.8vw, 40px); line-height: 1.08; letter-spacing: -0.015em; overflow-wrap: break-word; hyphens: manual; max-width: 100%; }
   .ingress { font-size: 18px; line-height: 1.6; color: #46514b; }
   .les { display: inline-flex; align-items: center; gap: 6px; padding-top: 4px; font-size: 16px; font-weight: 600; color: var(--accent); }
   .les :global(svg), .knapp :global(svg) { transition: transform 0.15s; }
@@ -99,11 +102,11 @@ const fakta = forste?.fakta;
   .hoved:hover .les :global(svg), .panel:hover .knapp :global(svg) { transform: translateX(3px); }
 
   /* Featured, without an image: a typographic panel in the category's tint */
-  .panel { position: relative; overflow: hidden; min-height: 600px; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; padding: 48px 48px 44px; border-radius: 28px; background: var(--bg); color: var(--ink); }
+  .panel { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; padding: 48px 48px 44px; border-radius: 28px; background: var(--bg); color: var(--ink); }
   .panel-meta, .panel-tittel, .panel-ingress, .fakta, .knapp { position: relative; }
   .panel :global(.panel-hus) { position: absolute; width: 640px; height: 440px; right: -90px; bottom: -90px; color: var(--fg); opacity: 0.12; }
   .panel-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 15px; color: #46514b; }
-  .panel-tittel { max-width: 620px; font-family: var(--serif); font-size: clamp(30px, 3.8vw, 54px); line-height: 1.05; letter-spacing: -0.015em; overflow-wrap: break-word; hyphens: auto; }
+  .panel-tittel { max-width: 620px; font-family: var(--serif); font-size: clamp(30px, 3.8vw, 54px); line-height: 1.05; letter-spacing: -0.015em; overflow-wrap: break-word; hyphens: manual; }
   .panel-ingress { max-width: 560px; font-size: 19px; line-height: 1.6; color: #2e3632; }
   .fakta { display: flex; flex-wrap: wrap; gap: 8px; }
   .fakta > span { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 999px; background: #fff; font-size: 15px; font-weight: 600; }
@@ -122,7 +125,7 @@ const fakta = forste?.fakta;
   .flere :global(.tommel) { width: 112px; height: 112px; flex-shrink: 0; border-radius: 18px; }
   .r-tekst { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
   .r-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13px; color: var(--muted); }
-  .r-tittel { font-family: var(--serif); font-size: clamp(19px, 1.7vw, 23px); line-height: 1.2; overflow-wrap: break-word; hyphens: auto; max-width: 100%; }
+  .r-tittel { font-family: var(--serif); font-size: clamp(19px, 1.7vw, 23px); line-height: 1.2; overflow-wrap: break-word; hyphens: manual; max-width: 100%; }
   .r-ingress { font-size: 15px; line-height: 1.5; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
   .flere li a:hover { color: var(--ink); }
   .flere li a:hover .r-tittel { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
@@ -130,7 +133,7 @@ const fakta = forste?.fakta;
   @media (max-width: 1100px) { .rutenett { gap: 40px; } .panel { padding: 40px 36px 36px; } }
   @media (max-width: 900px) {
     .rutenett { grid-template-columns: minmax(0, 1fr); gap: 28px; }
-    .panel { min-height: 0; }
+    .hoved-ramme { flex: none; height: 380px; min-height: 0; }
   }
   @media (max-width: 640px) {
     .hode { margin-bottom: 16px; }
@@ -138,7 +141,8 @@ const fakta = forste?.fakta;
     .alle.bunn { display: flex; justify-content: center; height: 48px; margin-top: 20px; border: 1px solid var(--kant); border-radius: 999px; font-size: 15px; color: var(--ink); }
     .alle.bunn :global(svg) { color: var(--accent); }
     .hoved { gap: 10px; }
-    .hoved :global(.hoved-bilde) { height: 220px; border-radius: 20px; }
+    .hoved-ramme { height: 220px; }
+    .hoved :global(.hoved-bilde) { border-radius: 20px; }
     .hoved :global(.over) { left: 14px; top: 14px; }
     .dato { font-size: 13px; }
     .ingress { font-size: 15px; line-height: 1.55; }
