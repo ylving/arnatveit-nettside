@@ -1,3 +1,4 @@
+import { SNARVEI_TYPER } from '../../sanity/standarder';
 export type DocRef = { _type: string; _id?: string; slug?: string; forelder?: string | null; fil?: string; side?: DocRef } | null | undefined;
 export type Link = { tekst?: string; url?: string; intern?: DocRef } | null | undefined;
 
@@ -32,6 +33,7 @@ export const ankerId = (tekst = '') =>
 
 /** Sections that can be jumped to from the page head ("Vis snarveier øverst"): their label and id */
 export function seksjonAnker(s: { _type: string; tittel?: string; overtittel?: string }): { tekst: string; id: string } | null {
-  const tekst = s._type === 'fargebaand' ? s.overtittel || s.tittel : s._type === 'kontaktinfo' || s._type === 'borettslagsfakta' ? s.tittel : undefined;
+  if (!(SNARVEI_TYPER as readonly string[]).includes(s._type)) return null;
+  const tekst = s._type === 'fargebaand' ? s.overtittel || s.tittel : s.tittel;
   return tekst ? { tekst, id: ankerId(tekst) } : null;
 }

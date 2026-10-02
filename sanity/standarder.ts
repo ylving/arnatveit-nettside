@@ -66,3 +66,5 @@ export const gfNavn = (type?: string, dato?: string) =>
 export const STANDARD_NYHETSKATEGORI = { tittel: 'Informasjon', farge: 'sand', ikon: 'Info' } as const;
 // News per listing page (/aktuelt, /aktuelt/side/2 …)
 export const NYHETER_PER_SIDE = 20;
+// Sections the page head's jump links («Vis snarveier øverst») can point to (seksjonAnker in src/lib/urls.ts)
+export const SNARVEI_TYPER = ['kontaktinfo', 'fargebaand', 'borettslagsfakta'] as const;

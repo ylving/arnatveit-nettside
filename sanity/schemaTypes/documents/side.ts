@@ -1,6 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { erIkon } from '../../ikoner';
-import { STANDARD_IKON } from '../../standarder';
+import { SNARVEI_TYPER, STANDARD_IKON } from '../../standarder';
 import { IkonVelger } from '../../components/IkonVelger';
 import { sti } from '../../actions/videresending';
 
@@ -118,6 +118,9 @@ export const side = defineType({
       description: 'Knapper under ingressen som hopper til seksjonene «Kontaktinfo», «Tekst i grønt bånd» og «Fakta om borettslaget» på siden.',
       type: 'boolean',
       initialValue: false,
+      // Only offered on pages with such a section (today: Om oss og kontakt), or where it's already on
+      hidden: ({ document, value }) =>
+        !value && !((document?.seksjoner as { _type: string }[] | undefined) ?? []).some((s) => (SNARVEI_TYPER as readonly string[]).includes(s._type)),
     }),
     defineField({ name: 'seksjoner', title: 'Innhold', type: 'seksjoner' }),
     defineField({ name: 'seo', title: 'SEO', type: 'seo' }),
