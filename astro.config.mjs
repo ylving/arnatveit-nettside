@@ -4,6 +4,7 @@ import { loadEnv } from 'vite';
 import sanity from '@sanity/astro';
 import react from '@astrojs/react';
 import sanityDevRefresh from './integrations/sanity-dev-refresh.mjs';
+import skjulEpost from './integrations/skjul-epost.mjs';
 
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(process.env.NODE_ENV ?? '', process.cwd(), '');
 
@@ -26,5 +27,6 @@ export default defineConfig({
     }),
     react(),
     sanityDevRefresh({ projectId: PUBLIC_SANITY_PROJECT_ID, dataset: PUBLIC_SANITY_DATASET ?? 'production', apiVersion: '2026-09-01' }),
+    skjulEpost(),
   ],
 });
