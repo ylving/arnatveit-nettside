@@ -95,7 +95,15 @@ _Last updated 2026-10-04 (email addresses hidden from scrapers; **launched on ww
 - **Not done from the artboards:** Miljøutvalget's new ingress (bokmål version in the design; the current text was kept as-is on purpose at import).
 
 ## Next up (after /clear)
-- **Events are unpublished (2026-10-02):** «Høstdugnad» (7 Oct) and «Halloween for barna» (24 Oct) exist only as drafts, so the next build shows no upcoming events («Ingen dugnad er planlagt ennå»). Publish them in the Studio if that wasn't intended.
+**After launch (2026-10-04), in this order:**
+1. **Publish the events:** «Høstdugnad» (7 Oct) and «Halloween for barna» (24 Oct) are still only drafts (checked 2026-10-04), so the live site and `kalender.ics` show no upcoming events. Publish them in the Studio, then press «Oppdater nettsiden».
+2. **Studio on www:** log in at https://www.arnatveit-borettslag.no/admin and press «Oppdater nettsiden» (confirms the CORS origin and the build button on the real domain). The user's Mac had a cached NXDOMAIN for `www` at launch; it clears within an hour.
+3. **Nightly rebuild:** add `DEPLOY_HOOK_URL` as a Secret on `arnatveit-nattlig-bygg`, then check its logs after the first night.
+4. **DKIM:** get Domeneshop to sign outgoing mail (record already in DNS; details in «Next steps (deploy)»).
+5. **Shut down the old Joomla hosting** at Domeneshop once the board has seen the new site.
+6. **Search engines:** add the site to Google Search Console (the `google-site-verification` TXT record is still in DNS) so the old Joomla URLs get replaced faster. The site has **no sitemap** yet (`@astrojs/sitemap` would add one; then submit it there and list it in `robots.txt`).
+
+Content and design work (from before launch):
 - **Not seen in a logged-in Studio (2026-10-01/02 work):** news categories as documents, the news block editor, «Dato, tid og sted», «Fest øverst», the banner's «Vis til og med», «Vanlige spørsmål», the Undersider groups, the Oppfordring extras, «Vis kart over området», the contact box text.
 - **Pages rebuilt to the design canvas so far** (https://claude.ai/artifact/W8XADesGHKexHum3fQ7X6X, read with the Artifact tool): Styret, Dugnad, Miljøutvalget, Dokumentsenter, ABC-nytt, Om oss og kontakt (with the map), Generalforsamling, Vedtekter, Aktuelt + Artikkel, Praktisk info, and the front page's news, «I borettslaget nå» and train card. Check the canvas for artboards not done yet and wait for the user's next brief.
 - Approach that worked: summarise artboards with a subagent; build reusable sections/fields, not page markup; follow the design copy, keep existing content that isn't in the design and flag it; migrate with a script (`--dry`, backup, `ifRevisionId`, abort on drafts; shared data module when the import needs it, e.g. `scripts/migrate/*-data.mjs`), log it in `docs/MIGRATION.md`, update `content.mjs`/`run.mjs` and check `run.mjs --dry`; check 1440/≈1000/800/390/320 for overflow (Playwright on `wrangler dev --port 8799`) and no-JS; update and republish the editor guide; the user asks for commit/push explicitly.
