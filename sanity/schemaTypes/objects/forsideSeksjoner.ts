@@ -3,6 +3,7 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 import { lucideIkon } from '../../components/LucideIkon';
 import { IkonVelger } from '../../components/IkonVelger';
+import { NAA_STYRET } from '../../standarder';
 
 export const forsideFakta = defineType({
   name: 'forsideFakta',
@@ -52,11 +53,23 @@ export const forsideNaa = defineType({
   title: 'I borettslaget nå',
   type: 'object',
   icon: lucideIkon('CalendarDays'),
-  description: 'Sandfarget bånd med neste dugnad (fra Arrangementer) og siste ABC-nytt. Lages av seg selv.',
+  description: 'Sandfarget bånd med neste arrangement (fra Arrangementer), siste ABC-nytt og «Skriv til styret». Arrangement og ABC-nytt lages av seg selv.',
   fields: [
     defineField({ name: 'tittel', title: 'Navn', description: 'Vises ikke, men leses opp av skjermlesere.', type: 'string', initialValue: 'I borettslaget nå' }),
+    defineField({
+      name: 'styret',
+      title: 'Skriv til styret',
+      description: 'Den tredje kolonnen. E-posten er styrets adresse fra «Om borettslaget», og lenken går til Styret. La feltene stå tomme for å bruke teksten som står der nå.',
+      type: 'object',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        defineField({ name: 'overtittel', title: 'Overtittel', type: 'string', placeholder: NAA_STYRET.overtittel }),
+        defineField({ name: 'tittel', title: 'Overskrift', type: 'string', placeholder: NAA_STYRET.tittel }),
+        defineField({ name: 'tekst', title: 'Tekst', type: 'text', rows: 2, placeholder: NAA_STYRET.tekst }),
+      ],
+    }),
   ],
-  preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'I borettslaget nå', subtitle: 'Neste dugnad og siste ABC-nytt' }) },
+  preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'I borettslaget nå', subtitle: 'Neste arrangement, siste ABC-nytt og «Skriv til styret»' }) },
 });
 
 export const forsidePraktisk = defineType({

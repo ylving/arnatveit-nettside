@@ -68,3 +68,9 @@ export const STANDARD_NYHETSKATEGORI = { tittel: 'Informasjon', farge: 'sand', i
 export const NYHETER_PER_SIDE = 20;
 // Sections the page head's jump links («Vis snarveier øverst») can point to (seksjonAnker in src/lib/urls.ts)
 export const SNARVEI_TYPER = ['kontaktinfo', 'fargebaand', 'borettslagsfakta'] as const;
+// Front page band «I borettslaget nå», third column: texts used when the fields are left empty
+export const NAA_STYRET = {
+  overtittel: 'Har du en sak?',
+  tittel: 'Skriv til styret',
+  tekst: 'Saker styret skal behandle sendes skriftlig, minst én uke før styremøtet.',
+} as const;

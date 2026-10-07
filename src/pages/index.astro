@@ -30,12 +30,15 @@ const data = await load<any>(`{
   "festet": *[_type == "nyhet" && defined(slug.current) && festet == true] | order(dato desc, _createdAt desc)[0]${NYHET_KORT},
   "arrangementer": ${ARRANGEMENTER},
   "abc": *[_type == "abcUtgave" && defined(fil.asset)] | order(aar desc, maaned desc)[0]${ABC_UTGAVE},
-  "dugnadSide": *[_id == "side-dugnad"][0]${DOC_REF},
+  // Pages with a "Hva skjer" section, and the category it shows first: "Se kommende arrangement" picks the one for the next event
+  "arrangementSider": *[_type == "side" && defined(slug.current) && count(seksjoner[_type == "arrangementer"]) > 0] | order(_id asc){ "kategori": seksjoner[_type == "arrangementer"][0].kategori, ${DOC_REF_FIELDS} },
+  "styretSide": *[_id == "side-styret"][0]${DOC_REF},
+  "kontakt": *[_id == "omBorettslaget"][0]{ epost },
   "praktisk": *[_type == "side" && forelder._ref == "side-praktisk-info"] | order(rekkefolge asc)${SIDE_KORT},
   "abcSide": *[_id == "side-abc-nytt"][0]${DOC_REF},
   "piSide": *[_id == "side-praktisk-info"][0]{ ingress, ${DOC_REF_FIELDS} }
 }`);
-const { forside: f, abc, praktisk, abcSide, piSide, arrangementer, dugnadSide } = data;
+const { forside: f, abc, praktisk, abcSide, piSide, arrangementer, arrangementSider, styretSide, kontakt } = data;
 // The pinned post first (if it's not among the newest four already), so fremhevet() picks it
 const nyheter = data.festet && !data.nyheter.some((n: any) => n._id === data.festet._id) ? [data.festet, ...data.nyheter] : data.nyheter;
 // Hero image cropped to the illustration's 14:11 frame (hotspot decides the crop)
@@ -77,7 +80,7 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
     <div class={`fs fs--${s._type}`}>
       {s._type === 'forsideFakta' && <Faktabaand seksjon={s} fakta={s.fakta} />}
       {s._type === 'forsideAktuelt' && <ForsideAktuelt nyheter={nyheter} tittel={s.tittel || undefined} />}
-      {s._type === 'forsideNaa' && <ForsideNaa arrangementer={arrangementer} abc={abc} dugnadSide={dugnadSide} abcSide={abcSide} tittel={s.tittel || undefined} />}
+      {s._type === 'forsideNaa' && <ForsideNaa arrangementer={arrangementer} arrangementSider={arrangementSider} abc={abc} abcSide={abcSide} styretSide={styretSide} epost={kontakt?.epost} styret={s.styret} tittel={s.tittel || undefined} />}
       {s._type === 'forsidePraktisk' && (
         <section class="container block">
           <div class="section-head">
@@ -122,11 +125,12 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
 
   .block { padding-top: clamp(56px, 7vw, 96px); }
   /* Spacing for any order: whichever section comes first sits 32px under the hero (its own bottom padding does the
-     rest); further down they all get the full gap. The last one keeps space above the footer. */
+     rest); further down they all get the full gap. The last one keeps space above the footer, unless it's a band:
+     a band runs edge to edge into the footer. */
   .hero + .fs > :global(:is(.baand, .naa)) { margin-top: 32px; }
   .hero + .fs > :global(section:not(.baand, .naa)) { padding-top: 32px; }
   .fs--forsideFakta:not(.hero + .fs) > :global(.baand) { margin-top: clamp(56px, 7vw, 96px); }
-  .fs:last-child { padding-bottom: clamp(56px, 8vw, 112px); }
+  .fs:last-child:not(.fs--forsideFakta, .fs--forsideNaa) { padding-bottom: clamp(56px, 8vw, 112px); }
   .section-title { font-size: clamp(30px, 3.4vw, 44px); margin-bottom: 32px; }
   .section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 32px; }
   .section-head .section-title { margin: 0; }
