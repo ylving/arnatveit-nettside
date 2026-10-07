@@ -8,15 +8,15 @@ import { docHref } from '../lib/urls';
 import { utgaveNavn } from '../../sanity/standarder';
 import { datoDeler, filnavnFor, kommende, type Arrangement } from '../lib/arrangement';
 
-interface Props { arrangementer: Arrangement[]; abc?: any; dugnadSide?: any; abcSide?: any }
-const { arrangementer, abc, dugnadSide, abcSide } = Astro.props;
+interface Props { arrangementer: Arrangement[]; abc?: any; dugnadSide?: any; abcSide?: any; tittel?: string }
+const { arrangementer, abc, dugnadSide, abcSide, tittel = 'I borettslaget nå' } = Astro.props;
 const kom = kommende(arrangementer);
 const filer = filnavnFor(kom);
 const dugnad = kom.find((a) => a.kategori === 'dugnad');
 const d = dugnad && datoDeler(dugnad);
 const sted = dugnad && (dugnad.sted || dugnad.tun);
 ---
-<section class="naa" aria-label="I borettslaget nå">
+<section class="naa" aria-label={tittel}>
   <div class="container moduler">
     <div class="modul">
       <h2 class="eyebrow">Neste dugnad</h2>

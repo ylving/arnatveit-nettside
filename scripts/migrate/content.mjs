@@ -238,24 +238,32 @@ export function buildContent({ protokoll2026, dokumentId }) {
     tittel: 'Rekkehus i tre tun, med turterrenget rett utenfor døra',
     ingress: 'Et veldrevet borettslag med romslige fellesarealer, lekeplass i hvert tun og egen ballplass. Gangavstand til skole, buss og butikk, og kort vei til Øyrane Torg og toget.',
     knapper: [lenke('Praktisk info', '#side-praktisk-info'), lenke('Kontakt styret', 'mailto:styret@arnatveit-borettslag.no')].map((l) => ({ ...l, _key: key() })),
-    faktaseksjon: {
+    // Sections in order; see forside-seksjoner.mjs
+    seksjoner: [
+    {
+      _type: 'forsideFakta', _key: 'fakta',
       overtittel: 'Å bo her',
       tittel: 'Tre tun, ett nabolag',
       tekst: 'Rekkehusene ligger samlet rundt tre tun, med kort vei til skole, buss og butikk, og til turterrenget.',
+      fakta: [
+        ['3 tun', 'Ett av dem bilfritt, med felles parkeringsanlegg.', null],
+        ['Lekeplasser', 'En i hvert tun, pluss egen ballplass.', 'Huske'],
+        ['Turterreng', 'Rikholdig friluftsområde rett ved husene.', 'Mountain'],
+        ['Sunn økonomi', 'Et veldrevet borettslag med ryddig drift.', 'TrendingUp'],
+      ].map(([tittel, tekst, ikon]) => ({ _type: 'faktakort', _key: key(), tittel, tekst, logo: !ikon, ...(ikon && { ikon }) })),
     },
-    fakta: [
-      ['3 tun', 'Ett av dem bilfritt, med felles parkeringsanlegg.', null],
-      ['Lekeplasser', 'En i hvert tun, pluss egen ballplass.', 'Huske'],
-      ['Turterreng', 'Rikholdig friluftsområde rett ved husene.', 'Mountain'],
-      ['Sunn økonomi', 'Et veldrevet borettslag med ryddig drift.', 'TrendingUp'],
-    ].map(([tittel, tekst, ikon]) => ({ _type: 'faktakort', _key: key(), tittel, tekst, logo: !ikon, ...(ikon && { ikon }) })),
-    dokumentsenter: {
+    { _type: 'forsideAktuelt', _key: 'aktuelt', tittel: 'Aktuelt' },
+    { _type: 'forsideNaa', _key: 'naa', tittel: 'I borettslaget nå' },
+    { _type: 'forsidePraktisk', _key: 'praktisk', tittel: 'Praktisk info' },
+    {
+      _type: 'forsideDokumentsenter', _key: 'dokumentsenter',
       tittel: 'Skal du bygge ut, montere varmepumpe eller skaffe husdyr?',
       tekst: 'Dette skal styret ha søknad om. Her finner du standardsøknader og prosedyrer.',
       lenke: lenke('Gå til dokumentsenteret', '#side-dokumentsenter'),
       // Tasks open their steps on Dokumentsenter; see forside-snarveier.mjs
       dokumenter: ['oppgave-bygg', 'oppgave-varmepumpe', 'oppgave-husdyr', 'dokument-vedtekter-vedtekter-2016'].map(keyedRef),
     },
+    ],
   };
 
   return [innstillinger, omBorettslaget, forside, ...kategorier, ...aktuelt.KATEGORIER, ...praktisk.SPORSMAL, ...oppgaver, ...utvalg, ...sider, ...nyheter];

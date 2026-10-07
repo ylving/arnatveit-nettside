@@ -1,5 +1,4 @@
-import { defineArrayMember, defineField, defineType } from 'sanity';
-import { IkonVelger } from '../../components/IkonVelger';
+import { defineField, defineType } from 'sanity';
 
 export const forside = defineType({
   name: 'forside',
@@ -17,52 +16,10 @@ export const forside = defineType({
       type: 'bilde',
     }),
     defineField({
-      name: 'faktaseksjon',
-      title: 'Faktaseksjon – tekst',
-      description: 'Venstre side av det grønne båndet med faktakortene.',
-      type: 'object',
-      fields: [
-        defineField({ name: 'overtittel', title: 'Overtittel', type: 'string', placeholder: 'Å bo her' }),
-        defineField({ name: 'tittel', title: 'Overskrift', type: 'string', placeholder: 'Tre tun, ett nabolag' }),
-        defineField({ name: 'tekst', title: 'Tekst', type: 'text', rows: 3 }),
-      ],
-    }),
-    defineField({
-      name: 'fakta',
-      title: 'Faktakort',
-      type: 'array',
-      validation: (r) => r.max(4),
-      of: [
-        defineArrayMember({
-          type: 'object',
-          name: 'faktakort',
-          fields: [
-            defineField({ name: 'tittel', title: 'Tittel', type: 'string', validation: (r) => r.required() }),
-            defineField({ name: 'tekst', title: 'Tekst', type: 'string' }),
-            defineField({ name: 'logo', title: 'Bruk logoen som ikon', type: 'boolean', initialValue: false }),
-            defineField({ name: 'ikon', title: 'Ikon', type: 'string', components: { input: IkonVelger }, hidden: ({ parent }) => !!parent?.logo }),
-          ],
-          preview: { select: { title: 'tittel', subtitle: 'tekst' } },
-        }),
-      ],
-    }),
-    defineField({
-      name: 'dokumentsenter',
-      title: 'Dokumentsenter-boks',
-      type: 'object',
-      fields: [
-        defineField({ name: 'tittel', title: 'Tittel', type: 'string' }),
-        defineField({ name: 'tekst', title: 'Tekst', type: 'text', rows: 2 }),
-        defineField({ name: 'lenke', title: 'Lenke', type: 'lenke' }),
-        defineField({
-          name: 'dokumenter',
-          title: 'Snarveier',
-          description: 'En oppgave fra «Jeg vil …» åpner stegene på Dokumentsenter, og viser oppgavens tittel. Et dokument åpner PDF-en.',
-          type: 'array',
-          of: [{ type: 'reference', to: [{ type: 'oppgave' }, { type: 'dokument' }] }],
-          validation: (r) => r.max(4),
-        }),
-      ],
+      name: 'seksjoner',
+      title: 'Seksjoner',
+      description: 'Alt under toppen av forsiden. Dra for å endre rekkefølgen. En seksjon som fjernes, kan legges til igjen med «Legg til».',
+      type: 'forsideSeksjoner',
     }),
     defineField({ name: 'seo', title: 'SEO', type: 'seo' }),
   ],

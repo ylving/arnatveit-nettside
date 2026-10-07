@@ -15,12 +15,15 @@ import { docHref, linkHref, oppgaveAnker } from '../lib/urls';
 const data = await load<any>(`{
   "forside": *[_id == "forside"][0]{
     ..., "knapper": knapper[]${LINK},
-    // Shortcuts: a task ("Jeg vil …") links to its steps on the page that has it, a document to its PDF
-    dokumentsenter{ ..., "lenke": lenke${LINK}, "dokumenter": dokumenter[]->{
-      _type,
-      _type == "oppgave" => { _id, tittel, "side": *[_type == "side" && ^._id in seksjoner[].oppgaver[]._ref][0]${DOC_REF} },
-      _type != "oppgave" => ${DOKUMENT}
-    } }
+    seksjoner[]{
+      ...,
+      // Shortcuts: a task ("Jeg vil …") links to its steps on the page that has it, a document to its PDF
+      _type == "forsideDokumentsenter" => { "lenke": lenke${LINK}, "dokumenter": dokumenter[]->{
+        _type,
+        _type == "oppgave" => { _id, tittel, "side": *[_type == "side" && ^._id in seksjoner[].oppgaver[]._ref][0]${DOC_REF} },
+        _type != "oppgave" => ${DOKUMENT}
+      } }
+    }
   },
   // Aktuelt: the newest, plus the newest pinned one (it takes the featured slot even when it's older)
   "nyheter": *[_type == "nyhet" && defined(slug.current)] | order(dato desc, _createdAt desc)[0...4]${NYHET_KORT},
@@ -69,38 +72,42 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
     </div>
   </section>
 
-  <Faktabaand seksjon={f.faktaseksjon} fakta={f.fakta} />
-
-  <ForsideAktuelt nyheter={nyheter} />
-  <ForsideNaa arrangementer={arrangementer} abc={abc} dugnadSide={dugnadSide} abcSide={abcSide} />
-
-  <section class="container block">
-    <div class="section-head">
-      <h2 class="section-title"><a href={docHref(piSide)}>Praktisk info</a></h2>
-      {piSide?.ingress && <p>{piSide.ingress}</p>}
+  {/* The editor's sections in their order; each type at most once (validated in the Studio) */}
+  {(f.seksjoner ?? []).map((s: any) => (
+    <div class={`fs fs--${s._type}`}>
+      {s._type === 'forsideFakta' && <Faktabaand seksjon={s} fakta={s.fakta} />}
+      {s._type === 'forsideAktuelt' && <ForsideAktuelt nyheter={nyheter} tittel={s.tittel || undefined} />}
+      {s._type === 'forsideNaa' && <ForsideNaa arrangementer={arrangementer} abc={abc} dugnadSide={dugnadSide} abcSide={abcSide} tittel={s.tittel || undefined} />}
+      {s._type === 'forsidePraktisk' && (
+        <section class="container block">
+          <div class="section-head">
+            <h2 class="section-title"><a href={docHref(piSide)}>{s.tittel || 'Praktisk info'}</a></h2>
+            {(s.ingress || piSide?.ingress) && <p>{s.ingress || piSide.ingress}</p>}
+          </div>
+          <InfoCards sider={praktisk} />
+        </section>
+      )}
+      {s._type === 'forsideDokumentsenter' && s.tittel && (
+        <section class="container block">
+          <div class="docs">
+            <div class="docs-text">
+              <span class="kicker">Dokumentsenter</span>
+              <h2>{s.tittel}</h2>
+              {s.tekst && <p>{s.tekst}</p>}
+              {s.lenke && <a class="btn btn--dark" href={linkHref(s.lenke)}>{s.lenke.tekst}</a>}
+            </div>
+            {s.dokumenter?.length > 0 && (
+              <ul class="doc-links">
+                {s.dokumenter.filter(Boolean).map((d: any) => d._type === 'oppgave'
+                  ? d.side && <li><a href={`${docHref(d.side)}#${oppgaveAnker(d._id)}`}>{d.tittel}<Icon name="ArrowRight" size={20} /></a></li>
+                  : <li><a href={d.url} target="_blank">{d.tittel}<Icon name="ArrowRight" size={20} /></a></li>)}
+              </ul>
+            )}
+          </div>
+        </section>
+      )}
     </div>
-    <InfoCards sider={praktisk} />
-  </section>
-
-  {f.dokumentsenter?.tittel && (
-    <section class="container block last">
-      <div class="docs">
-        <div class="docs-text">
-          <span class="kicker">Dokumentsenter</span>
-          <h2>{f.dokumentsenter.tittel}</h2>
-          {f.dokumentsenter.tekst && <p>{f.dokumentsenter.tekst}</p>}
-          {f.dokumentsenter.lenke && <a class="btn btn--dark" href={linkHref(f.dokumentsenter.lenke)}>{f.dokumentsenter.lenke.tekst}</a>}
-        </div>
-        {f.dokumentsenter.dokumenter?.length > 0 && (
-          <ul class="doc-links">
-            {f.dokumentsenter.dokumenter.filter(Boolean).map((d: any) => d._type === 'oppgave'
-              ? d.side && <li><a href={`${docHref(d.side)}#${oppgaveAnker(d._id)}`}>{d.tittel}<Icon name="ArrowRight" size={20} /></a></li>
-              : <li><a href={d.url} target="_blank">{d.tittel}<Icon name="ArrowRight" size={20} /></a></li>)}
-          </ul>
-        )}
-      </div>
-    </section>
-  )}
+  ))}
 </Base>
 
 <style>
@@ -114,7 +121,12 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
   .hero-img { width: 100%; height: auto; aspect-ratio: 14 / 11; object-fit: cover; border-radius: var(--radius-lg); background: var(--accent-soft); }
 
   .block { padding-top: clamp(56px, 7vw, 96px); }
-  .block.last { padding-bottom: clamp(56px, 8vw, 112px); }
+  /* Spacing for any order: whichever section comes first sits 32px under the hero (its own bottom padding does the
+     rest); further down they all get the full gap. The last one keeps space above the footer. */
+  .hero + .fs > :global(:is(.baand, .naa)) { margin-top: 32px; }
+  .hero + .fs > :global(section:not(.baand, .naa)) { padding-top: 32px; }
+  .fs--forsideFakta:not(.hero + .fs) > :global(.baand) { margin-top: clamp(56px, 7vw, 96px); }
+  .fs:last-child { padding-bottom: clamp(56px, 8vw, 112px); }
   .section-title { font-size: clamp(30px, 3.4vw, 44px); margin-bottom: 32px; }
   .section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 32px; }
   .section-head .section-title { margin: 0; }

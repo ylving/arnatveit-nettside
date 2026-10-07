@@ -12,7 +12,8 @@ import { fremhevet, kortDato } from '../lib/aktuelt';
 import { orddel } from '../lib/orddeling';
 import { STANDARD_NYHETSKATEGORI } from '../../sanity/standarder';
 
-interface Props { nyheter: any[] }
+interface Props { nyheter: any[]; tittel?: string }
+const { tittel = 'Aktuelt' } = Astro.props;
 const [forste, etter] = fremhevet(Astro.props.nyheter);
 const flere = etter.slice(0, 3);
 const farge = forste?.kategori?.farge ?? STANDARD_NYHETSKATEGORI.farge;
@@ -21,7 +22,7 @@ const fakta = forste?.fakta;
 {forste && (
   <section class="container aktuelt" aria-labelledby="forside-aktuelt">
     <div class="hode">
-      <h2 id="forside-aktuelt">Aktuelt</h2>
+      <h2 id="forside-aktuelt">{tittel}</h2>
       <a class="alle topp" href="/aktuelt">Alle saker<Icon name="ArrowRight" size={16} /></a>
     </div>
     <div class="rutenett">
