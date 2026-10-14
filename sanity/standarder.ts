@@ -24,6 +24,16 @@ export const STANDARD_BREDDE = {
   relatert: 'tekst',
 } as const;
 export type Bredde = 'tekst' | 'breakout' | 'bred' | 'full';
+// Background of a page or front page section (`bakgrunn`). Neighbouring sections with the same colour share one band.
+// Unset = the type's default below, else none (so the bands that were always coloured stay so).
+export const BAKGRUNNER = [
+  { title: 'Ingen', value: 'ingen' },
+  { title: 'Grønn', value: 'gronn' },
+  { title: 'Sand', value: 'sand' },
+] as const;
+export type Bakgrunn = (typeof BAKGRUNNER)[number]['value'];
+export const STANDARD_BAKGRUNN: Record<string, Bakgrunn> = { fargebaand: 'gronn', sporsmal: 'sand', forsideFakta: 'gronn', forsideNaa: 'sand' };
+export const bakgrunnFor = (s: { _type: string; bakgrunn?: Bakgrunn }): Bakgrunn => s.bakgrunn ?? STANDARD_BAKGRUNN[s._type] ?? 'ingen';
 // Event categories (arrangement.kategori). Colours are tokens in global.css (--dugnad*, --sosialt*).
 export const KATEGORIER = [
   { verdi: 'dugnad', navn: 'Dugnad', ikon: 'Sprout' },

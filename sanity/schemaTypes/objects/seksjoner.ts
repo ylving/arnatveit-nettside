@@ -1,7 +1,7 @@
 // Page builder: `side.seksjoner` is a list of sections. Rich text is one section type (`tekst`);
 // structural blocks (lists, images, contact info …) are sections of their own.
 import { defineArrayMember, defineField, defineType } from 'sanity';
-import { breddeFelt, lenkeAnnotasjon } from './blocks';
+import { bakgrunnFelt, breddeFelt, lenkeAnnotasjon } from './blocks';
 import { lucideIkon } from '../../components/LucideIkon';
 import { IkonVelger } from '../../components/IkonVelger';
 import { KATEGORIER } from '../../standarder';
@@ -34,6 +34,7 @@ export const tekst = defineType({
         }),
       ],
     }),
+    bakgrunnFelt('tekst'),
   ],
   validation: (r) => r.custom((v: { innhold?: Blokk[] } | undefined) => (blokkTekst(v?.innhold) ? true : 'Tom tekstseksjon.')).warning(),
   preview: {
@@ -88,6 +89,7 @@ export const undersider = defineType({
       ],
     }),
     breddeFelt('undersider'),
+    bakgrunnFelt('undersider'),
   ],
   validation: (r) =>
     r.custom(async (_v, { document, getClient }) => {
@@ -110,6 +112,7 @@ export const ansvarsliste = defineType({
     defineField({ name: 'utvalg', title: 'Bare fra', description: 'La stå tomt for å vise ansvarsområder fra alle utvalg.', type: 'reference', to: [{ type: 'utvalg' }] }),
     defineField({ name: 'visAnnet', title: 'Vis «Gjelder det noe annet?»', description: 'En linje under kortene med styrets e-post fra «Om borettslaget».', type: 'boolean', initialValue: true }),
     breddeFelt('ansvarsliste'),
+    bakgrunnFelt('ansvarsliste'),
   ],
   validation: (r) =>
     r.custom(async (_v, { getClient }) => {
@@ -141,6 +144,7 @@ export const arrangementer = defineType({
       validation: (r) => r.required(),
     }),
     breddeFelt('arrangementer'),
+    bakgrunnFelt('arrangementer'),
   ],
   preview: {
     select: { tittel: 'tittel', kategori: 'kategori' },
@@ -169,6 +173,7 @@ export const oppgaver = defineType({
       validation: (r) => r.required().min(1).unique(),
     }),
     breddeFelt('oppgaver'),
+    bakgrunnFelt('oppgaver'),
   ],
   preview: {
     select: { tittel: 'tittel', a: 'oppgaver.0.tittel', b: 'oppgaver.1.tittel' },
@@ -193,16 +198,17 @@ export const abcUtgaver = defineType({
     }),
     defineField({ name: 'innspillEpost', title: 'Innspill – e-post', description: 'La stå tomt for å bruke styrets e-post fra «Om borettslaget».', type: 'email' }),
     breddeFelt('abcUtgaver'),
+    bakgrunnFelt('abcUtgaver'),
   ],
   preview: { prepare: () => ({ title: 'ABC-nytt-utgaver', subtitle: 'Siste utgave, tidligere utgaver og arkiv' }) },
 });
 
 export const fargebaand = defineType({
   name: 'fargebaand',
-  title: 'Tekst i grønt bånd',
+  title: 'Tekst i bånd',
   type: 'object',
   icon: lucideIkon('PanelTop'),
-  description: 'Et grønt bånd over hele bredden med liten overtittel, overskrift og tekst, som «Området» på Om borettslaget.',
+  description: 'Liten overtittel og overskrift til venstre, tekst til høyre, som «Området» på Om borettslaget. Grønt bånd som standard.',
   fields: [
     defineField({ name: 'overtittel', title: 'Overtittel', description: 'F.eks. «Området». Brukes også som snarvei øverst på siden.', type: 'string' }),
     defineField({ name: 'tittel', title: 'Overskrift', type: 'string', validation: (r) => r.required() }),
@@ -219,8 +225,9 @@ export const fargebaand = defineType({
       type: 'boolean',
       initialValue: false,
     }),
+    bakgrunnFelt('fargebaand'),
   ],
-  preview: { select: { title: 'tittel', subtitle: 'overtittel', kart: 'kart' }, prepare: ({ title, subtitle, kart }) => ({ title, subtitle: `Grønt bånd${subtitle ? ` · ${subtitle}` : ''}${kart ? ' · med kart' : ''}` }) },
+  preview: { select: { title: 'tittel', subtitle: 'overtittel', kart: 'kart' }, prepare: ({ title, subtitle, kart }) => ({ title, subtitle: `Tekst i bånd${subtitle ? ` · ${subtitle}` : ''}${kart ? ' · med kart' : ''}` }) },
 });
 
 export const borettslagsfakta = defineType({
@@ -233,6 +240,7 @@ export const borettslagsfakta = defineType({
     defineField({ name: 'tittel', title: 'Overskrift', description: 'Brukes også som snarvei øverst på siden.', type: 'string', initialValue: 'Fakta' }),
     defineField({ name: 'ingress', title: 'Tekst ved overskriften', type: 'string', initialValue: 'Offisielle opplysninger om borettslaget, blant annet til bruk ved kjøp og salg.' }),
     breddeFelt('borettslagsfakta'),
+    bakgrunnFelt('borettslagsfakta'),
   ],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Fakta', subtitle: 'Fakta om borettslaget (fra «Om borettslaget»)' }) },
 });
@@ -264,6 +272,7 @@ export const punkter = defineType({
       validation: (r) => r.required().min(1).max(6),
     }),
     breddeFelt('punkter'),
+    bakgrunnFelt('punkter'),
   ],
   preview: { select: { title: 'tittel', a: 'punkter.0.tittel', b: 'punkter.1.tittel' }, prepare: ({ title, a, b }) => ({ title, subtitle: `Punkter · ${[a, b].filter(Boolean).join(', ')} …` }) },
 });
@@ -283,6 +292,7 @@ export const oppfordring = defineType({
     defineField({ name: 'lenke', title: 'Ekstra knapp (valgfri)', description: 'En lys knapp foran den mørke, f.eks. «Dokumentsenter».', type: 'lenke' }),
     defineField({ name: 'utenIkon', title: 'Uten ikon', description: 'Skjuler det lille ikonet til venstre.', type: 'boolean', initialValue: false }),
     breddeFelt('oppfordring'),
+    bakgrunnFelt('oppfordring'),
   ],
   preview: { select: { title: 'tittel', subtitle: 'knapp' }, prepare: ({ title, subtitle }) => ({ title, subtitle: `Oppfordring · ${subtitle ?? ''}` }) },
 });
@@ -292,7 +302,7 @@ export const sporsmal = defineType({
   title: 'Vanlige spørsmål',
   type: 'object',
   icon: lucideIkon('MessageCircleQuestion'),
-  description: 'Spørsmål med svar som kan åpnes ett om gangen, i et sandfarget bånd. Spørsmålene lages under «Vanlige spørsmål» i menyen.',
+  description: 'Spørsmål med svar som kan åpnes ett om gangen, i et sandfarget bånd som standard. Spørsmålene lages under «Vanlige spørsmål» i menyen.',
   fields: [
     defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Vanlige spørsmål' }),
     defineField({ name: 'ingress', title: 'Tekst ved overskriften', type: 'string', initialValue: 'Raske svar på det beboere oftest lurer på.' }),
@@ -304,6 +314,7 @@ export const sporsmal = defineType({
       of: [defineArrayMember({ type: 'reference', to: [{ type: 'vanligSporsmal' }] })],
       validation: (r) => r.required().min(1).unique(),
     }),
+    bakgrunnFelt('sporsmal'),
   ],
   preview: { select: { title: 'tittel', a: 'sporsmal.0.sporsmal' }, prepare: ({ title, a }) => ({ title: title || 'Vanlige spørsmål', subtitle: a ? `Spørsmål · ${a} …` : 'Spørsmål' }) },
 });
@@ -324,6 +335,7 @@ export const generalforsamlinger = defineType({
       type: 'string',
     }),
     breddeFelt('generalforsamlinger'),
+    bakgrunnFelt('generalforsamlinger'),
   ],
   preview: { select: { title: 'tittel', subtitle: 'neste' }, prepare: ({ title, subtitle }) => ({ title: title || 'Protokoller', subtitle: `Generalforsamlinger${subtitle ? ` · Neste: ${subtitle}` : ''}` }) },
 });
@@ -353,6 +365,7 @@ export const regelverk = defineType({
       initialValue: 'https://lovdata.no/dokument/NL/lov/2003-06-06-39',
     }),
     breddeFelt('regelverk'),
+    bakgrunnFelt('regelverk'),
   ],
   preview: {
     select: { a: 'dokumenter.0.tittel', b: 'dokumenter.1.tittel', lov: 'lovTittel', url: 'lovUrl' },
@@ -388,6 +401,7 @@ export const nivaaer = defineType({
       validation: (r) => r.required().min(2).max(4),
     }),
     breddeFelt('nivaaer'),
+    bakgrunnFelt('nivaaer'),
   ],
   preview: { select: { title: 'tittel', a: 'nivaaer.0.tittel', b: 'nivaaer.1.tittel' }, prepare: ({ title, a, b }) => ({ title, subtitle: `Nivåer · ${[a, b].filter(Boolean).join(' › ')} …` }) },
 });
@@ -419,6 +433,7 @@ export const relatert = defineType({
       validation: (r) => r.required().min(1),
     }),
     breddeFelt('relatert'),
+    bakgrunnFelt('relatert'),
   ],
   preview: { select: { tittel: 'tittel', a: 'lenker.0.side.tittel', b: 'lenker.1.side.tittel' }, prepare: ({ tittel, a, b }) => ({ title: tittel || 'Relatert', subtitle: `Relatert · ${[a, b].filter(Boolean).join(', ')}` }) },
 });

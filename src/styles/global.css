@@ -94,14 +94,33 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015
 
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
+/* Section backgrounds (`bakgrunn` on page and front page sections) */
+/* --flate: small chips and icon discs that sit on the background (white on the page, cream in a band) */
+:root { --flate: var(--surface); }
+.bakgrunn { --baand-luft: clamp(40px, 6vw, 80px); --flate: var(--bg); }
+.bakgrunn--gronn { background: var(--accent-soft); }
+.bakgrunn--sand { background: var(--sand); }
+/* Tints that match the band would vanish in it (icon discs, date tiles, task cards, tags): white instead. Set on the
+   children, since the band itself uses the same token. Derived tokens (--dugnad-bg …) resolve at :root, so they're
+   listed too. --filterspor: the track behind the event filter pills. */
+.bakgrunn > * { --filterspor: var(--bg); }
+.bakgrunn--gronn > * { --accent-soft: var(--surface); --farge-gronn-bg: var(--surface); --dugnad-bg: var(--surface); }
+.bakgrunn--sand > * { --farge-sand-bg: var(--surface); --farge-oker-bg: var(--surface); --sosialt-bg: var(--surface); }
+
 /* Page sections (side.seksjoner) */
 .seksjoner { padding-bottom: clamp(56px, 8vw, 112px); }
+/* Sections are wrapped in runs of the same background (Seksjoner.astro): more air around a band, two bands meet edge
+   to edge, and a band at the end runs into the footer. A map at the bottom of the band's last section ends it. */
+.seksjoner > .gruppe + .gruppe { margin-top: clamp(48px, 7vw, 96px); }
+.seksjoner > .bakgrunn + .bakgrunn { margin-top: 0; }
+.seksjoner:has(> .bakgrunn:last-child) { padding-bottom: 0; }
+.bakgrunn { padding-block: var(--baand-luft); }
+.bakgrunn:has(> .seksjon:last-child .med-kart) { padding-bottom: 0; }
 .seksjon + .seksjon { margin-top: clamp(36px, 4.5vw, 56px); }
 /* A text section ending in a heading introduces the next section: keep them together */
 .seksjon--tekst:has(.prose > :last-child:is(h2, h3)) + .seksjon { margin-top: 16px; }
 /* Key figures introduce the text below them, and a document list without a heading belongs to the text above it */
 .seksjon--nokkeltall + .seksjon--tekst, .seksjon--tekst + .seksjon--dokumentliste:not(:has(h2)) { margin-top: 28px; }
-.seksjon--fargebaand, .seksjon--fargebaand + .seksjon { margin-top: clamp(48px, 7vw, 96px); }
 /* Vedtekter: more air after the rule cards and the nested figure */
 .seksjon--regelverk + .seksjon, .seksjon--nivaaer + .seksjon { margin-top: clamp(44px, 6.7vw, 96px); }
 .smal { max-width: 72ch; }

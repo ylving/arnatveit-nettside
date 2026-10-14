@@ -11,6 +11,7 @@ import { load, urlFor } from '../lib/sanity';
 import { ABC_UTGAVE, DOC_REF, DOC_REF_FIELDS, DOKUMENT, LINK, NYHET_KORT, SIDE_KORT } from '../lib/queries';
 import { ARRANGEMENTER } from '../lib/arrangement';
 import { docHref, linkHref, oppgaveAnker } from '../lib/urls';
+import { iBaand } from '../lib/baand';
 
 const data = await load<any>(`{
   "forside": *[_id == "forside"][0]{
@@ -75,8 +76,11 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
     </div>
   </section>
 
-  {/* The editor's sections in their order; each type at most once (validated in the Studio) */}
-  {(f.seksjoner ?? []).map((s: any) => (
+  {/* The editor's sections in their order; each type at most once (validated in the Studio). Neighbours with the
+      same background share one band. */}
+  {iBaand(f.seksjoner ?? []).map((g) => (
+  <div class:list={['gruppe', g.bakgrunn !== 'ingen' && `bakgrunn bakgrunn--${g.bakgrunn}`]}>
+  {g.seksjoner.map((s: any) => (
     <div class={`fs fs--${s._type}`}>
       {s._type === 'forsideFakta' && <Faktabaand seksjon={s} fakta={s.fakta} />}
       {s._type === 'forsideAktuelt' && <ForsideAktuelt nyheter={nyheter} tittel={s.tittel || undefined} />}
@@ -111,6 +115,8 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
       )}
     </div>
   ))}
+  </div>
+  ))}
 </Base>
 
 <style>
@@ -124,13 +130,19 @@ const heroSrc = (w: number) => urlFor(f.bilde).width(w).height(Math.round((w * 1
   .hero-img { width: 100%; height: auto; aspect-ratio: 14 / 11; object-fit: cover; border-radius: var(--radius-lg); background: var(--accent-soft); }
 
   .block { padding-top: clamp(56px, 7vw, 96px); }
-  /* Spacing for any order: whichever section comes first sits 32px under the hero (its own bottom padding does the
-     rest); further down they all get the full gap. The last one keeps space above the footer, unless it's a band:
-     a band runs edge to edge into the footer. */
-  .hero + .fs > :global(:is(.baand, .naa)) { margin-top: 32px; }
-  .hero + .fs > :global(section:not(.baand, .naa)) { padding-top: 32px; }
-  .fs--forsideFakta:not(.hero + .fs) > :global(.baand) { margin-top: clamp(56px, 7vw, 96px); }
-  .fs:last-child:not(.fs--forsideFakta, .fs--forsideNaa) { padding-bottom: clamp(56px, 8vw, 112px); }
+  /* Spacing for any order. Sections come in runs (.gruppe), a coloured run is a band (.bakgrunn). The news, Praktisk
+     info and Dokumentsenter sections carry the gap above them as their own top padding; «Å bo her» and «I
+     borettslaget nå» have none. Whatever comes first sits 32px under the hero (its own bottom padding does the rest);
+     a band gets the full gap above it, and inside a band the first section starts at the band's padding. Two bands
+     meet edge to edge, and the last run keeps space above the footer unless it's a band (it runs into the footer). */
+  .hero + .gruppe:not(.bakgrunn) > .fs:first-child > :global(section) { padding-top: 32px; }
+  .hero + .gruppe:not(.bakgrunn) > .fs:first-child:is(.fs--forsideFakta, .fs--forsideNaa) { margin-top: 32px; }
+  .hero + .bakgrunn { margin-top: 32px; }
+  .gruppe + .bakgrunn { margin-top: clamp(56px, 7vw, 96px); }
+  .bakgrunn + .bakgrunn { margin-top: 0; }
+  .bakgrunn > .fs:first-child > :global(section) { padding-top: 0; }
+  .fs + :is(.fs--forsideFakta, .fs--forsideNaa), .bakgrunn + .gruppe:not(.bakgrunn) > .fs:first-child:is(.fs--forsideFakta, .fs--forsideNaa) { margin-top: clamp(56px, 7vw, 96px); }
+  .gruppe:last-child:not(.bakgrunn) { padding-bottom: clamp(56px, 8vw, 112px); }
   .section-title { font-size: clamp(30px, 3.4vw, 44px); margin-bottom: 32px; }
   .section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 32px; }
   .section-head .section-title { margin: 0; }

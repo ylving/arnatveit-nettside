@@ -4,13 +4,14 @@ import { defineArrayMember, defineField, defineType } from 'sanity';
 import { lucideIkon } from '../../components/LucideIkon';
 import { IkonVelger } from '../../components/IkonVelger';
 import { NAA_STYRET } from '../../standarder';
+import { bakgrunnFelt } from './blocks';
 
 export const forsideFakta = defineType({
   name: 'forsideFakta',
   title: 'Å bo her (faktakort)',
   type: 'object',
   icon: lucideIkon('House'),
-  description: 'Det grønne båndet med tekst til venstre og opptil fire faktakort til høyre.',
+  description: 'Tekst til venstre og opptil fire faktakort til høyre, i et grønt bånd som standard.',
   fields: [
     defineField({ name: 'overtittel', title: 'Overtittel', type: 'string', placeholder: 'Å bo her' }),
     defineField({ name: 'tittel', title: 'Overskrift', type: 'string', placeholder: 'Tre tun, ett nabolag' }),
@@ -34,8 +35,9 @@ export const forsideFakta = defineType({
         }),
       ],
     }),
+    bakgrunnFelt('forsideFakta'),
   ],
-  preview: { select: { title: 'tittel', subtitle: 'overtittel' }, prepare: ({ title, subtitle }) => ({ title: title || 'Å bo her', subtitle: `Grønt bånd med faktakort${subtitle ? ` · ${subtitle}` : ''}` }) },
+  preview: { select: { title: 'tittel', subtitle: 'overtittel' }, prepare: ({ title, subtitle }) => ({ title: title || 'Å bo her', subtitle: `Faktakort${subtitle ? ` · ${subtitle}` : ''}` }) },
 });
 
 export const forsideAktuelt = defineType({
@@ -44,7 +46,7 @@ export const forsideAktuelt = defineType({
   type: 'object',
   icon: lucideIkon('Newspaper'),
   description: 'Den nyeste nyheten stort (eller den som er festet øverst), og de tre neste ved siden av. Lages av seg selv fra Nyheter.',
-  fields: [defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Aktuelt' })],
+  fields: [defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Aktuelt' }), bakgrunnFelt('forsideAktuelt')],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Aktuelt', subtitle: 'De nyeste nyhetene' }) },
 });
 
@@ -53,7 +55,7 @@ export const forsideNaa = defineType({
   title: 'I borettslaget nå',
   type: 'object',
   icon: lucideIkon('CalendarDays'),
-  description: 'Sandfarget bånd med neste arrangement (fra Arrangementer), siste ABC-nytt og «Skriv til styret». Arrangement og ABC-nytt lages av seg selv.',
+  description: 'Neste arrangement (fra Arrangementer), siste ABC-nytt og «Skriv til styret». Arrangement og ABC-nytt lages av seg selv. Sandfarget bånd som standard.',
   fields: [
     defineField({ name: 'tittel', title: 'Navn', description: 'Vises ikke, men leses opp av skjermlesere.', type: 'string', initialValue: 'I borettslaget nå' }),
     defineField({
@@ -68,6 +70,7 @@ export const forsideNaa = defineType({
         defineField({ name: 'tekst', title: 'Tekst', type: 'text', rows: 2, placeholder: NAA_STYRET.tekst }),
       ],
     }),
+    bakgrunnFelt('forsideNaa'),
   ],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'I borettslaget nå', subtitle: 'Neste arrangement, siste ABC-nytt og «Skriv til styret»' }) },
 });
@@ -81,6 +84,7 @@ export const forsidePraktisk = defineType({
   fields: [
     defineField({ name: 'tittel', title: 'Overskrift', description: 'Lenker til Praktisk info-siden.', type: 'string', initialValue: 'Praktisk info' }),
     defineField({ name: 'ingress', title: 'Tekst ved overskriften', description: 'La stå tomt for å bruke ingressen til Praktisk info-siden.', type: 'string' }),
+    bakgrunnFelt('forsidePraktisk'),
   ],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Praktisk info', subtitle: 'Kort for sidene under Praktisk info' }) },
 });
@@ -103,6 +107,7 @@ export const forsideDokumentsenter = defineType({
       of: [{ type: 'reference', to: [{ type: 'oppgave' }, { type: 'dokument' }] }],
       validation: (r) => r.max(4),
     }),
+    bakgrunnFelt('forsideDokumentsenter'),
   ],
   preview: { select: { title: 'tittel' }, prepare: ({ title }) => ({ title: title || 'Dokumentsenter-boks', subtitle: 'Dokumentsenter-boks' }) },
 });

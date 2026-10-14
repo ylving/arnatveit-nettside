@@ -111,7 +111,7 @@ const abonner = `webcal://${Astro.site!.host}/kalender.ics`;
   .abonner, .kalender { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--accent); white-space: nowrap; }
   .abonner:hover, .kalender:hover { text-decoration: underline; text-underline-offset: 3px; }
   .abonner { grid-area: abonner; align-self: center; margin-bottom: 8px; }
-  .filter { grid-area: filter; display: flex; padding: 4px; margin-bottom: 8px; background: #eae5da; border-radius: 999px; }
+  .filter { grid-area: filter; display: flex; padding: 4px; margin-bottom: 8px; background: var(--filterspor, #eae5da); border-radius: 999px; }
   .filter button {
     height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: var(--muted);
     font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;

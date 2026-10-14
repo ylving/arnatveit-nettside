@@ -1,5 +1,5 @@
 ---
-// "Vanlige spørsmål": a full-width sand band with the heading on the left (4/12) and the questions on the right (8/12).
+// "Vanlige spørsmål" (sand band by default, from the section's `bakgrunn`): the heading on the left (4/12) and the questions on the right (8/12).
 // Each question is a <details> with a round +/- icon, a short answer and one link. All share a `name`, so browsers keep
 // only one open at a time without any JavaScript; the first is open. FAQPage structured data (JSON-LD) for search.
 import Icon from '../Icon.astro';
@@ -41,7 +41,6 @@ const jsonLd = {
   </section>
 )}
 <style>
-  .sporsmal { background: var(--sand); padding-block: clamp(36px, 5vw, 72px) clamp(40px, 5.5vw, 80px); }
   .rutenett { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 56px; }
   .venstre h2 { font-size: clamp(26px, 2.8vw, 40px); letter-spacing: -0.015em; }
   .ingress { margin: 12px 0 0; font-size: 16px; line-height: 1.6; color: #46514b; }
@@ -52,7 +51,7 @@ const jsonLd = {
   .sp { font-family: var(--serif); font-size: clamp(19px, 1.8vw, 24px); line-height: 1.25; }
   summary:hover .sp { color: var(--accent); }
   /* Round +/-: two bars, the vertical one hidden when open */
-  .pluss { position: relative; width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; background: var(--bg); }
+  .pluss { position: relative; width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; background: var(--flate); }
   .pluss::before, .pluss::after { content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 2px; border-radius: 1px; background: var(--accent); transform: translate(-50%, -50%); }
   .pluss::after { transform: translate(-50%, -50%) rotate(90deg); transition: opacity 0.15s; }
   details[open] .pluss::after { opacity: 0; }

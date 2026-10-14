@@ -1,6 +1,7 @@
 ---
 // Renders side.seksjoner. Each section decides its own width: tekst (72ch) · breakout (960px) · bred (content container)
 // · full (edge to edge). Components don't cap their own width; the section's `bredde` does.
+// `bakgrunn` (green/sand): neighbouring sections with the same colour are wrapped in one band (`iBaand`).
 import Innhold from './portable/Innhold.astro';
 import Bilde from './portable/Bilde.astro';
 import Dokumentliste from './portable/Dokumentliste.astro';
@@ -25,20 +26,23 @@ import UndersiderGrupper from './portable/UndersiderGrupper.astro';
 import Sporsmal from './portable/Sporsmal.astro';
 import InfoCards from './InfoCards.astro';
 import { STANDARD_BREDDE, type Bredde } from '../../sanity/standarder';
+import { iBaand } from '../lib/baand';
 
 const { seksjoner = [], kontakt, barn = [] } = Astro.props;
 
 // Child page cards: where the editor placed an `undersider` section, otherwise at the end (never lost)
-const liste: any[] = seksjoner.some((s: any) => s._type === 'undersider') || !barn.length
+const liste: any[] = (seksjoner.some((s: any) => s._type === 'undersider') || !barn.length
   ? seksjoner
-  : [...seksjoner, { _type: 'undersider', _key: 'auto-undersider' }];
+  : [...seksjoner, { _type: 'undersider', _key: 'auto-undersider' }]
+).filter((s: any) => s._type !== 'undersider' || barn.length);
 
 const bredde = (s: any): Bredde =>
   s._type === 'tekst' ? 'tekst' : s._type === 'fargebaand' || s._type === 'sporsmal' ? 'full' : (s.bredde ?? STANDARD_BREDDE[s._type as keyof typeof STANDARD_BREDDE] ?? 'tekst');
 ---
 <div class="seksjoner">
-  {liste.map((s) => {
-    if (s._type === 'undersider' && !barn.length) return null;
+  {iBaand(liste).map((g) => (
+  <div class:list={['gruppe', g.bakgrunn !== 'ingen' && `bakgrunn bakgrunn--${g.bakgrunn}`]}>
+  {g.seksjoner.map((s) => {
     const b = bredde(s);
     return (
       <div class={`seksjon seksjon--${s._type}`} data-bredde={b}>
@@ -69,4 +73,6 @@ const bredde = (s: any): Bredde =>
       </div>
     );
   })}
+  </div>
+  ))}
 </div>

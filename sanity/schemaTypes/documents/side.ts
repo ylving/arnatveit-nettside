@@ -115,7 +115,7 @@ export const side = defineType({
     defineField({
       name: 'snarveier',
       title: 'Vis snarveier øverst',
-      description: 'Knapper under ingressen som hopper til seksjonene «Kontaktinfo», «Tekst i grønt bånd» og «Fakta om borettslaget» på siden.',
+      description: 'Knapper under ingressen som hopper til seksjonene «Kontaktinfo», «Tekst i bånd» og «Fakta om borettslaget» på siden.',
       type: 'boolean',
       initialValue: false,
       // Only offered on pages with such a section (today: Om oss og kontakt), or where it's already on

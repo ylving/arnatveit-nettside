@@ -1,5 +1,5 @@
 ---
-// Front page "Å bo her": full-width band with a heading (5/12) and four facts in a 2×2 grid (7/12).
+// Front page "Å bo her" (green band by default, from the section's `bakgrunn`): a heading (5/12) and four facts in a 2×2 grid (7/12).
 // On phones the heading stacks above the facts, which become rows with dividers.
 import Icon from './Icon.astro';
 const { seksjon = {}, fakta = [] } = Astro.props;
@@ -36,7 +36,6 @@ const { seksjon = {}, fakta = [] } = Astro.props;
   </section>
 )}
 <style>
-  .baand { background: #e4ece6; padding-block: 88px; margin-top: 32px; }
   .innhold { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 88px; align-items: start; }
   .hode { display: flex; flex-direction: column; gap: 20px; }
   .overtittel { font-size: 14px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
@@ -44,7 +43,7 @@ const { seksjon = {}, fakta = [] } = Astro.props;
   .hode p { margin: 0; font-size: 18px; line-height: 1.6; color: var(--ink-2); max-width: 420px; }
   ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 48px; row-gap: 40px; }
   li { border-top: 1px solid #bfd1c5; padding-top: 22px; display: flex; gap: 18px; align-items: flex-start; }
-  .ikon { width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; background: var(--bg); color: var(--accent); display: grid; place-items: center; }
+  .ikon { width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; background: var(--flate); color: var(--accent); display: grid; place-items: center; }
   .tekst { display: flex; flex-direction: column; gap: 6px; }
   h3 { font-size: 26px; line-height: 1.15; margin: 0; }
   .beskrivelse { font-size: 16px; line-height: 1.5; color: #46514b; }
@@ -56,7 +55,6 @@ const { seksjon = {}, fakta = [] } = Astro.props;
   }
   /* Phones: facts as rows with dividers */
   @media (max-width: 640px) {
-    .baand { padding-block: 40px 22px; }
     .innhold { gap: 22px; }
     .hode { gap: 14px; }
     .overtittel { font-size: 13px; }

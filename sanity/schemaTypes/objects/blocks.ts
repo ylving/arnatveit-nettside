@@ -1,5 +1,5 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
-import { STANDARD_BREDDE } from '../../standarder';
+import { BAKGRUNNER, STANDARD_BAKGRUNN, STANDARD_BREDDE } from '../../standarder';
 import { lucideIkon } from '../../components/LucideIkon';
 
 /** Width of a page section. Hidden when the same block sits inside news text (`nyhet.innhold`). */
@@ -23,6 +23,18 @@ export const breddeFelt = (type: keyof typeof STANDARD_BREDDE) =>
     hidden: ({ path, document }) => path[0] !== 'seksjoner' || document?._type !== 'side',
   });
 
+/** Background of a page or front page section; neighbours with the same colour share one band. Hidden in news. */
+export const bakgrunnFelt = (type: string) =>
+  defineField({
+    name: 'bakgrunn',
+    title: 'Bakgrunn',
+    description: 'Farget bånd over hele bredden. Seksjoner etter hverandre med samme farge havner i samme bånd.',
+    type: 'string',
+    options: { list: [...BAKGRUNNER], layout: 'radio', direction: 'horizontal' },
+    initialValue: STANDARD_BAKGRUNN[type] ?? 'ingen',
+    hidden: ({ path, document }) => path[0] !== 'seksjoner' || !['side', 'forside'].includes(document?._type ?? ''),
+  });
+
 /** Link annotation for rich text (internal document or external/mailto/tel) */
 export const lenkeAnnotasjon = {
   name: 'link',
@@ -44,6 +56,7 @@ export const bilde = defineType({
     defineField({ name: 'alt', title: 'Alternativ tekst', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'bildetekst', title: 'Bildetekst', type: 'string' }),
     breddeFelt('bilde'),
+    bakgrunnFelt('bilde'),
   ],
   preview: { select: { media: 'asset', title: 'bildetekst', subtitle: 'alt' }, prepare: ({ media, title, subtitle }) => ({ media, title: title || subtitle || 'Bilde', subtitle: 'Bilde' }) },
 });
@@ -80,6 +93,7 @@ export const dokumentliste = defineType({
       description: 'Tidslinjen og søket ser best ut med Bredde «Bred» eller «Breakout».',
     }),
     breddeFelt('dokumentliste'),
+    bakgrunnFelt('dokumentliste'),
   ],
   preview: {
     select: { title: 'tittel', a: 'kategorier.0.tittel', b: 'kategorier.1.tittel', c: 'kategorier.2.tittel', visning: 'visning' },
@@ -113,6 +127,7 @@ export const medlemsliste = defineType({
       initialValue: 'rader',
     }),
     breddeFelt('medlemsliste'),
+    bakgrunnFelt('medlemsliste'),
   ],
   preview: {
     select: { tittel: 'tittel', utvalg: 'utvalg.navn', medlemmer: 'utvalg.medlemmer' },
@@ -146,6 +161,7 @@ export const nokkeltall = defineType({
       validation: (r) => r.required().min(1).max(4),
     }),
     breddeFelt('nokkeltall'),
+    bakgrunnFelt('nokkeltall'),
   ],
   preview: {
     select: { tittel: 'tittel', a: 'tall.0.verdi', b: 'tall.1.verdi', c: 'tall.2.verdi' },
@@ -181,6 +197,7 @@ export const kontaktinfo = defineType({
       validation: (r) => r.max(4),
     }),
     breddeFelt('kontaktinfo'),
+    bakgrunnFelt('kontaktinfo'),
   ],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Kontaktinfo', subtitle: 'Kontaktinfo (fra «Om borettslaget»)' }) },
 });

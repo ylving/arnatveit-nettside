@@ -1,5 +1,5 @@
 ---
-// Front page "I borettslaget nå": a sand band with three modules split by thin lines: the next event of any category
+// Front page "I borettslaget nå" (sand band by default, from the section's `bakgrunn`): three modules split by thin lines: the next event of any category
 // (date block in the category's tint, time and place, "Legg i kalender" = the event's own .ics, "Se kommende arrangement"
 // = the page whose "Hva skjer" section shows that category first), the newest ABC-nytt (tilted cover, "Les utgaven" opens
 // the PDF, "Alle utgaver") and "Skriv til styret" (texts from the section, the board's email from «Om borettslaget»).
@@ -81,7 +81,6 @@ const side = arrangementSider.find((s) => s.kategori === neste?.kategori) ?? arr
   </div>
 </section>
 <style>
-  .naa { background: var(--sand); padding-block: clamp(36px, 4.5vw, 64px); margin-top: clamp(56px, 7vw, 96px); }
   .moduler { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .modul { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; min-width: 0; padding-inline: 40px; }
   .modul:first-child { padding-left: 0; }
