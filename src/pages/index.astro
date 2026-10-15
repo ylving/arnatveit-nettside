@@ -16,12 +16,12 @@ import { iBaand } from '../lib/baand';
 const data = await load<any>(`{
   "forside": *[_id == "forside"][0]{
     ..., "knapper": knapper[]${LINK},
-    seksjoner[]{
+    seksjoner[skjult != true]{
       ...,
       // Shortcuts: a task ("Jeg vil …") links to its steps on the page that has it, a document to its PDF
       _type == "forsideDokumentsenter" => { "lenke": lenke${LINK}, "dokumenter": dokumenter[]->{
         _type,
-        _type == "oppgave" => { _id, tittel, "side": *[_type == "side" && ^._id in seksjoner[].oppgaver[]._ref][0]${DOC_REF} },
+        _type == "oppgave" => { _id, tittel, "side": *[_type == "side" && ^._id in seksjoner[skjult != true].oppgaver[]._ref][0]${DOC_REF} },
         _type != "oppgave" => ${DOKUMENT}
       } }
     }
@@ -32,7 +32,7 @@ const data = await load<any>(`{
   "arrangementer": ${ARRANGEMENTER},
   "abc": *[_type == "abcUtgave" && defined(fil.asset)] | order(aar desc, maaned desc)[0]${ABC_UTGAVE},
   // Pages with a "Hva skjer" section, and the category it shows first: "Se kommende arrangement" picks the one for the next event
-  "arrangementSider": *[_type == "side" && defined(slug.current) && count(seksjoner[_type == "arrangementer"]) > 0] | order(_id asc){ "kategori": seksjoner[_type == "arrangementer"][0].kategori, ${DOC_REF_FIELDS} },
+  "arrangementSider": *[_type == "side" && defined(slug.current) && count(seksjoner[_type == "arrangementer" && skjult != true]) > 0] | order(_id asc){ "kategori": seksjoner[_type == "arrangementer" && skjult != true][0].kategori, ${DOC_REF_FIELDS} },
   "styretSide": *[_id == "side-styret"][0]${DOC_REF},
   "kontakt": *[_id == "omBorettslaget"][0]{ epost },
   "praktisk": *[_type == "side" && forelder._ref == "side-praktisk-info"] | order(rekkefolge asc)${SIDE_KORT},

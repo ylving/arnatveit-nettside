@@ -1,8 +1,9 @@
 // Page builder: `side.seksjoner` is a list of sections. Rich text is one section type (`tekst`);
 // structural blocks (lists, images, contact info …) are sections of their own.
 import { defineArrayMember, defineField, defineType } from 'sanity';
-import { bakgrunnFelt, breddeFelt, lenkeAnnotasjon } from './blocks';
+import { bakgrunnFelt, breddeFelt, lenkeAnnotasjon, skjultFelt } from './blocks';
 import { lucideIkon } from '../../components/LucideIkon';
+import { SeksjonRad } from '../../components/SeksjonRad';
 import { IkonVelger } from '../../components/IkonVelger';
 import { KATEGORIER } from '../../standarder';
 
@@ -34,7 +35,7 @@ export const tekst = defineType({
         }),
       ],
     }),
-    bakgrunnFelt('tekst'),
+    bakgrunnFelt('tekst'), skjultFelt,
   ],
   validation: (r) => r.custom((v: { innhold?: Blokk[] } | undefined) => (blokkTekst(v?.innhold) ? true : 'Tom tekstseksjon.')).warning(),
   preview: {
@@ -89,7 +90,7 @@ export const undersider = defineType({
       ],
     }),
     breddeFelt('undersider'),
-    bakgrunnFelt('undersider'),
+    bakgrunnFelt('undersider'), skjultFelt,
   ],
   validation: (r) =>
     r.custom(async (_v, { document, getClient }) => {
@@ -112,7 +113,7 @@ export const ansvarsliste = defineType({
     defineField({ name: 'utvalg', title: 'Bare fra', description: 'La stå tomt for å vise ansvarsområder fra alle utvalg.', type: 'reference', to: [{ type: 'utvalg' }] }),
     defineField({ name: 'visAnnet', title: 'Vis «Gjelder det noe annet?»', description: 'En linje under kortene med styrets e-post fra «Om borettslaget».', type: 'boolean', initialValue: true }),
     breddeFelt('ansvarsliste'),
-    bakgrunnFelt('ansvarsliste'),
+    bakgrunnFelt('ansvarsliste'), skjultFelt,
   ],
   validation: (r) =>
     r.custom(async (_v, { getClient }) => {
@@ -144,7 +145,7 @@ export const arrangementer = defineType({
       validation: (r) => r.required(),
     }),
     breddeFelt('arrangementer'),
-    bakgrunnFelt('arrangementer'),
+    bakgrunnFelt('arrangementer'), skjultFelt,
   ],
   preview: {
     select: { tittel: 'tittel', kategori: 'kategori' },
@@ -173,7 +174,7 @@ export const oppgaver = defineType({
       validation: (r) => r.required().min(1).unique(),
     }),
     breddeFelt('oppgaver'),
-    bakgrunnFelt('oppgaver'),
+    bakgrunnFelt('oppgaver'), skjultFelt,
   ],
   preview: {
     select: { tittel: 'tittel', a: 'oppgaver.0.tittel', b: 'oppgaver.1.tittel' },
@@ -198,7 +199,7 @@ export const abcUtgaver = defineType({
     }),
     defineField({ name: 'innspillEpost', title: 'Innspill – e-post', description: 'La stå tomt for å bruke styrets e-post fra «Om borettslaget».', type: 'email' }),
     breddeFelt('abcUtgaver'),
-    bakgrunnFelt('abcUtgaver'),
+    bakgrunnFelt('abcUtgaver'), skjultFelt,
   ],
   preview: { prepare: () => ({ title: 'ABC-nytt-utgaver', subtitle: 'Siste utgave, tidligere utgaver og arkiv' }) },
 });
@@ -225,7 +226,7 @@ export const fargebaand = defineType({
       type: 'boolean',
       initialValue: false,
     }),
-    bakgrunnFelt('fargebaand'),
+    bakgrunnFelt('fargebaand'), skjultFelt,
   ],
   preview: { select: { title: 'tittel', subtitle: 'overtittel', kart: 'kart' }, prepare: ({ title, subtitle, kart }) => ({ title, subtitle: `Tekst i bånd${subtitle ? ` · ${subtitle}` : ''}${kart ? ' · med kart' : ''}` }) },
 });
@@ -240,7 +241,7 @@ export const borettslagsfakta = defineType({
     defineField({ name: 'tittel', title: 'Overskrift', description: 'Brukes også som snarvei øverst på siden.', type: 'string', initialValue: 'Fakta' }),
     defineField({ name: 'ingress', title: 'Tekst ved overskriften', type: 'string', initialValue: 'Offisielle opplysninger om borettslaget, blant annet til bruk ved kjøp og salg.' }),
     breddeFelt('borettslagsfakta'),
-    bakgrunnFelt('borettslagsfakta'),
+    bakgrunnFelt('borettslagsfakta'), skjultFelt,
   ],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Fakta', subtitle: 'Fakta om borettslaget (fra «Om borettslaget»)' }) },
 });
@@ -272,7 +273,7 @@ export const punkter = defineType({
       validation: (r) => r.required().min(1).max(6),
     }),
     breddeFelt('punkter'),
-    bakgrunnFelt('punkter'),
+    bakgrunnFelt('punkter'), skjultFelt,
   ],
   preview: { select: { title: 'tittel', a: 'punkter.0.tittel', b: 'punkter.1.tittel' }, prepare: ({ title, a, b }) => ({ title, subtitle: `Punkter · ${[a, b].filter(Boolean).join(', ')} …` }) },
 });
@@ -292,7 +293,7 @@ export const oppfordring = defineType({
     defineField({ name: 'lenke', title: 'Ekstra knapp (valgfri)', description: 'En lys knapp foran den mørke, f.eks. «Dokumentsenter».', type: 'lenke' }),
     defineField({ name: 'utenIkon', title: 'Uten ikon', description: 'Skjuler det lille ikonet til venstre.', type: 'boolean', initialValue: false }),
     breddeFelt('oppfordring'),
-    bakgrunnFelt('oppfordring'),
+    bakgrunnFelt('oppfordring'), skjultFelt,
   ],
   preview: { select: { title: 'tittel', subtitle: 'knapp' }, prepare: ({ title, subtitle }) => ({ title, subtitle: `Oppfordring · ${subtitle ?? ''}` }) },
 });
@@ -314,7 +315,7 @@ export const sporsmal = defineType({
       of: [defineArrayMember({ type: 'reference', to: [{ type: 'vanligSporsmal' }] })],
       validation: (r) => r.required().min(1).unique(),
     }),
-    bakgrunnFelt('sporsmal'),
+    bakgrunnFelt('sporsmal'), skjultFelt,
   ],
   preview: { select: { title: 'tittel', a: 'sporsmal.0.sporsmal' }, prepare: ({ title, a }) => ({ title: title || 'Vanlige spørsmål', subtitle: a ? `Spørsmål · ${a} …` : 'Spørsmål' }) },
 });
@@ -335,7 +336,7 @@ export const generalforsamlinger = defineType({
       type: 'string',
     }),
     breddeFelt('generalforsamlinger'),
-    bakgrunnFelt('generalforsamlinger'),
+    bakgrunnFelt('generalforsamlinger'), skjultFelt,
   ],
   preview: { select: { title: 'tittel', subtitle: 'neste' }, prepare: ({ title, subtitle }) => ({ title: title || 'Protokoller', subtitle: `Generalforsamlinger${subtitle ? ` · Neste: ${subtitle}` : ''}` }) },
 });
@@ -365,7 +366,7 @@ export const regelverk = defineType({
       initialValue: 'https://lovdata.no/dokument/NL/lov/2003-06-06-39',
     }),
     breddeFelt('regelverk'),
-    bakgrunnFelt('regelverk'),
+    bakgrunnFelt('regelverk'), skjultFelt,
   ],
   preview: {
     select: { a: 'dokumenter.0.tittel', b: 'dokumenter.1.tittel', lov: 'lovTittel', url: 'lovUrl' },
@@ -401,7 +402,7 @@ export const nivaaer = defineType({
       validation: (r) => r.required().min(2).max(4),
     }),
     breddeFelt('nivaaer'),
-    bakgrunnFelt('nivaaer'),
+    bakgrunnFelt('nivaaer'), skjultFelt,
   ],
   preview: { select: { title: 'tittel', a: 'nivaaer.0.tittel', b: 'nivaaer.1.tittel' }, prepare: ({ title, a, b }) => ({ title, subtitle: `Nivåer · ${[a, b].filter(Boolean).join(' › ')} …` }) },
 });
@@ -433,7 +434,7 @@ export const relatert = defineType({
       validation: (r) => r.required().min(1),
     }),
     breddeFelt('relatert'),
-    bakgrunnFelt('relatert'),
+    bakgrunnFelt('relatert'), skjultFelt,
   ],
   preview: { select: { tittel: 'tittel', a: 'lenker.0.side.tittel', b: 'lenker.1.side.tittel' }, prepare: ({ tittel, a, b }) => ({ title: tittel || 'Relatert', subtitle: `Relatert · ${[a, b].filter(Boolean).join(', ')}` }) },
 });
@@ -480,7 +481,7 @@ export const seksjoner = defineType({
   name: 'seksjoner',
   title: 'Innhold',
   type: 'array',
-  of: GRUPPER.flatMap((g) => g.of).map((type) => defineArrayMember({ type })),
+  of: GRUPPER.flatMap((g) => g.of).map((type) => defineArrayMember({ type, components: { item: SeksjonRad } })),
   options: { insertMenu: { showIcons: true, views: [{ name: 'list' }], groups: GRUPPER } },
   validation: (r) =>
     r.custom((liste: { _type: string; _key: string }[] | undefined) => {

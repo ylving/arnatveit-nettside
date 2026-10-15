@@ -35,6 +35,9 @@ export const bakgrunnFelt = (type: string) =>
     hidden: ({ path, document }) => path[0] !== 'seksjoner' || !['side', 'forside'].includes(document?._type ?? ''),
   });
 
+/** Set by the show/hide switch on the section's row in the list (SeksjonRad); not shown in the form */
+export const skjultFelt = defineField({ name: 'skjult', title: 'Skjult', type: 'boolean', hidden: true });
+
 /** Link annotation for rich text (internal document or external/mailto/tel) */
 export const lenkeAnnotasjon = {
   name: 'link',
@@ -56,7 +59,7 @@ export const bilde = defineType({
     defineField({ name: 'alt', title: 'Alternativ tekst', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'bildetekst', title: 'Bildetekst', type: 'string' }),
     breddeFelt('bilde'),
-    bakgrunnFelt('bilde'),
+    bakgrunnFelt('bilde'), skjultFelt,
   ],
   preview: { select: { media: 'asset', title: 'bildetekst', subtitle: 'alt' }, prepare: ({ media, title, subtitle }) => ({ media, title: title || subtitle || 'Bilde', subtitle: 'Bilde' }) },
 });
@@ -93,7 +96,7 @@ export const dokumentliste = defineType({
       description: 'Tidslinjen og søket ser best ut med Bredde «Bred» eller «Breakout».',
     }),
     breddeFelt('dokumentliste'),
-    bakgrunnFelt('dokumentliste'),
+    bakgrunnFelt('dokumentliste'), skjultFelt,
   ],
   preview: {
     select: { title: 'tittel', a: 'kategorier.0.tittel', b: 'kategorier.1.tittel', c: 'kategorier.2.tittel', visning: 'visning' },
@@ -127,7 +130,7 @@ export const medlemsliste = defineType({
       initialValue: 'rader',
     }),
     breddeFelt('medlemsliste'),
-    bakgrunnFelt('medlemsliste'),
+    bakgrunnFelt('medlemsliste'), skjultFelt,
   ],
   preview: {
     select: { tittel: 'tittel', utvalg: 'utvalg.navn', medlemmer: 'utvalg.medlemmer' },
@@ -161,7 +164,7 @@ export const nokkeltall = defineType({
       validation: (r) => r.required().min(1).max(4),
     }),
     breddeFelt('nokkeltall'),
-    bakgrunnFelt('nokkeltall'),
+    bakgrunnFelt('nokkeltall'), skjultFelt,
   ],
   preview: {
     select: { tittel: 'tittel', a: 'tall.0.verdi', b: 'tall.1.verdi', c: 'tall.2.verdi' },
@@ -197,7 +200,7 @@ export const kontaktinfo = defineType({
       validation: (r) => r.max(4),
     }),
     breddeFelt('kontaktinfo'),
-    bakgrunnFelt('kontaktinfo'),
+    bakgrunnFelt('kontaktinfo'), skjultFelt,
   ],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Kontaktinfo', subtitle: 'Kontaktinfo (fra «Om borettslaget»)' }) },
 });

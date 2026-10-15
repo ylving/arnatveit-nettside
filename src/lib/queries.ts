@@ -4,7 +4,7 @@ export const DOC_REF_FIELDS = `_type, "slug": slug.current, "forelder": forelder
 export const DOC_REF = `{ ${DOC_REF_FIELDS} }`;
 export const SIDE_KORT = `{ ${DOC_REF_FIELDS}, tittel, kort, ikon }`;
 // A link; to a "Jeg vil …" task it carries the page that has the task (docHref adds the #oppgave-… anchor)
-export const LINK = `{ tekst, url, "intern": intern->{ ${DOC_REF_FIELDS}, _id, _type == "oppgave" => { "side": *[_type == "side" && ^._id in seksjoner[].oppgaver[]._ref][0]${DOC_REF} } } }`;
+export const LINK = `{ tekst, url, "intern": intern->{ ${DOC_REF_FIELDS}, _id, _type == "oppgave" => { "side": *[_type == "side" && ^._id in seksjoner[skjult != true].oppgaver[]._ref][0]${DOC_REF} } } }`;
 // A general assembly's name, as gfNavn() in sanity/standarder.ts
 const GF_TITTEL = `select(type == "ekstraordinaer" => "Ekstraordinær generalforsamling ", "Generalforsamling ") + string::split(dato, "-")[0]`;
 
@@ -46,7 +46,8 @@ export const NYHET_SEKSJONER = `seksjoner[]{
 }`;
 
 // Page builder sections (side.seksjoner)
-export const SEKSJONER = `seksjoner[]{
+// Hidden sections (`skjult`, the switch on the section's row in the Studio) are left out here
+export const SEKSJONER = `seksjoner[skjult != true]{
   ...,
   _type == "tekst" => { ..., innhold[]{ ..., ${MARKDEFS} } },
   _type == "medlemsliste" => { ..., "utvalg": utvalg->{ _id, navn, beskrivelse, medlemmer } },
@@ -114,5 +115,7 @@ export const SIDE_PATHS = `*[_type == "side" && defined(slug.current)]{ "slug": 
 export const SIDE = `*[_type == "side" && slug.current == $slug][0]{
   _id, tittel, overskrift, ingress, kontaktboks, snarveier, "slug": slug.current, seo, ${SEKSJONER},
   "forelder": forelder->{ tittel, "slug": slug.current },
-  "barn": *[_type == "side" && forelder._ref == ^._id] | order(rekkefolge asc)${SIDE_KORT}
+  "barn": *[_type == "side" && forelder._ref == ^._id] | order(rekkefolge asc)${SIDE_KORT},
+  // A hidden "Undersider" section hides the child page cards too (otherwise they're added at the end)
+  "undersiderSkjult": count(seksjoner[_type == "undersider" && skjult == true]) > 0
 }`;

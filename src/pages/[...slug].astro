@@ -49,5 +49,5 @@ const snarveier = side.snarveier ? (side.seksjoner ?? []).map(seksjonAnker).filt
       {gfSiste && <GfSiste mote={gfSiste} neste={gfSeksjon.neste} />}
     </header>
   </div>
-  <Seksjoner seksjoner={side.seksjoner} kontakt={kontakt} barn={side.barn} />
+  <Seksjoner seksjoner={side.seksjoner} kontakt={kontakt} barn={side.undersiderSkjult ? [] : side.barn} />
 </Base>

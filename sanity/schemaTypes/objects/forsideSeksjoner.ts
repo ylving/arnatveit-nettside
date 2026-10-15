@@ -4,7 +4,8 @@ import { defineArrayMember, defineField, defineType } from 'sanity';
 import { lucideIkon } from '../../components/LucideIkon';
 import { IkonVelger } from '../../components/IkonVelger';
 import { NAA_STYRET } from '../../standarder';
-import { bakgrunnFelt } from './blocks';
+import { bakgrunnFelt, skjultFelt } from './blocks';
+import { SeksjonRad } from '../../components/SeksjonRad';
 
 export const forsideFakta = defineType({
   name: 'forsideFakta',
@@ -35,7 +36,7 @@ export const forsideFakta = defineType({
         }),
       ],
     }),
-    bakgrunnFelt('forsideFakta'),
+    bakgrunnFelt('forsideFakta'), skjultFelt,
   ],
   preview: { select: { title: 'tittel', subtitle: 'overtittel' }, prepare: ({ title, subtitle }) => ({ title: title || 'Å bo her', subtitle: `Faktakort${subtitle ? ` · ${subtitle}` : ''}` }) },
 });
@@ -46,7 +47,7 @@ export const forsideAktuelt = defineType({
   type: 'object',
   icon: lucideIkon('Newspaper'),
   description: 'Den nyeste nyheten stort (eller den som er festet øverst), og de tre neste ved siden av. Lages av seg selv fra Nyheter.',
-  fields: [defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Aktuelt' }), bakgrunnFelt('forsideAktuelt')],
+  fields: [defineField({ name: 'tittel', title: 'Overskrift', type: 'string', initialValue: 'Aktuelt' }), bakgrunnFelt('forsideAktuelt'), skjultFelt],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Aktuelt', subtitle: 'De nyeste nyhetene' }) },
 });
 
@@ -70,7 +71,7 @@ export const forsideNaa = defineType({
         defineField({ name: 'tekst', title: 'Tekst', type: 'text', rows: 2, placeholder: NAA_STYRET.tekst }),
       ],
     }),
-    bakgrunnFelt('forsideNaa'),
+    bakgrunnFelt('forsideNaa'), skjultFelt,
   ],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'I borettslaget nå', subtitle: 'Neste arrangement, siste ABC-nytt og «Skriv til styret»' }) },
 });
@@ -84,7 +85,7 @@ export const forsidePraktisk = defineType({
   fields: [
     defineField({ name: 'tittel', title: 'Overskrift', description: 'Lenker til Praktisk info-siden.', type: 'string', initialValue: 'Praktisk info' }),
     defineField({ name: 'ingress', title: 'Tekst ved overskriften', description: 'La stå tomt for å bruke ingressen til Praktisk info-siden.', type: 'string' }),
-    bakgrunnFelt('forsidePraktisk'),
+    bakgrunnFelt('forsidePraktisk'), skjultFelt,
   ],
   preview: { select: { tittel: 'tittel' }, prepare: ({ tittel }) => ({ title: tittel || 'Praktisk info', subtitle: 'Kort for sidene under Praktisk info' }) },
 });
@@ -107,7 +108,7 @@ export const forsideDokumentsenter = defineType({
       of: [{ type: 'reference', to: [{ type: 'oppgave' }, { type: 'dokument' }] }],
       validation: (r) => r.max(4),
     }),
-    bakgrunnFelt('forsideDokumentsenter'),
+    bakgrunnFelt('forsideDokumentsenter'), skjultFelt,
   ],
   preview: { select: { title: 'tittel' }, prepare: ({ title }) => ({ title: title || 'Dokumentsenter-boks', subtitle: 'Dokumentsenter-boks' }) },
 });
@@ -118,7 +119,7 @@ export const forsideSeksjoner = defineType({
   name: 'forsideSeksjoner',
   title: 'Seksjoner',
   type: 'array',
-  of: TYPER.map((type) => defineArrayMember({ type })),
+  of: TYPER.map((type) => defineArrayMember({ type, components: { item: SeksjonRad } })),
   options: { insertMenu: { showIcons: true, views: [{ name: 'list' }] } },
   // Each module once: they show the same data, so a second copy would only repeat it
   validation: (r) =>
